@@ -8,7 +8,7 @@
   "javascript": {
     "framework": "react",
     "config": {
-      "SourceDir": "pages",
+      "SourceDir": "./",
       "DistributionDir": "build",
       "BuildCommand": "npx next build && next export",
       "StartCommand": "npx next dev"
