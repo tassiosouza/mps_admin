@@ -1,0 +1,83 @@
+type MpsRoute @model @auth(rules: [{allow: public}]) @mapsTo(name: "Route") {
+  id: ID!
+  cost: Float
+  startTime: AWSTimestamp
+  endTime: AWSTimestamp
+  status: RouteStatus
+  name: String!
+  orders: [MpOrder] @hasMany(indexName: "byRoute", fields: ["id"])
+  driver: Driver @hasOne
+  distance: Int
+  duration: Int
+}
+
+type Coordinates @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  latitude: Float!
+  longitude: Float!
+}
+
+enum RouteStatus {
+  PLANNED
+  INITIATED
+  CHECKING_BAGS
+  IN_TRANSIT
+  DONE
+  ON_HOLD
+  ABORTED
+  SENDING_WELCOME_MESSAGES
+}
+
+enum OrderStatus {
+  RECEIVED
+  IN_TRANSIT
+  DELIVERED
+  CHECKED
+}
+
+enum MpsOrderStatus {
+  RECEIVED
+  IN_TRANSIT
+  DELIVERED
+  CHECKED
+  CANCELED
+}
+
+type MpOrder @model @auth(rules: [{allow: public}]) @mapsTo(name: "MpsOrder") {
+  id: ID!
+  number: String!
+  deliveryInstruction: String
+  mealsInstruction: String
+  status: MpsOrderStatus
+  customer: Customer @hasOne
+  eta: Int
+  routeID: ID! @index(name: "byRoute")
+}
+
+type Customer @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  address: String!
+  plan: String
+  phone: String!
+  owner: String
+  coordinates: Coordinates @hasOne
+}
+
+type Driver @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  email: String!
+  phone: String
+  carCapacity: Int
+  owner: String!
+  onBoard: Boolean
+}
+
+type Todo @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  description: String
+  isComplete: Boolean!
+  owner: String!
+}

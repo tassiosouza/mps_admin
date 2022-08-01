@@ -1,0 +1,16 @@
+{
+  "resourceName": "s3mpsdriverappstoragedev",
+  "bucketName": "mps-driver-app-storage-dev",
+  "policyUUID": "1d4c172c",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "DELETE",
+    "READ",
+    "CREATE_AND_UPDATE"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ]
+}
