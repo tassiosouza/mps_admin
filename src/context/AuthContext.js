@@ -10,9 +10,6 @@ import axios from 'axios'
 // ** Config
 import authConfig from 'src/configs/auth'
 
-//Amplify Auth
-import { Auth } from 'aws-amplify'
-
 // ** Defaults
 const defaultProvider = {
   user: null,
@@ -39,42 +36,58 @@ const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       setIsInitialized(true)
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
-      console.log('stored toke - ' + storedToken)
       if (storedToken) {
         setLoading(true)
-        
+        await axios
+          .get(authConfig.meEndpoint, {
+            headers: {
+              Authorization: storedToken
+            }
+          })
+          .then(async response => {
             setLoading(false)
-            setUser(Auth.currentAuthenticatedUser())
-            console.log('setted: ' + Auth.currentAuthenticatedUser())
-         
-            
-         
-      } else {
-        setLoading(false)
-        console.log('error: ' +  Auth.currentAuthenticatedUser())
+            console.log('setting user data on router')
+            setUser({ ...response.data.userData })
+          })
+          .catch(() => {
             localStorage.removeItem('userData')
             localStorage.removeItem('refreshToken')
             localStorage.removeItem('accessToken')
             setUser(null)
+            setLoading(false)
+          })
+      } else {
+        setLoading(false)
       }
     }
     initAuth()
   }, [])
 
   const handleLogin = (params, errorCallback) => {
-    Auth.signIn(params.email, params.password).then((user) => {
-      console.log('logado' + JSON.stringify(params))
-      setUser(user)
-      window.localStorage.setItem(authConfig.storageTokenKeyName, user.attributes.sub)
+    axios
+      .post(authConfig.loginEndpoint, params)
+      .then(async res => {
+        window.localStorage.setItem(authConfig.storageTokenKeyName, res.data.accessToken)
       })
-      .then(async response => {
-        const returnUrl = router.query.returnUrl
-        await window.localStorage.setItem('userData', JSON.stringify({name:'fdsffds'}))
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-        router.replace(redirectURL)   
-      }).catch(err => {
-            if (errorCallback) errorCallback(err)
+      .then(() => {
+        axios
+          .get(authConfig.meEndpoint, {
+            headers: {
+              Authorization: window.localStorage.getItem(authConfig.storageTokenKeyName)
+            }
           })
+          .then(async response => {
+            const returnUrl = router.query.returnUrl
+            setUser({ ...response.data.userData })
+            console.log('setting user data on login')
+            await window.localStorage.setItem('userData', JSON.stringify(response.data.userData))
+            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            router.replace(redirectURL)
+          })
+      })
+      .catch(err => {
+        if (errorCallback) errorCallback(err)
+      })
   }
 
   const handleLogout = () => {

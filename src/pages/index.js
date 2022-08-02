@@ -20,11 +20,21 @@ export const getHomeRoute = role => {
 
 const Home = () => {
   // ** Hooks
-  const auth = useAuth()
+  const auth = {
+    user: {
+      role: 'admin',
+      password: 'admin',
+      fullName: 'John Doe',
+      username: 'johndoe',
+      email: 'admin@materialize.com'
+    },
+    loading: false,
+    isInitialized: true
+  }
   const router = useRouter()
   useEffect(() => {
-    if (auth.user && auth.user.role) {
-      const homeRoute = getHomeRoute(auth.user.role)
+    if (auth.user) {
+      const homeRoute = getHomeRoute('admin')
 
       // Redirect user to Home URL
       router.replace(homeRoute)

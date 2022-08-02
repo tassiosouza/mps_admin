@@ -102,9 +102,10 @@ mock.onGet('/auth/me').reply(config => {
     const { id: userId } = decoded.payload
     const userData = JSON.parse(JSON.stringify(users.find(u => u.id === userId)))
     delete userData.password
-
+    console.log('authorized');
     return [200, { userData }]
   } else {
+    console.log('not authorized');
     return [401, { error: { error: 'Invalid User' } }]
   }
 })
