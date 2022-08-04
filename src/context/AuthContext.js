@@ -41,19 +41,21 @@ const AuthProvider = ({ children }) => {
       console.log("token " + storedToken);
       if (storedToken) {
         setLoading(true)
-        Auth.currentAuthenticatedUser(user)
-          .then(async response => {
-            setLoading(false)
-            setUser(user.attributes)
-            log('user is authenticated')
-          })
-          .catch(() => {
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
-            setUser(null)
-            setLoading(false)
-          })
+        const currentUser = await Auth.currentAuthenticatedUser();
+        console.log(currentUser)
+        if(currentUser) {
+          setLoading(false)
+          setUser(currentUser.attributes)
+          console.log('user is authenticated')
+        }
+        else {
+          console.log('removing authenticated user: ' + JSON.stringify(err) )
+          localStorage.removeItem('userData')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('accessToken')
+          setUser(null)
+          setLoading(false)
+        }
       } else {
         console.log("no token");
         setLoading(false)
@@ -75,6 +77,8 @@ const AuthProvider = ({ children }) => {
             await window.localStorage.setItem('userData', JSON.stringify(user.attributes))
             const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
             router.replace(redirectURL)
+          }).catch(() => {
+            console.log('error when logging')
           })
       })
       .catch(err => {
@@ -83,11 +87,17 @@ const AuthProvider = ({ children }) => {
   }
 
   const handleLogout = () => {
-    setUser(null)
-    setIsInitialized(false)
-    window.localStorage.removeItem('userData')
-    window.localStorage.removeItem(authConfig.storageTokenKeyName)
-    router.push('/login')
+    
+    Auth.signOut().then(() => {
+      setUser(null)
+      setIsInitialized(false)
+      window.localStorage.removeItem('userData')
+      window.localStorage.removeItem(authConfig.storageTokenKeyName)
+      router.push('/login')
+    }).catch((err) => {
+      console.log('Error: ' + err.toString())
+    })
+    
   }
 
   const handleRegister = (params, errorCallback) => {
