@@ -10,7 +10,6 @@ import { useAuth } from 'src/hooks/useAuth'
 const AuthGuard = props => {
   const { children, fallback } = props
   const auth = useAuth()
-  console.log(JSON.stringify(auth));
   const router = useRouter()
   useEffect(
     () => {

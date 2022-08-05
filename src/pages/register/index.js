@@ -21,6 +21,8 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 import MuiFormControlLabel from '@mui/material/FormControlLabel'
+import Snackbar from '@mui/material/Snackbar';
+
 
 // ** Icons Imports
 import Google from 'mdi-material-ui/Google'
@@ -34,6 +36,8 @@ import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm, Controller } from 'react-hook-form'
+import InputMask from "react-input-mask";
+import ReactCodeInput from 'react-verification-code-input';
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
@@ -47,12 +51,15 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+import { Container } from '@mui/system'
 
 const defaultValues = {
   email: '',
-  username: '',
+  fullName: '',
+  phoneNumber:'',
   password: '',
-  terms: false
+  passwordConfirmation:'',
+  terms: true
 }
 
 // ** Styled Components
@@ -106,9 +113,19 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   }
 }))
 
+const VerificationCodeInput = styled(ReactCodeInput)(({ theme }) => ({
+  marginTop: theme.spacing(20),
+  marginBottom: theme.spacing(10),
+}))
+
 const Register = () => {
   // ** States
   const [showPassword, setShowPassword] = useState(false)
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false)
+  const [openSnackbarError, setOpenSnackbarError] = useState(false)
+  const [confirmingSignUp, setConfirmingSignUp] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [confirmationCode, setConfirmationCode] = useState('')
 
   // ** Hooks
   const theme = useTheme()
@@ -119,9 +136,14 @@ const Register = () => {
   // ** Vars
   const { skin } = settings
 
+  const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+
   const schema = yup.object().shape({
     password: yup.string().min(5).required(),
-    username: yup.string().min(3).required(),
+    passwordConfirmation: yup.string()
+    .oneOf([yup.ref('password'), null], 'Passwords must match'),
+    fullName: yup.string().min(3).required(),
+    phoneNumber: yup.string().matches(phoneRegExp, 'Phone number is not valid'),
     email: yup.string().email().required(),
     terms: yup.bool().oneOf([true], 'You must accept the privacy policy & terms')
   })
@@ -137,24 +159,36 @@ const Register = () => {
     resolver: yupResolver(schema)
   })
 
-  const onSubmit = data => {
-    const { email, username, password } = data
-    register({ email, username, password }, err => {
-      if (err.email) {
-        setError('email', {
-          type: 'manual',
-          message: err.email
-        })
-      }
-      if (err.username) {
-        setError('username', {
-          type: 'manual',
-          message: err.username
-        })
-      }
-    })
-  }
   const imageSource = skin === 'bordered' ? 'auth-v2-register-illustration-bordered' : 'auth-v2-register-illustration'
+
+  // ** Functions
+  const onSubmit = data => {
+
+    if(data.email != null){
+      const { email, fullName, password } = data
+      register({ email, fullName, password }, response => {
+        setUserEmail(email)
+
+        if (response.error) {
+          setConfirmingSignUp(true)
+          setOpenSnackbarError(true)
+        }else {
+          setConfirmingSignUp(true)
+        }
+      })
+    }
+    else {
+      register({confirmationCode: confirmationCode}, response => {
+        if (response.error) {
+          setOpenSnackbarError(true)
+        }
+      })
+    }
+  }
+
+  const onConfirmationCodeChange = (code) => {
+    setConfirmationCode(code)
+  }
 
   return (
     <Box className='content-right'>
@@ -265,6 +299,8 @@ const Register = () => {
                 {themeConfig.templateName}
               </Typography>
             </Box>
+            {!confirmingSignUp ? (
+            <Container>
             <Box sx={{ mb: 6 }}>
               <TypographyStyled variant='h5'>Adventure starts here 🚀</TypographyStyled>
               <Typography variant='body2'>Make your app management easy and fun!</Typography>
@@ -272,7 +308,7 @@ const Register = () => {
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
               <FormControl fullWidth sx={{ mb: 4 }}>
                 <Controller
-                  name='username'
+                  name='fullName'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange, onBlur } }) => (
@@ -280,15 +316,15 @@ const Register = () => {
                       autoFocus
                       value={value}
                       onBlur={onBlur}
-                      label='Username'
+                      label='Full Name'
                       onChange={onChange}
-                      placeholder='johndoe'
-                      error={Boolean(errors.username)}
+                      placeholder='Full Name'
+                      error={Boolean(errors.fullName)}
                     />
                   )}
                 />
-                {errors.username && (
-                  <FormHelperText sx={{ color: 'error.main' }}>{errors.username.message}</FormHelperText>
+                {errors.fullName && (
+                  <FormHelperText sx={{ color: 'error.main' }}>{errors.fullName.message}</FormHelperText>
                 )}
               </FormControl>
               <FormControl fullWidth sx={{ mb: 4 }}>
@@ -309,7 +345,29 @@ const Register = () => {
                 />
                 {errors.email && <FormHelperText sx={{ color: 'error.main' }}>{errors.email.message}</FormHelperText>}
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <Controller
+                  name='phoneNumber'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <InputMask mask="999-999-9999"
+                      onBlur={onBlur}
+                      onChange={onChange}
+                      value={value}
+                      error={Boolean(errors.phoneNumber)} >
+                        <TextField
+                          
+                          label='Phone Number'
+                          
+                          placeholder="(xxx) xxx-xxxx"
+                        />
+                    </InputMask>
+                  )}
+                />
+                {errors.email && <FormHelperText sx={{ color: 'error.main' }}>{errors.email.message}</FormHelperText>}
+              </FormControl>
+              <FormControl fullWidth sx={{ mb: 4 }}>
                 <InputLabel htmlFor='auth-login-v2-password' error={Boolean(errors.password)}>
                   Password
                 </InputLabel>
@@ -344,7 +402,41 @@ const Register = () => {
                   <FormHelperText sx={{ color: 'error.main' }}>{errors.password.message}</FormHelperText>
                 )}
               </FormControl>
-
+              <FormControl fullWidth>
+                <InputLabel htmlFor='auth-login-v2-passwordConfirmation' error={Boolean(errors.passwordConfirmation)}>
+                  Confirm Password
+                </InputLabel>
+                <Controller
+                  name='passwordConfirmation'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <OutlinedInput
+                      value={value}
+                      label='Confirm Password'
+                      onBlur={onBlur}
+                      onChange={onChange}
+                      id='auth-login-v2-passwordConfirmation'
+                      error={Boolean(errors.passwordConfirmation)}
+                      type={showPasswordConfirmation ? 'text' : 'password'}
+                      endAdornment={
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
+                          >
+                            {showPasswordConfirmation ? <EyeOutline /> : <EyeOffOutline />}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                    />
+                  )}
+                />
+                {errors.passwordConfirmation && (
+                  <FormHelperText sx={{ color: 'error.main' }}>{errors.passwordConfirmation.message}</FormHelperText>
+                )}
+              </FormControl>
               <FormControl sx={{ my: 0 }} error={Boolean(errors.terms)}>
                 <Controller
                   name='terms'
@@ -432,9 +524,29 @@ const Register = () => {
                 </Link>
               </Box>
             </form>
+            </Container>
+            ) : (<Container>
+              <Box sx={{ mb: 6 }}>
+              <TypographyStyled variant='h5'>Enter confirmation code</TypographyStyled>
+              <Typography variant='body2'>Finish you registration at Meal Prep Sunday Admin by entering the confirmation code sent to your email: {userEmail}.</Typography>
+              <VerificationCodeInput 
+                placeholder='------'
+                onChange={onConfirmationCodeChange} />
+              <Button fullWidth size='large' onClick={onSubmit} variant='contained' sx={{ mb: 7 }}>
+                Confirm
+              </Button>
+            </Box>
+            </Container>)}
           </BoxWrapper>
         </Box>
       </RightWrapper>
+      <Snackbar
+        severity="error"
+        open={openSnackbarError}
+        onClose={() =>setOpenSnackbarError(false)}
+        autoHideDuration={5000}
+        message="An error occurred while creating your account. Please contact the admin."
+      />
     </Box>
   )
 }

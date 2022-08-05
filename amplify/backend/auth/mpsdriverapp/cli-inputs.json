@@ -2,8 +2,8 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "testAuthIdentityPool",
-    "allowUnauthenticatedIdentities": true,
-    "resourceNameTruncated": "mpsdri6ae300f7",
+    "allowUnauthenticatedIdentities": false,
+    "resourceNameTruncated": "mpsdric4369d13",
     "userPoolName": "mpsdriverapp",
     "autoVerifiedAttributes": [
       "email"
@@ -13,20 +13,20 @@
       "SMS Text Message"
     ],
     "smsAuthenticationMessage": "Your authentication code is {####}",
-    "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Verification code: {####}",
-    "emailVerificationMessage": "Verification code: {####}",
-    "defaultPasswordPolicy": false,
+    "smsVerificationMessage": "Your verification code for MPS is {####}",
+    "emailVerificationSubject": "Your verification code",
+    "emailVerificationMessage": "Your verification code is {####}",
+    "defaultPasswordPolicy": true,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [
       "Requires Lowercase",
+      "Requires Uppercase",
       "Requires Numbers",
-      "Requires Symbols",
-      "Requires Uppercase"
+      "Requires Symbols"
     ],
     "requiredAttributes": [
-      "email",
       "name",
+      "email",
       "phone_number"
     ],
     "aliasAttributes": [],
@@ -34,9 +34,9 @@
     "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [],
     "userpoolClientReadAttributes": [],
-    "userpoolClientLambdaRole": "mpsdri6ae300f7_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "mpsdric4369d13_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "6ae300f7",
+    "sharedId": "c4369d13",
     "resourceName": "mpsdriverapp",
     "authSelections": "identityPoolAndUserPool",
     "serviceName": "Cognito",
@@ -64,6 +64,12 @@
       ]
     },
     "breakCircularDependency": true,
-    "dependsOn": []
+    "dependsOn": [],
+    "triggers": {},
+    "hostedUI": false,
+    "parentStack": {
+      "Ref": "AWS::StackId"
+    },
+    "permissions": []
   }
 }

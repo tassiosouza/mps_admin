@@ -11,6 +11,7 @@ import axios from 'axios'
 import authConfig from 'src/configs/auth'
 
 import Amplify, {Auth} from 'aws-amplify';
+import { ConsoleLine } from 'mdi-material-ui';
 
 // ** Defaults
 const defaultProvider = {
@@ -31,6 +32,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(defaultProvider.user)
   const [loading, setLoading] = useState(defaultProvider.loading)
   const [isInitialized, setIsInitialized] = useState(defaultProvider.isInitialized)
+  const [userInformation, setUserInformation] = useState(null)
 
   // ** Hooks
   const router = useRouter()
@@ -38,18 +40,14 @@ const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       setIsInitialized(true)
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
-      console.log("token " + storedToken);
       if (storedToken) {
         setLoading(true)
         const currentUser = await Auth.currentAuthenticatedUser();
-        console.log(currentUser)
         if(currentUser) {
           setLoading(false)
           setUser(currentUser.attributes)
-          console.log('user is authenticated')
         }
         else {
-          console.log('removing authenticated user: ' + JSON.stringify(err) )
           localStorage.removeItem('userData')
           localStorage.removeItem('refreshToken')
           localStorage.removeItem('accessToken')
@@ -57,7 +55,6 @@ const AuthProvider = ({ children }) => {
           setLoading(false)
         }
       } else {
-        console.log("no token");
         setLoading(false)
       }
     }
@@ -73,12 +70,10 @@ const AuthProvider = ({ children }) => {
           .then(async user => {
             const returnUrl = router.query.returnUrl
             setUser({ ...user.attributes })
-            console.log('setting user data on login')
             await window.localStorage.setItem('userData', JSON.stringify(user.attributes))
             const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
             router.replace(redirectURL)
           }).catch(() => {
-            console.log('error when logging')
           })
       })
       .catch(err => {
@@ -86,31 +81,64 @@ const AuthProvider = ({ children }) => {
       })
   }
 
-  const handleLogout = () => {
-    
-    Auth.signOut().then(() => {
+  const handleLogout = async () => {
+    try {
+      await Auth.signOut();
       setUser(null)
       setIsInitialized(false)
-      window.localStorage.removeItem('userData')
-      window.localStorage.removeItem(authConfig.storageTokenKeyName)
+      await window.localStorage.removeItem(authConfig.storageTokenKeyName)
       router.push('/login')
-    }).catch((err) => {
-      console.log('Error: ' + err.toString())
-    })
-    
+    }
+    catch(err) {
+      console.log('Error when performing AWS Logout')
+    }
   }
+  
 
-  const handleRegister = (params, errorCallback) => {
-    axios
-      .post(authConfig.registerEndpoint, params)
-      .then(res => {
-        if (res.data.error) {
-          if (errorCallback) errorCallback(res.data.error)
-        } else {
-          handleLogin({ email: params.email, password: params.password })
+  const handleRegister = async (params, errorCallback) => {
+
+    const {fullName, email, phoneNumber, password, confirmationCode} = params
+
+    if(email) {
+      try {
+        const response = await Auth.signUp({
+          username:email,
+          email,
+          password,
+          attributes: {
+            email,
+            name: fullName,
+            phone_number: phoneNumber
+          }
+        })
+        var userInfo = {username: response.user.username, password: password}
+        setUserInformation(userInfo)
+        errorCallback({user: userInformation})
+        } catch (err) {
+          errorCallback({error:'AWS amplify error when signup'})
         }
+    }
+    else {
+      await Auth.confirmSignUp(userInformation.username, confirmationCode.toString())
+      Auth.signIn(userInformation.username, userInformation.password).then( (user) => {
+        window.localStorage.setItem(authConfig.storageTokenKeyName, user.signInUserSession.accessToken.jwtToken)
       })
-      .catch(err => (errorCallback ? errorCallback(err) : null))
+      .then(() => {
+        Auth.currentAuthenticatedUser()
+          .then(async user => {
+            const returnUrl = router.query.returnUrl
+            setUser({ ...user.attributes })
+            await window.localStorage.setItem('userData', JSON.stringify(user.attributes))
+            const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+            router.replace(redirectURL)
+          }).catch(() => {
+          })
+      })
+      .catch(err => {
+        if (errorCallback) errorCallback(err)
+      })
+    }
+    
   }
 
   const values = {
