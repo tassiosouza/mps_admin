@@ -86,6 +86,7 @@ const AuthProvider = ({ children }) => {
       await Auth.signOut();
       setUser(null)
       setIsInitialized(false)
+      window.localStorage.removeItem('userData')
       await window.localStorage.removeItem(authConfig.storageTokenKeyName)
       router.push('/login')
     }
