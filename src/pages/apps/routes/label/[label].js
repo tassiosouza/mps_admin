@@ -5,7 +5,7 @@ import axios from 'axios'
 import RoutePlan from 'src/views/apps/routes/RoutePlan'
 
 const EmailApp = ({ label }) => {
-  return <Email label={label} />
+  return <RoutePlan label={label} />
 }
 
 export const getStaticPaths = async () => {
