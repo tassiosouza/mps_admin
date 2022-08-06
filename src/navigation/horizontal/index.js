@@ -35,6 +35,7 @@ import CheckboxMarkedOutline from 'mdi-material-ui/CheckboxMarkedOutline'
 import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 import ChartBellCurveCumulative from 'mdi-material-ui/ChartBellCurveCumulative'
 import CheckboxMarkedCircleOutline from 'mdi-material-ui/CheckboxMarkedCircleOutline'
+import CarTractionControl from 'mdi-material-ui/CarTractionControl'
 
 const navigation = () => {
   return [
@@ -63,6 +64,11 @@ const navigation = () => {
       icon: Apps,
       title: 'Apps',
       children: [
+        {
+          title: 'Routes',
+          icon: CarTractionControl,
+          path: '/apps/routes'
+        },
         {
           title: 'Email',
           icon: EmailOutline,

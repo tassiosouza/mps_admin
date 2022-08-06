@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useRef } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -35,13 +35,62 @@ import EmailOpenOutline from 'mdi-material-ui/EmailOpenOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import AlertOctagonOutline from 'mdi-material-ui/AlertOctagonOutline'
 import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
+import FileUploadOutline from 'mdi-material-ui/FileUploadOutline'
+import CogPlayOutline from 'mdi-material-ui/CogPlayOutline'
 
 // ** Third Party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
+import Papa from "papaparse";
 
 // ** Email App Component Imports
 import { setTimeout } from 'timers'
 import MailDetails from './MailDetails'
+
+// Allowed extensions for input file
+const allowedExtensions = ["csv"];
+
+const initialDrivers = [
+  {
+    name:'Jennifer',
+    carCapacity:7
+  },
+  {
+    name:'Carol',
+    carCapacity:7
+  },
+  {
+    name:'Marcos',
+    carCapacity:7
+  },
+  {
+    name:'Bruno',
+    carCapacity:7
+  },
+  {
+    name:'Alfredo',
+    carCapacity:7
+  },
+  {
+    name:'Larissa',
+    carCapacity:7
+  },
+  {
+    name:'Lucas',
+    carCapacity:7
+  },
+  {
+    name:'Tassio',
+    carCapacity:7
+  },
+  {
+    name:'Abtin',
+    carCapacity:7
+  },
+  {
+    name:'Pedro',
+    carCapacity:7
+  }
+]
 
 const MailItem = styled(ListItem)(({ theme }) => ({
   zIndex: 1,
@@ -94,6 +143,72 @@ const MailLog = props => {
   const [refresh, setRefresh] = useState(false)
   const [labelAnchorEl, setLabelAnchorEl] = useState(null)
   const [folderAnchorEl, setFolderAnchorEl] = useState(null)
+  const [orders, setOrders] = useState([])
+  const [drivers, setDrivers] = useState(initialDrivers)
+  const hiddenFileInput = useRef(null);
+
+  // This state will store the parsed data
+  const [data, setData] = useState([]); 
+  // It state will contain the error when
+  // correct file extension is not used
+  const [error, setError] = useState("");
+
+  // This function will be called when
+    // the file input changes
+    const handleFileChange = (e) => {
+      setError("");
+       
+      // Check if user has entered the file
+      if (e.target.files.length) {
+          const inputFile = e.target.files[0];
+           
+          // Check the file extensions, if it not
+          // included in the allowed extensions
+          // we show the error
+          const fileExtension = inputFile?.type.split("/")[1];
+          if (!allowedExtensions.includes(fileExtension)) {
+              setError("Please input a csv file");
+              return;
+          }
+
+          // If input type is correct set the state
+          handleParse(inputFile)
+      }
+  };
+  const handleParse = (file) => {
+       
+      // If user clicks the parse button without
+      // a file we show a error
+      if (!file) return setError("Enter a valid file");
+
+      // Initialize a reader which allows user
+      // to read any file or blob.
+      const reader = new FileReader();
+       
+      // Event listener on reader when the file
+      // loads, we parse it and set the data.
+      reader.onload = async ({ target }) => {
+          const csv = Papa.parse(target.result, { header: true });
+          const parsedData = csv?.data;
+          console.log(parsedData)
+          var orders = []
+          parsedData.map(order => {
+            if(orders.length < 80) {
+            orders.push({
+              orderNumber: order.number,
+              address: {
+                name: order.address,
+                lat: parseFloat(order.latitude),
+                long:parseFloat(order.longitude),
+              }
+            })
+          }
+          })
+          const columns = Object.keys(parsedData[0]);
+          setOrders(orders)
+      };
+      reader.readAsText(file);
+  };
 
   // ** Vars
   const openLabelMenu = Boolean(labelAnchorEl)
@@ -190,6 +305,7 @@ const MailLog = props => {
   const handleRefreshMailsClick = () => {
     setRefresh(true)
     setTimeout(() => setRefresh(false), 1000)
+    performRouteOptimization()
   }
 
   const renderLabelsMenu = () => {
@@ -290,6 +406,46 @@ const MailLog = props => {
     mail: store && store.currentMail ? store.currentMail : null
   }
 
+  const performRouteOptimization = () => {
+    const services = []
+    const vehicles = []
+
+    orders.map((order) => {
+      services.push({
+        id: order.orderNumber,
+        name: order.orderNumber,
+        address: {
+          location_id: order.orderNumber,
+          lon: order.address.long,
+          lat: order.address.lat
+        }
+      })
+    })
+
+    drivers.map((driver) => {
+      vehicles.push({
+        vehicle_id: driver.name,
+          start_address: {
+            location_id: 'location id',
+            lon: -117.2310085,
+            lat: 33.1522247
+          },
+          max_driving_time:18000
+      })
+    })
+
+    var body = {
+      vehicles,
+      services
+    }
+    console.log(JSON.stringify(body))
+    console.log('locations cout -> ' + orders.length)
+  }
+
+  const handleClick = event => {
+    hiddenFileInput.current.click();
+  };
+
   return (
     <Box sx={{ width: '100%', overflow: 'hidden', position: 'relative', '& .ps__rail-y': { zIndex: 5 } }}>
       <Box sx={{ height: '100%', backgroundColor: 'background.paper' }}>
@@ -302,7 +458,7 @@ const MailLog = props => {
             )}
             <Input
               value={query}
-              placeholder='Search email'
+              placeholder='Search mail'
               onChange={e => setQuery(e.target.value)}
               sx={{ width: '100%', '&:before, &:after': { display: 'none' } }}
               startAdornment={
@@ -387,13 +543,39 @@ const MailLog = props => {
               ) : null}
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton size='small' onClick={handleRefreshMailsClick}>
-                <Reload sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
+              <IconButton size='small' onClick={handleClick}>
+                <FileUploadOutline sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
+                <input
+                    onChange={handleFileChange}
+                    id="csvInput"
+                    name="file"
+                    type="File"
+                    ref={hiddenFileInput}
+                    style={{display: 'none'}}
+                />
               </IconButton>
-              <IconButton size='small'>
-                <DotsVertical sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
+              <IconButton size='small' onClick={performRouteOptimization}>
+                <CogPlayOutline sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
               </IconButton>
             </Box>
+            {/* <div>
+                <label htmlFor="csvInput" style={{ display: "block" }}>
+                    Enter CSV File
+                </label>
+                <input
+                    onChange={handleFileChange}
+                    id="csvInput"
+                    name="file"
+                    type="File"
+                />
+                <div>
+                    <button onClick={handleParse}>Parse</button>
+                </div>
+                <div style={{ marginTop: "3rem" }}>
+                    {error ? error : data.map((col,
+                      idx) => <div key={idx}>{col}</div>)}
+                </div>
+            </div> */}
           </Box>
         </Box>
         <Divider sx={{ m: 0 }} />
@@ -401,12 +583,12 @@ const MailLog = props => {
           <ScrollWrapper hidden={hidden}>
             {store && store.mails && store.mails.length ? (
               <List sx={{ p: 0 }}>
-                {store.mails.map((mail, index) => {
-                  const MailReadToggleIcon = mail.isRead ? EmailOutline : EmailOpenOutline
+                {orders.map((order, index) => {
+                  const MailReadToggleIcon = /*mail.isRead ? EmailOutline : EmailOpenOutline*/ false
 
                   return (
                     <Box
-                      key={mail.id}
+                      key={index}
                       sx={{
                         transition: 'all 0.15s ease-in-out',
                         '&:hover': {
@@ -423,11 +605,11 @@ const MailLog = props => {
                       }}
                     >
                       <MailItem
-                        sx={{ py: 2.75, backgroundColor: mail.isRead ? 'action.hover' : 'background.paper' }}
+                        sx={{ py: 2.75, backgroundColor: false ? 'action.hover' : 'background.paper' }}
                         onClick={() => {
                           setMailDetailsOpen(true)
-                          dispatch(getCurrentMail(mail.id))
-                          dispatch(updateMail({ emailIds: [mail.id], dataToUpdate: { isRead: true } }))
+                          dispatch(getCurrentMail(0))
+                          dispatch(updateMail({ emailIds: [0], dataToUpdate: { isRead: true } }))
                           setTimeout(() => {
                             dispatch(handleSelectAllMail(false))
                           }, 600)
@@ -436,9 +618,20 @@ const MailLog = props => {
                         <Box sx={{ mr: 4, display: 'flex', overflow: 'hidden', alignItems: 'center' }}>
                           <Checkbox
                             onClick={e => e.stopPropagation()}
-                            onChange={() => dispatch(handleSelectMail(mail.id))}
-                            checked={store.selectedMails.includes(mail.id) || false}
+                            onChange={() => dispatch(handleSelectMail(0))}
+                            checked={store.selectedMails.includes(0) || false}
                           />
+                          <IconButton
+                            size='small'
+                            onClick={e => handleStarMail(e, 0, '')}
+                            sx={{
+                              pl: 0,
+                              mr: { xs: 0, sm: 2 },
+                              color: false ? 'warning.main' : 'text.secondary'
+                            }}
+                          >
+                            <StarOutline sx={{ display: { xs: 'none', sm: 'block' } }} />
+                          </IconButton>
                           <Box
                             sx={{
                               display: 'flex',
@@ -457,10 +650,10 @@ const MailLog = props => {
                                 textOverflow: ['ellipsis', 'unset']
                               }}
                             >
-                              {mail.from.name}
+                              {order.orderNumber}
                             </Typography>
                             <Typography noWrap variant='body2' sx={{ width: '100%' }}>
-                              {mail.subject}
+                              {order.address.name}
                             </Typography>
                           </Box>
                         </Box>
@@ -472,10 +665,10 @@ const MailLog = props => {
                             <IconButton
                               onClick={e => {
                                 e.stopPropagation()
-                                handleFolderUpdate([mail.id], 'spam')
+                                handleFolderUpdate(['0'], 'spam')
                               }}
                             >
-                              <PlusCircleOutline/>
+                              <PlusCircleOutline />
                             </IconButton>
                           </Tooltip>
                         </Box>
@@ -483,7 +676,7 @@ const MailLog = props => {
                           className='mail-info-right'
                           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
                         >
-                          <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>{renderMailLabels(mail.labels)}</Box>
+                          <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>{renderMailLabels([])}</Box>
                           <Typography
                             variant='caption'
                             sx={{
@@ -494,15 +687,11 @@ const MailLog = props => {
                               color: 'text.disabled'
                             }}
                           >
-                            {new Date(mail.time).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: true
-                            })}
+                            
                           </Typography>
                         </Box>
                       </MailItem>
-                      {store.mails !== null && store.mails.length - 1 > index ? (
+                      {orders !== null && orders.length - 1 > index ? (
                         <Divider sx={{ my: 0, mx: -5 }} />
                       ) : null}
                     </Box>

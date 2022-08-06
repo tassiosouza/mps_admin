@@ -9,8 +9,8 @@ import Circle from 'mdi-material-ui/Circle'
 
 const themeConfig = {
   // ** Layout Configs
-  templateName: 'Materialize' /* App Name */,
-  layout: 'vertical' /* vertical | horizontal */,
+  templateName: 'MPS Admin' /* App Name */,
+  layout: 'horizontal' /* vertical | horizontal */,
   mode: 'light' /* light | dark */,
   direction: 'ltr' /* ltr | rtl */,
   skin: 'default' /* default | bordered | semi-dark /*! Note: semi-dark value will only work for Vertical Layout */,

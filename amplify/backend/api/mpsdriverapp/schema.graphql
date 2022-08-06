@@ -1,4 +1,4 @@
-type MpsRoute @model @auth(rules: [{allow: public}]) @mapsTo(name: "Route") {
+type MpsRoute @model @auth(rules: [{allow: owner}]) @mapsTo(name: "Route") {
   id: ID!
   cost: Float
   startTime: AWSTimestamp
