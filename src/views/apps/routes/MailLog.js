@@ -41,10 +41,12 @@ import CogPlayOutline from 'mdi-material-ui/CogPlayOutline'
 // ** Third Party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import Papa from "papaparse";
+import axios from 'axios'
 
 // ** Email App Component Imports
 import { setTimeout } from 'timers'
 import MailDetails from './MailDetails'
+import FallbackSpinner from 'src/@core/components/spinner'
 
 // Allowed extensions for input file
 const allowedExtensions = ["csv"];
@@ -146,6 +148,7 @@ const MailLog = props => {
   const [orders, setOrders] = useState([])
   const [drivers, setDrivers] = useState(initialDrivers)
   const hiddenFileInput = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   // This state will store the parsed data
   const [data, setData] = useState([]); 
@@ -175,6 +178,7 @@ const MailLog = props => {
           handleParse(inputFile)
       }
   };
+
   const handleParse = (file) => {
        
       // If user clicks the parse button without
@@ -184,26 +188,53 @@ const MailLog = props => {
       // Initialize a reader which allows user
       // to read any file or blob.
       const reader = new FileReader();
+
+      const processAddresses = async (addresses, errors) => {
+        var results = []
+        for (var i=0; i < addresses.length; i++) {
+          if(i % 2 == 0) {
+            const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + addresses[i].Address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
+
+            await axios.get(urlRequest.replaceAll('#','n')).then((response) => {
+              if(response.data.results.length > 0) {
+                results.push({
+                  orderNumber: addresses[i].number,
+                  address: {
+                    name: addresses[i].Address,
+                    lat: response.data.results[0].geometry.location.lat,
+                    long: response.data.results[0].geometry.location.lng,
+                  }
+                })
+                console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
+              }
+              else {
+                console.log(urlRequest)
+                errors.push(addresses[i])
+              }    
+            }).catch(err => {
+              console.log('CRITICAL ERROR: ' + err)
+            })
+          }
+        }
+        return results
+      }
        
       // Event listener on reader when the file
       // loads, we parse it and set the data.
       reader.onload = async ({ target }) => {
           const csv = Papa.parse(target.result, { header: true });
           const parsedData = csv?.data;
-          console.log(parsedData)
-          var orders = []
-          parsedData.map(order => {
-            if(orders.length < 80) {
-            orders.push({
-              orderNumber: order.number,
-              address: {
-                name: order.address,
-                lat: parseFloat(order.latitude),
-                long:parseFloat(order.longitude),
-              }
-            })
+          var errors = []
+
+          setLoading(true)
+          var orders = await processAddresses(parsedData, errors)
+          setLoading(false)
+           
+          console.log(errors.length + ' erros in :')
+          for(var i =0; i< errors.length ; i++) {
+            console.log(errors[i].Address)
           }
-          })
+            
           const columns = Object.keys(parsedData[0]);
           setOrders(orders)
       };
@@ -558,29 +589,12 @@ const MailLog = props => {
                 <CogPlayOutline sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
               </IconButton>
             </Box>
-            {/* <div>
-                <label htmlFor="csvInput" style={{ display: "block" }}>
-                    Enter CSV File
-                </label>
-                <input
-                    onChange={handleFileChange}
-                    id="csvInput"
-                    name="file"
-                    type="File"
-                />
-                <div>
-                    <button onClick={handleParse}>Parse</button>
-                </div>
-                <div style={{ marginTop: "3rem" }}>
-                    {error ? error : data.map((col,
-                      idx) => <div key={idx}>{col}</div>)}
-                </div>
-            </div> */}
           </Box>
         </Box>
         <Divider sx={{ m: 0 }} />
-        <Box sx={{ p: 0, position: 'relative', overflowX: 'hidden', height: 'calc(100% - 7rem)' }}>
-          <ScrollWrapper hidden={hidden}>
+        <Box sx={{ p: 0, position: 'relative', overflowX: 'hidden', height: '100%' }}>
+          {!loading ? (
+            <ScrollWrapper hidden={hidden}>
             {store && store.mails && store.mails.length ? (
               <List sx={{ p: 0 }}>
                 {orders.map((order, index) => {
@@ -705,6 +719,7 @@ const MailLog = props => {
               </Box>
             )}
           </ScrollWrapper>
+          ) : (<FallbackSpinner></FallbackSpinner>)}
           <Backdrop
             open={refresh}
             onClick={() => setRefresh(false)}
