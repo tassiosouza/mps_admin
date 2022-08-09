@@ -48,6 +48,10 @@ type DriverMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
+type MpsSubscriptionMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
 type TodoMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
@@ -123,6 +127,26 @@ export declare class Driver {
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Driver, DriverMetaData>);
   static copyOf(source: Driver, mutator: (draft: MutableModel<Driver, DriverMetaData>) => MutableModel<Driver, DriverMetaData> | void): Driver;
+}
+
+export declare class MpsSubscription {
+  readonly id: string;
+  readonly number: string;
+  readonly deliveryInstruction?: string | null;
+  readonly mealPlan?: string | null;
+  readonly subscriptionDate?: number | null;
+  readonly address?: string | null;
+  readonly status?: string | null;
+  readonly name?: string | null;
+  readonly email?: string | null;
+  readonly phone?: string | null;
+  readonly latitude?: number | null;
+  readonly longitude?: number | null;
+  readonly avatar?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+  constructor(init: ModelInit<MpsSubscription, MpsSubscriptionMetaData>);
+  static copyOf(source: MpsSubscription, mutator: (draft: MutableModel<MpsSubscription, MpsSubscriptionMetaData>) => MutableModel<MpsSubscription, MpsSubscriptionMetaData> | void): MpsSubscription;
 }
 
 export declare class Todo {

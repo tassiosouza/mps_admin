@@ -250,6 +250,7 @@ const SubscriptionList = () => {
   const [value, setValue] = useState('')
   const [pageSize, setPageSize] = useState(10)
   const [statusValue, setStatusValue] = useState('')
+  const [locationValue, setLocationValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
   const [selectedRows, setSelectedRows] = useState([])
   const [startDateRange, setStartDateRange] = useState(new Date())
@@ -262,10 +263,11 @@ const SubscriptionList = () => {
       fetchData({
         dates,
         q: value,
-        status: statusValue
+        status: statusValue,
+        location: locationValue
       })
     )
-  }, [dispatch, statusValue, value, dates])
+  }, [dispatch, statusValue, locationValue, value, dates])
 
   const handleFilter = val => {
     setValue(val)
@@ -273,6 +275,10 @@ const SubscriptionList = () => {
 
   const handleStatusValue = e => {
     setStatusValue(e.target.value)
+  }
+
+  const handleLocationValue = e => {
+    setLocationValue(e.target.value)
   }
 
   const handleOnChangeRange = dates => {
@@ -321,7 +327,7 @@ const SubscriptionList = () => {
           <CardHeader title='Filters' />
           <CardContent>
             <Grid container spacing={6}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id='subscription-status-select'>Subscription Status</InputLabel>
 
@@ -333,16 +339,30 @@ const SubscriptionList = () => {
                     onChange={handleStatusValue}
                     labelId='subscription-status-select'
                   >
-                    <MenuItem value=''>none</MenuItem>
-                    <MenuItem value='downloaded'>Downloaded</MenuItem>
-                    <MenuItem value='draft'>Draft</MenuItem>
-                    <MenuItem value='paid'>Paid</MenuItem>
-                    <MenuItem value='past due'>Past Due</MenuItem>
-                    <MenuItem value='partial payment'>Partial Payment</MenuItem>
+                    <MenuItem value=''>All</MenuItem>
+                    <MenuItem value='Actived'>Actived</MenuItem>
+                    <MenuItem value='Canceled'>Canceled</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel id='subscription-location-select'>Subscription Location</InputLabel>
+                  <Select
+                    fullWidth
+                    value={locationValue}
+                    sx={{ mr: 4, mb: 2 }}
+                    label='Subscription Location'
+                    onChange={handleLocationValue}
+                    labelId='subscription-location-select'
+                  >
+                    <MenuItem value=''>All</MenuItem>
+                    {store.locations.map((location, index) => <MenuItem value={location} >{location}</MenuItem>)}
+                    
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
                 <DatePickerWrapper>
                   <DatePicker
                     isClearable

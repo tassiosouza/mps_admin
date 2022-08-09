@@ -1,4 +1,4 @@
-type MpsRoute @model @auth(rules: [{allow: owner}]) @mapsTo(name: "Route") {
+type MpsRoute @model @auth(rules: [{allow: public}]) @mapsTo(name: "Route") {
   id: ID!
   cost: Float
   startTime: AWSTimestamp
@@ -52,6 +52,22 @@ type MpOrder @model @auth(rules: [{allow: public}]) @mapsTo(name: "MpsOrder") {
   customer: Customer @hasOne
   eta: Int
   routeID: ID! @index(name: "byRoute")
+}
+
+type MpsSubscription @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  number: String!
+  deliveryInstruction: String
+  mealPlan: String
+  subscriptionDate: Float
+  address: String
+  status: String
+  name: String
+  email: String
+  phone: String
+  latitude: Float
+  longitude: Float
+  avatar: String
 }
 
 type Customer @model @auth(rules: [{allow: public}]) {

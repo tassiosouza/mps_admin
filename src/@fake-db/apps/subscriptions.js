@@ -23,7 +23,7 @@ const data = {
       avatarColor: 'primary',
       status: 'Paid',
       longitude: '$724',
-      deliveryInstructions: `23 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `23 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4988,
@@ -39,7 +39,7 @@ const data = {
       avatar: '/images/avatars/1.png',
       status: 'Downloaded',
       longitude: 0,
-      deliveryInstructions: `15 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `15 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4989,
@@ -55,7 +55,7 @@ const data = {
       avatar: '/images/avatars/2.png',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `03 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `03 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4990,
@@ -71,7 +71,7 @@ const data = {
       avatar: '/images/avatars/3.png',
       status: 'Sent',
       longitude: 0,
-      deliveryInstructions: `11 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `11 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4991,
@@ -87,7 +87,7 @@ const data = {
       avatar: '/images/avatars/4.png',
       status: 'Draft',
       longitude: '$815',
-      deliveryInstructions: `30 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `30 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4992,
@@ -104,7 +104,7 @@ const data = {
       avatarColor: 'secondary',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `24 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `24 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4993,
@@ -121,7 +121,7 @@ const data = {
       avatarColor: 'success',
       status: 'Draft',
       longitude: '$407',
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4994,
@@ -137,7 +137,7 @@ const data = {
       avatar: '/images/avatars/5.png',
       status: 'Paid',
       longitude: '-$205',
-      deliveryInstructions: `10 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `10 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4995,
@@ -153,7 +153,7 @@ const data = {
       avatar: '/images/avatars/6.png',
       status: 'Downloaded',
       longitude: 0,
-      deliveryInstructions: `24 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `24 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4996,
@@ -169,7 +169,7 @@ const data = {
       avatar: '/images/avatars/7.png',
       status: 'Downloaded',
       longitude: '$305',
-      deliveryInstructions: `02 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `02 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4997,
@@ -185,7 +185,7 @@ const data = {
       avatar: '/images/avatars/8.png',
       status: 'Partial Payment',
       longitude: '$666',
-      deliveryInstructions: `18 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `18 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4998,
@@ -201,7 +201,7 @@ const data = {
       avatar: '/images/avatars/1.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `17 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `17 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 4999,
@@ -217,7 +217,7 @@ const data = {
       avatar: '/images/avatars/2.png',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `01 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `01 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5000,
@@ -233,7 +233,7 @@ const data = {
       avatar: '/images/avatars/3.png',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5001,
@@ -249,7 +249,7 @@ const data = {
       avatar: '/images/avatars/4.png',
       status: 'Partial Payment',
       longitude: '-$202',
-      deliveryInstructions: `02 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `02 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5002,
@@ -265,7 +265,7 @@ const data = {
       avatar: '/images/avatars/5.png',
       status: 'Downloaded',
       longitude: '$731',
-      deliveryInstructions: `15 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `15 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5003,
@@ -282,7 +282,7 @@ const data = {
       avatarColor: 'warning',
       status: 'Sent',
       longitude: '-$344',
-      deliveryInstructions: `17 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `17 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5004,
@@ -298,7 +298,7 @@ const data = {
       avatar: '/images/avatars/6.png',
       status: 'Partial Payment',
       longitude: '-$253',
-      deliveryInstructions: `16 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `16 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5005,
@@ -315,7 +315,7 @@ const data = {
       avatarColor: 'error',
       status: 'Past Due',
       longitude: 0,
-      deliveryInstructions: `01 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `01 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5006,
@@ -331,7 +331,7 @@ const data = {
       avatar: '/images/avatars/7.png',
       status: 'Downloaded',
       longitude: '$883',
-      deliveryInstructions: `12 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `12 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5007,
@@ -347,7 +347,7 @@ const data = {
       avatar: '/images/avatars/8.png',
       status: 'Sent',
       longitude: 0,
-      deliveryInstructions: `19 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `19 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5008,
@@ -363,7 +363,7 @@ const data = {
       avatar: '/images/avatars/1.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `30 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `30 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5009,
@@ -379,7 +379,7 @@ const data = {
       avatar: '/images/avatars/2.png',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `10 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `10 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5010,
@@ -395,7 +395,7 @@ const data = {
       avatar: '/images/avatars/3.png',
       status: 'Downloaded',
       longitude: 0,
-      deliveryInstructions: `08 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `08 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5011,
@@ -412,7 +412,7 @@ const data = {
       avatarColor: 'info',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `01 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `01 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5012,
@@ -428,7 +428,7 @@ const data = {
       avatar: '/images/avatars/4.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `18 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `18 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5013,
@@ -444,7 +444,7 @@ const data = {
       avatar: '/images/avatars/5.png',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `01 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `01 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5014,
@@ -461,7 +461,7 @@ const data = {
       avatarColor: 'primary',
       status: 'Downloaded',
       longitude: 0,
-      deliveryInstructions: `23 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `23 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5015,
@@ -477,7 +477,7 @@ const data = {
       avatar: '/images/avatars/6.png',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `01 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `01 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5016,
@@ -494,7 +494,7 @@ const data = {
       avatarColor: 'secondary',
       status: 'Paid',
       longitude: '$951',
-      deliveryInstructions: `30 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `30 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5017,
@@ -510,7 +510,7 @@ const data = {
       avatar: '/images/avatars/7.png',
       status: 'Partial Payment',
       longitude: '-$153',
-      deliveryInstructions: `25 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `25 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5018,
@@ -526,7 +526,7 @@ const data = {
       avatar: '/images/avatars/8.png',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `10 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `10 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5019,
@@ -542,7 +542,7 @@ const data = {
       avatar: '/images/avatars/1.png',
       status: 'Partial Payment',
       longitude: '-$459',
-      deliveryInstructions: `14 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `14 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5020,
@@ -558,7 +558,7 @@ const data = {
       avatar: '/images/avatars/2.png',
       status: 'Past Due',
       longitude: 0,
-      deliveryInstructions: `28 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `28 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5021,
@@ -575,7 +575,7 @@ const data = {
       avatarColor: 'success',
       status: 'Sent',
       longitude: 0,
-      deliveryInstructions: `06 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `06 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5022,
@@ -592,7 +592,7 @@ const data = {
       avatarColor: 'error',
       status: 'Sent',
       longitude: 0,
-      deliveryInstructions: `09 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `09 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5023,
@@ -608,7 +608,7 @@ const data = {
       avatar: '/images/avatars/3.png',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `23 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `23 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5024,
@@ -624,7 +624,7 @@ const data = {
       avatar: '/images/avatars/4.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `25 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `25 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5025,
@@ -641,7 +641,7 @@ const data = {
       avatarColor: 'warning',
       status: 'Downloaded',
       longitude: 0,
-      deliveryInstructions: `07 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `07 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5026,
@@ -657,7 +657,7 @@ const data = {
       avatar: '/images/avatars/5.png',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5027,
@@ -674,7 +674,7 @@ const data = {
       avatarColor: 'info',
       status: 'Sent',
       longitude: 0,
-      deliveryInstructions: `04 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `04 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5028,
@@ -691,7 +691,7 @@ const data = {
       avatarColor: 'primary',
       status: 'Paid',
       longitude: '$361',
-      deliveryInstructions: `02 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `02 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5029,
@@ -708,7 +708,7 @@ const data = {
       avatarColor: 'secondary',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `25 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `25 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5030,
@@ -725,7 +725,7 @@ const data = {
       avatarColor: 'success',
       status: 'Draft',
       longitude: 0,
-      deliveryInstructions: `06 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `06 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5031,
@@ -741,7 +741,7 @@ const data = {
       avatar: '/images/avatars/6.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `09 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `09 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5032,
@@ -758,7 +758,7 @@ const data = {
       avatarColor: 'error',
       status: 'Past Due',
       longitude: 0,
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5033,
@@ -774,7 +774,7 @@ const data = {
       avatar: '/images/avatars/7.png',
       status: 'Partial Payment',
       longitude: 0,
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5034,
@@ -791,7 +791,7 @@ const data = {
       avatarColor: 'warning',
       status: 'Paid',
       longitude: 0,
-      deliveryInstructions: `22 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `22 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5035,
@@ -808,7 +808,7 @@ const data = {
       avatarColor: 'info',
       status: 'Draft',
       longitude: '$762',
-      deliveryInstructions: `12 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `12 ${currentMonth} ${now.getFullYear()}`
     },
     {
       id: 5036,
@@ -824,7 +824,7 @@ const data = {
       avatar: '/images/avatars/8.png',
       status: 'Paid',
       longitude: '-$205',
-      deliveryInstructions: `25 ${currentMonth} ${now.getFullYear()}`
+      deliveryInstruction: `25 ${currentMonth} ${now.getFullYear()}`
     }
   ]
 }
@@ -859,7 +859,7 @@ mock.onGet('/apps/subscriptions/subscription').reply(config => {
             String(subscription.id).toLowerCase().includes(queryLowered) ||
             String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
             String(subscription.phone).toLowerCase().includes(queryLowered) ||
-            subscription.deliveryInstructions.toLowerCase().includes(queryLowered)) &&
+            subscription.deliveryInstruction.toLowerCase().includes(queryLowered)) &&
           subscription.status.toLowerCase() === (status.toLowerCase() || subscription.status.toLowerCase())
         )
       }
@@ -870,7 +870,7 @@ mock.onGet('/apps/subscriptions/subscription').reply(config => {
           String(subscription.id).toLowerCase().includes(queryLowered) ||
           String(subscription.total).toLowerCase().includes(queryLowered) ||
           String(subscription.balance).toLowerCase().includes(queryLowered) ||
-          subscription.deliveryInstructions.toLowerCase().includes(queryLowered)) &&
+          subscription.deliveryInstruction.toLowerCase().includes(queryLowered)) &&
         subscription.status.toLowerCase() === (status.toLowerCase() || subscription.status.toLowerCase())
       )
     }

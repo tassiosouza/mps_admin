@@ -28,7 +28,7 @@ const OrderStatus = {
   "CHECKED": "CHECKED"
 };
 
-const { MpsRoute, MpOrder, Customer, Coordinates, Driver, Todo } = initSchema(schema);
+const { MpsRoute, MpOrder, Customer, Coordinates, Driver, MpsSubscription, Todo } = initSchema(schema);
 
 export {
   MpsRoute,
@@ -36,6 +36,7 @@ export {
   Customer,
   Coordinates,
   Driver,
+  MpsSubscription,
   Todo,
   RouteStatus,
   MpsOrderStatus,

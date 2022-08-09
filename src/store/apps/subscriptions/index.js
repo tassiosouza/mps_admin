@@ -7,13 +7,35 @@ import { Console, CosineWave } from 'mdi-material-ui';
 // ** Third Party Imports
 import Papa from "papaparse";
 
+// ** Amplify Imports
+import { API, graphqlOperation } from 'aws-amplify'
+import { createMpsSubscription } from '../../../graphql/mutations'
+import { listMpsSubscriptions } from '../../../graphql/queries'
+
 // ** Fetch Subscriptions
-export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
-  const response = await axios.get('/apps/subscriptions/subscription', {
-    params
-  })
+// export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
+//   const response = await axios.get('/apps/subscriptions/subscription', {
+//     params
+//   })
   
-  return response.data
+//   return response.data
+// })
+
+export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
+  const {status, location, dates, q} = params
+  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
+    filter: {
+        status: {
+          eq: status != '' ? status : 'Actived'
+        },
+        address: {
+          contains: location != '' ? location : ','
+        }
+    },
+    limit: 5000
+  }))
+  console.log(JSON.stringify(response.data.listMpsSubscriptions.items.length))
+  return response.data.listMpsSubscriptions.items
 })
 
 // ** Load Subscriptions
@@ -50,40 +72,39 @@ export const loadData = createAsyncThunk('appSubscriptions/loadData', async para
 
 
 const processAddresses = async (addresses) => {
-  // const now = new Date()
-  // const currentMonth = now.toLocaleString('default', { month: 'short' })
-  // const currentDay = now.toLocaleString('default', { day: 'short' })
   console.log('to add0: ' + JSON.stringify(addresses[0].number))
   console.log('to add: ' + addresses)
   var results = []
   for (var i=0; i < addresses.length; i++) {
-    if(i % 2 == 0 && i < 20) {
+    if(i % 2 == 0) {
       const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + addresses[i].Address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
-      await axios.get(urlRequest.replaceAll('#','n')).then((response) => {
+      await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
         if(response.data.results.length > 0) {
-          results.push({
+          var newSubscription = {
             id: addresses[i].number,
-            subscriptionDate: '20/04/2022',
-            address: addresses[i].Address,
+            number: addresses[i].number,
+            subscriptionDate: Date.now(),
+            address: response.data.results[0].formatted_address,
             email: addresses[i].email,
-            country: 'USA',
             phone: addresses[i].phone,
             name: addresses[i].name,
             mealPlan: addresses[i + 1].name,
             latitude: response.data.results[0].geometry.location.lat,
             avatar: '',
-            avatarColor: 'primary',
             status: 'Actived',
             longitude: response.data.results[0].geometry.location.lng,
-            deliveryInstructions: addresses[i + 1].Address
-          })
+            deliveryInstruction: addresses[i + 1].Address
+          }
+          results.push(newSubscription)
+          console.log('pushing: ' + JSON.stringify(newSubscription))
+          await API.graphql(graphqlOperation(createMpsSubscription, {input: newSubscription}))
           console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
         }
         else {
           console.log('error for: ' + urlRequest)
         }    
       }).catch(err => {
-        console.log('CRITICAL ERROR: ' + err)
+        console.log('CRITICAL ERROR: ' + JSON.stringify(err))
       })
     }
   }
@@ -99,24 +120,36 @@ export const deleteSubscription = createAsyncThunk('appSubscriptions/deleteData'
   return response.data
 })
 
+const retreiveLocation = (address) => {
+  const addressComponents =  address.split(',')
+  const locationIndex = addressComponents.length - 3
+  return addressComponents[locationIndex]
+}
+
 export const appSubscriptionSlice = createSlice({
   name: 'appSubscriptions',
   initialState: {
     data: [],
     total: 1,
     params: {},
-    allData: []
+    allData: [],
+    locations: []
   },
   reducers: {},
   extraReducers: builder => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
-      // state.data = action.payload.subscriptions
+      for(var i = 0; i < action.payload.length; i++) {
+        const location = retreiveLocation(action.payload[i].address)
+        if(!state.locations.includes(location)) {
+          state.locations.push(location)
+        }
+      }
+      state.data = action.payload
       state.params = action.payload.params
-      state.allData = action.payload.allData
+      state.allData = action.payload
       state.total = action.payload.total
     })
     builder.addCase(loadData.fulfilled, (state, action) => {
-      console.log(JSON.stringify(action))
       state.data = action.payload
       state.params = action.payload.params
       state.allData = action.payload
