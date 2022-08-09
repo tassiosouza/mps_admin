@@ -36,6 +36,7 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 import ChartBellCurveCumulative from 'mdi-material-ui/ChartBellCurveCumulative'
 import CheckboxMarkedCircleOutline from 'mdi-material-ui/CheckboxMarkedCircleOutline'
 import CarTractionControl from 'mdi-material-ui/CarTractionControl'
+import NewspaperVariantMultiple from 'mdi-material-ui/NewspaperVariantMultiple'
 
 const navigation = () => {
   return [
@@ -68,6 +69,11 @@ const navigation = () => {
           title: 'Routes',
           icon: CarTractionControl,
           path: '/apps/routes'
+        },
+        {
+          title: 'Subscriptions',
+          icon: NewspaperVariantMultiple,
+          path: '/apps/subscriptions/list'
         },
         {
           title: 'Email',

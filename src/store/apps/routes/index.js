@@ -57,40 +57,39 @@ export const paginateMail = createAsyncThunk('appEmail/paginateMail', async para
   return response.data
 })
 
-export const appEmailSlice = createSlice({
-  name: 'appEmail',
+export const appOrderSlice = createSlice({
+  name: 'appOrders',
   initialState: {
-    mails: null,
-    mailMeta: null,
+    orders: null,
     filter: {
-      q: '',
-      label: '',
-      folder: 'inbox'
+      region: '',
+      name: '',
+      distance: 200
     },
-    currentMail: null,
-    selectedMails: []
+    currentOrder: null,
+    selectedOrders: []
   },
   reducers: {
-    handleSelectMail: (state, action) => {
-      const mails = state.selectedMails
-      if (!mails.includes(action.payload)) {
-        mails.push(action.payload)
+    handleSelectOrder: (state, action) => {
+      const orders = state.selectedOrders
+      if (!orders.includes(action.payload)) {
+        orders.push(action.payload)
       } else {
-        mails.splice(mails.indexOf(action.payload), 1)
+        orders.splice(orders.indexOf(action.payload), 1)
       }
-      state.selectedMails = mails
+      state.selectedOrders = orders
     },
-    handleSelectAllMail: (state, action) => {
-      const selectAllMails = []
-      if (action.payload && state.mails !== null) {
-        selectAllMails.length = 0
+    handleSelectAllOrders: (state, action) => {
+      const selectAllOrders = []
+      if (action.payload && state.orders !== null) {
+        selectAllOrders.length = 0
 
         // @ts-ignore
-        state.mails.forEach(mail => selectAllMails.push(mail.id))
+        state.orders.forEach(order => selectAllOrders.push(order.number))
       } else {
-        selectAllMails.length = 0
+        selectAllOrders.length = 0
       }
-      state.selectedMails = selectAllMails
+      state.selectedOrders = selectAllOrders
     }
   },
   extraReducers: builder => {
@@ -108,6 +107,6 @@ export const appEmailSlice = createSlice({
   }
 })
 
-export const { handleSelectMail, handleSelectAllMail } = appEmailSlice.actions
+export const { handleSelectOrder, handleSelectAllOrders } = appOrderSlice.actions
 
-export default appEmailSlice.reducer
+export default appOrderSlice.reducer

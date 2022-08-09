@@ -34,7 +34,6 @@ import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import EmailOpenOutline from 'mdi-material-ui/EmailOpenOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import AlertOctagonOutline from 'mdi-material-ui/AlertOctagonOutline'
-import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
 
 // ** Third Party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -302,7 +301,7 @@ const MailLog = props => {
             )}
             <Input
               value={query}
-              placeholder='Search email'
+              placeholder='Search mail'
               onChange={e => setQuery(e.target.value)}
               sx={{ width: '100%', '&:before, &:after': { display: 'none' } }}
               startAdornment={
@@ -439,6 +438,22 @@ const MailLog = props => {
                             onChange={() => dispatch(handleSelectMail(mail.id))}
                             checked={store.selectedMails.includes(mail.id) || false}
                           />
+                          <IconButton
+                            size='small'
+                            onClick={e => handleStarMail(e, mail.id, !mail.isStarred)}
+                            sx={{
+                              pl: 0,
+                              mr: { xs: 0, sm: 2 },
+                              color: mail.isStarred ? 'warning.main' : 'text.secondary'
+                            }}
+                          >
+                            <StarOutline sx={{ display: { xs: 'none', sm: 'block' } }} />
+                          </IconButton>
+                          <Avatar
+                            alt={mail.from.name}
+                            src={mail.from.avatar}
+                            sx={{ mr: 3.5, width: '2rem', height: '2rem' }}
+                          />
                           <Box
                             sx={{
                               display: 'flex',
@@ -468,6 +483,29 @@ const MailLog = props => {
                           className='mail-actions'
                           sx={{ display: 'none', alignItems: 'center', justifyContent: 'flex-end' }}
                         >
+                          {routeParams && routeParams.folder !== 'trash' ? (
+                            <Tooltip placement='top' title='Delete Mail'>
+                              <IconButton
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  dispatch(updateMail({ emailIds: [mail.id], dataToUpdate: { folder: 'trash' } }))
+                                }}
+                              >
+                                <DeleteOutline />
+                              </IconButton>
+                            </Tooltip>
+                          ) : null}
+
+                          <Tooltip placement='top' title={mail.isRead ? 'Unread Mail' : 'Read Mail'}>
+                            <IconButton
+                              onClick={e => {
+                                e.stopPropagation()
+                                handleReadMail([mail.id], !mail.isRead)
+                              }}
+                            >
+                              <MailReadToggleIcon />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip placement='top' title='Move to Spam'>
                             <IconButton
                               onClick={e => {
@@ -475,7 +513,7 @@ const MailLog = props => {
                                 handleFolderUpdate([mail.id], 'spam')
                               }}
                             >
-                              <PlusCircleOutline/>
+                              <AlertOctagonOutline />
                             </IconButton>
                           </Tooltip>
                         </Box>

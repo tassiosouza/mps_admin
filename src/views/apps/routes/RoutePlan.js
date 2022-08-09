@@ -13,7 +13,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Email App Component Imports
-import MailLog from 'src/views/apps/routes/MailLog'
+import MailLog from 'src/views/apps/routes/OrdersStep'
 import SidebarLeft from 'src/views/apps/email/SidebarLeft'
 import ComposePopup from 'src/views/apps/email/ComposePopup'
 

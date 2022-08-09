@@ -8,6 +8,7 @@ import email from 'src/store/apps/email'
 import invoice from 'src/store/apps/invoice'
 import calendar from 'src/store/apps/calendar'
 import permissions from 'src/store/apps/permissions'
+import subscriptions from 'src/store/apps/subscriptions'
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     chat,
     email,
     invoice,
+    subscriptions,
     calendar,
     permissions
   },
