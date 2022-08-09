@@ -211,7 +211,8 @@ const defaultColumns = [
     minWidth: 90,
     field: 'issuedDate',
     headerName: 'Date',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.subscriptionDate}</Typography>
+    renderCell: ({ row }) => <Typography variant='body2'>{
+      new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.subscriptionDate)}</Typography>
   },
   {
     flex: 0.15,
@@ -253,7 +254,7 @@ const SubscriptionList = () => {
   const [locationValue, setLocationValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
   const [selectedRows, setSelectedRows] = useState([])
-  const [startDateRange, setStartDateRange] = useState(new Date())
+  const [startDateRange, setStartDateRange] = useState(null)
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -357,7 +358,7 @@ const SubscriptionList = () => {
                     labelId='subscription-location-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    {store.locations.map((location, index) => <MenuItem value={location} >{location}</MenuItem>)}
+                    {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)}
                     
                   </Select>
                 </FormControl>

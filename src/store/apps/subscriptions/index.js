@@ -23,6 +23,7 @@ import { listMpsSubscriptions } from '../../../graphql/queries'
 
 export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
   const {status, location, dates, q} = params
+  console.log('params - ' + JSON.stringify(params))
   const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
     filter: {
         status: {
@@ -30,7 +31,8 @@ export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async pa
         },
         address: {
           contains: location != '' ? location : ','
-        }
+        },
+        subscriptionDate: {between: [Date.parse(dates[0]), Date.parse(dates[1])]}
     },
     limit: 5000
   }))
