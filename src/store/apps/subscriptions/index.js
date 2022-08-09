@@ -12,18 +12,12 @@ import { API, graphqlOperation } from 'aws-amplify'
 import { createMpsSubscription } from '../../../graphql/mutations'
 import { listMpsSubscriptions } from '../../../graphql/queries'
 
-// ** Fetch Subscriptions
-// export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
-//   const response = await axios.get('/apps/subscriptions/subscription', {
-//     params
-//   })
-  
-//   return response.data
-// })
+// ** Utils Import
+import { getDateRange } from 'src/@core/utils/get-daterange'
 
 export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
   const {status, location, dates, q} = params
-  console.log('params - ' + JSON.stringify(params))
+
   const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
     filter: {
         status: {
@@ -31,13 +25,53 @@ export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async pa
         },
         address: {
           contains: location != '' ? location : ','
-        },
-        subscriptionDate: {between: [Date.parse(dates[0]), Date.parse(dates[1])]}
+        }
     },
     limit: 5000
   }))
-  console.log(JSON.stringify(response.data.listMpsSubscriptions.items.length))
-  return response.data.listMpsSubscriptions.items
+
+  const queryLowered = q.toLowerCase()
+
+  const filteredData = response.data.listMpsSubscriptions.items.filter(subscription => {
+    if (dates.length) {
+      const [start, end] = dates
+      const filtered = []
+      const range = getDateRange(start, end)
+      const subscriptionDate = new Date(subscription.subscriptionDate)
+      range.filter(date => {
+        const rangeDate = new Date(date)
+        if (
+          subscriptionDate.getFullYear() === rangeDate.getFullYear() &&
+          subscriptionDate.getDate() === rangeDate.getDate() &&
+          subscriptionDate.getMonth() === rangeDate.getMonth()
+        ) {
+          filtered.push(subscription.number)
+        }
+      })
+
+      if (filtered.length && filtered.includes(subscription.number)) {
+        return (
+          (subscription.address.toLowerCase().includes(queryLowered) ||
+          subscription.name.toLowerCase().includes(queryLowered) ||
+          String(subscription.number).toLowerCase().includes(queryLowered) ||
+          String(subscription.phone).toLowerCase().includes(queryLowered) ||
+          String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
+          String(subscription.status).toLowerCase().includes(queryLowered))
+        )
+      }
+    } else {
+      return (
+        (subscription.address.toLowerCase().includes(queryLowered) ||
+          subscription.name.toLowerCase().includes(queryLowered) ||
+          String(subscription.number).toLowerCase().includes(queryLowered) ||
+          String(subscription.phone).toLowerCase().includes(queryLowered) ||
+          String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
+          String(subscription.status).toLowerCase().includes(queryLowered))
+      )
+    }
+  })
+
+  return filteredData
 })
 
 // ** Load Subscriptions
@@ -68,14 +102,11 @@ export const loadData = createAsyncThunk('appSubscriptions/loadData', async para
   
   // ** Process subscriptions (retreive lat and lng)
   subscriptions = await processAddresses(parsedData)
-  console.log('DONE ' + JSON.stringify(subscriptions))
   return subscriptions
 })
 
 
 const processAddresses = async (addresses) => {
-  console.log('to add0: ' + JSON.stringify(addresses[0].number))
-  console.log('to add: ' + addresses)
   var results = []
   for (var i=0; i < addresses.length; i++) {
     if(i % 2 == 0) {
