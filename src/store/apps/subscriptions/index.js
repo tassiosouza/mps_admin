@@ -75,9 +75,12 @@ export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async pa
 })
 
 // ** Load Subscriptions
-export const loadData = createAsyncThunk('appSubscriptions/loadData', async params => {
+export const loadData = createAsyncThunk('appSubscriptions/loadData', async (params, { getState })  => {
   const subscriptions = []
   const parsedData = ''
+
+  const state = getState()
+  const oldSubscriptions = state.subscriptions.data;
 
   // ** Read external final
   await Promise.all(
@@ -101,47 +104,90 @@ export const loadData = createAsyncThunk('appSubscriptions/loadData', async para
     });
   
   // ** Process subscriptions (retreive lat and lng)
-  subscriptions = await processAddresses(parsedData)
+  subscriptions = await syncSubscriptions(parsedData, oldSubscriptions)
   return subscriptions
 })
 
 
-const processAddresses = async (addresses) => {
-  var results = []
-  for (var i=0; i < addresses.length; i++) {
+const syncSubscriptions = async (parsedData, oldSubscriptions) => {
+  var synced = []
+  var removed = []
+  var toInclude = []
+  var included = []
+  var newSubscriptions = []
+  var failed = []
+
+  for (var i= 0; i < parsedData.length; i++) {
     if(i % 2 == 0) {
-      const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + addresses[i].Address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
-      await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
-        if(response.data.results.length > 0) {
-          var newSubscription = {
-            id: addresses[i].number,
-            number: addresses[i].number,
-            subscriptionDate: Date.now(),
-            address: response.data.results[0].formatted_address,
-            email: addresses[i].email,
-            phone: addresses[i].phone,
-            name: addresses[i].name,
-            mealPlan: addresses[i + 1].name,
-            latitude: response.data.results[0].geometry.location.lat,
-            avatar: '',
-            status: 'Actived',
-            longitude: response.data.results[0].geometry.location.lng,
-            deliveryInstruction: addresses[i + 1].Address
-          }
-          results.push(newSubscription)
-          console.log('pushing: ' + JSON.stringify(newSubscription))
-          await API.graphql(graphqlOperation(createMpsSubscription, {input: newSubscription}))
-          console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
-        }
-        else {
-          console.log('error for: ' + urlRequest)
-        }    
-      }).catch(err => {
-        console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+      newSubscriptions.push({
+        id: parsedData[i].number + parsedData[i].name,
+        number: parsedData[i].number,
+        subscriptionDate: Date.now(),
+        address: parsedData[i].Address,
+        email: parsedData[i].email,
+        phone: parsedData[i].phone,
+        name: parsedData[i].name,
+        mealPlan: parsedData[i + 1].name,
+        latitude: 0,
+        avatar: '',
+        status: 'Actived',
+        longitude: 0,
+        deliveryInstruction: parsedData[i + 1].Address
       })
     }
   }
-  return results
+  
+  var oldSubscriptionsNumber = []
+  oldSubscriptions.map(sub => oldSubscriptionsNumber.push(sub.number + sub.name))
+  var newSubscriptionsNumber = []
+  newSubscriptions.map(sub => newSubscriptionsNumber.push(sub.number + sub.name))
+
+  synced = newSubscriptions.filter(subscription => {
+    return oldSubscriptionsNumber.includes(subscription.number + subscription.name)
+  });
+
+  removed = oldSubscriptions.filter(subscription => {
+    return !newSubscriptionsNumber.includes(subscription.number + subscription.name)
+  });
+
+  toInclude = newSubscriptions.filter(subscription => {
+    return !oldSubscriptionsNumber.includes(subscription.number + subscription.name)
+  });
+
+  if(oldSubscriptions.length > 1500) {
+    for(var i = 0; i < toInclude.length; i++) {
+      const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toInclude[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
+        await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
+          if(response.data.results.length > 0) {
+            toInclude[i].address = response.data.results[0].formatted_address
+            toInclude[i].latitude = response.data.results[0].geometry.location.lat
+            toInclude[i].longitude = response.data.results[0].geometry.location.lng
+            console.log('pushing: ' + JSON.stringify(toInclude[i]))
+            await API.graphql(graphqlOperation(createMpsSubscription, {input: toInclude[i]}))
+            console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
+            console.log('pushing to store: ' + JSON.stringify(toInclude[i]))
+            included.push(toInclude[i])
+          }
+          else {
+            failed.push(toInclude[i])
+            console.log('error for: ' + urlRequest)
+          }    
+        }).catch(err => {
+          failed.push(toInclude[i])
+          console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+        })
+    }
+  }
+  else {
+    synced = []
+    removed = []
+    toInclude = []
+    included = []
+    newSubscriptions = []
+    failed = []
+  }
+  
+  return {synced, removed, included, failed}
 }
 
 export const deleteSubscription = createAsyncThunk('appSubscriptions/deleteData', async (id, { getState, dispatch }) => {
@@ -163,6 +209,8 @@ export const appSubscriptionSlice = createSlice({
   name: 'appSubscriptions',
   initialState: {
     data: [],
+    removeds: [],
+    included: [],
     total: 1,
     params: {},
     allData: [],
@@ -177,13 +225,18 @@ export const appSubscriptionSlice = createSlice({
           state.locations.push(location)
         }
       }
-      state.data = action.payload
+      const subsToRefreshSorted = action.payload.sort((a, b) => parseFloat(a.subscriptionDate) - parseFloat(b.subscriptionDate))
+      state.data = subsToRefreshSorted
       state.params = action.payload.params
       state.allData = action.payload
       state.total = action.payload.total
     })
     builder.addCase(loadData.fulfilled, (state, action) => {
-      state.data = action.payload
+      console.log('received in store: ' + JSON.stringify(action.payload))
+      const { synced, included } = action.payload
+      const subsToRefresh = state.data.concat(included)
+      const subsToRefreshSorted = subsToRefresh.sort((a, b) => parseFloat(a.subscriptionDate) - parseFloat(b.subscriptionDate))
+      state.data = subsToRefreshSorted
       state.params = action.payload.params
       state.allData = action.payload
       state.total = action.payload.length

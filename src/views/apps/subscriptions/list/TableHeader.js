@@ -67,14 +67,13 @@ const TableHeader = props => {
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom:'0.5rem'
       }}
     >
       <Select
         size='small'
         displayEmpty
         defaultValue=''
-        sx={{ mr: 4, mb: 2, marginBottom:0 }}
+        sx={{ mr: 4, mb: 2 }}
         disabled={selectedRows && selectedRows.length === 0}
         renderValue={selected => (selected.length === 0 ? 'Actions' : selected)}
       >
@@ -85,13 +84,13 @@ const TableHeader = props => {
         <MenuItem value='Edit'>Edit</MenuItem>
         <MenuItem value='Send'>Send</MenuItem>
       </Select>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2 , width: '30%', justifyContent:'end'}}>
+        <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main', mr: 2 }}>
                 {error}
         </Typography>
         <Tooltip placement='top' title='Refresh Subscriptions'>
           <IconButton size='small' onClick={handleClick}>
-            <Reload sx={{ color: 'text.disabled', fontSize: '1.375rem' }} />
+            <Reload sx={{fontSize: '1.375rem'}}/>
             <input
                 onChange={handleFileUpload}
                 id="csvInput"
@@ -102,16 +101,18 @@ const TableHeader = props => {
             />
           </IconButton>
         </Tooltip>
+      </Box>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField
           size='small'
           value={value}
           placeholder='Search Subscription'
-          sx={{ mr: 4, mb: 2, maxWidth: '180px', marginBottom: 0, marginLeft: 4}}
+          sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
           onChange={e => handleFilter(e.target.value)}
         />
 
         <Link href='/apps/invoice/add' passHref>
-          <Button sx={{ mb: 2, marginBottom:0 }} variant='contained'>
+          <Button sx={{ mb: 2}} variant='contained'>
             Create Subscription
           </Button>
         </Link>

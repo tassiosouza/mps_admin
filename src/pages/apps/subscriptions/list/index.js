@@ -146,12 +146,12 @@ const renderClient = row => {
 const defaultColumns = [
   {
     flex: 0.1,
-    field: 'id',
+    field: 'number',
     minWidth: 80,
     headerName: '#',
     renderCell: ({ row }) => (
-      <Link href={`/apps/subscription/preview/${row.id}`} passHref>
-        <StyledLink>{`${row.id}`}</StyledLink>
+      <Link href={`/apps/subscription/preview/${row.number}`} passHref>
+        <StyledLink>{`${row.number}`}</StyledLink>
       </Link>
     )
   },
