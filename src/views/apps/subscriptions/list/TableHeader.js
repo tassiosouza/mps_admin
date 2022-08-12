@@ -13,10 +13,12 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { loadData } from 'src/store/apps/subscriptions'
+import { loadData, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Icons Import
 import Reload from 'mdi-material-ui/Reload'
@@ -29,7 +31,10 @@ const TableHeader = props => {
   const allowedExtensions = ["csv"];
 
   // ** States
-  const [error, setError] = useState('')
+  const [loadFileError, setLoadFileError] = useState('')
+  const [open, setOpen] = useState(false)
+  const [messageInfo, setMessageInfo ] = useState('')
+  const [syncError, setSyncError ] = useState(false)
 
   // ** Refs
   const hiddenFileInput = useRef(null);
@@ -38,17 +43,18 @@ const TableHeader = props => {
   const dispatch = useDispatch()
 
   const handleFileUpload = (e) => {
-    setError('');
+    setLoadFileError('');
     if (e.target.files.length) {
         const inputFile = e.target.files[0];
 
         const fileExtension = inputFile?.type.split("/")[1];
         if (!allowedExtensions.includes(fileExtension)) {
-            setError('Please, enter a valid csv file');
+            setLoadFileError('Please, enter a valid csv file');
             return;
         }
+        dispatch(handleLoadingSubscriptions(true))
         dispatch(
-          loadData({file: inputFile})
+          loadData({file: inputFile, callback: finishSyncCallback})
         )
     }
   }
@@ -56,6 +62,18 @@ const TableHeader = props => {
   const handleClick = event => {
     hiddenFileInput.current.click();
   };
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  const finishSyncCallback = (error, message) => {
+    if(error) {
+      setSyncError(true)
+    }
+    setMessageInfo(message)
+    setOpen(true)
+  } 
 
   return (
     <Box
@@ -86,7 +104,7 @@ const TableHeader = props => {
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2 , width: '30%', justifyContent:'end'}}>
         <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main', mr: 2 }}>
-                {error}
+                {loadFileError}
         </Typography>
         <Tooltip placement='top' title='Refresh Subscriptions'>
           <IconButton size='small' onClick={handleClick}>
@@ -117,6 +135,21 @@ const TableHeader = props => {
           </Button>
         </Link>
       </Box>
+      <Snackbar
+        open={open}
+        onClose={handleClose}
+        autoHideDuration={3000}
+        message={messageInfo ? messageInfo.message : undefined}
+      >
+        <Alert
+          elevation={3}
+          variant='filled'
+          onClose={handleClose}
+          severity={syncError ? 'error' : 'success'}
+        >
+          {messageInfo}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

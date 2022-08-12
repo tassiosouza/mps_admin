@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { useDispatch } from 'react-redux'
 
 // ** Axios Imports
 import axios from 'axios'
@@ -9,24 +10,30 @@ import Papa from "papaparse";
 
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createMpsSubscription } from '../../../graphql/mutations'
-import { listMpsSubscriptions } from '../../../graphql/queries'
+import { createMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
+import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
 
 // ** Utils Import
 import { getDateRange } from 'src/@core/utils/get-daterange'
 
-export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async params => {
+export const fetchData = createAsyncThunk('appSubscriptions/fetchData', async (params, { getState })  => {
   const {status, location, dates, q} = params
 
-  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
-    filter: {
-        status: {
-          eq: status != '' ? status : 'Actived'
-        },
-        address: {
-          contains: location != '' ? location : ','
-        }
+  const filter = status ? {
+    status: {
+      eq: status
     },
+    address: {
+      contains: location != '' ? location : ','
+    }
+  } : {
+    address: {
+      contains: location != '' ? location : ','
+    }
+  }
+
+  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
+    filter,
     limit: 5000
   }))
 
@@ -104,18 +111,22 @@ export const loadData = createAsyncThunk('appSubscriptions/loadData', async (par
     });
   
   // ** Process subscriptions (retreive lat and lng)
-  subscriptions = await syncSubscriptions(parsedData, oldSubscriptions)
+  subscriptions = await syncSubscriptions(parsedData, oldSubscriptions, params.callback)
   return subscriptions
 })
 
 
-const syncSubscriptions = async (parsedData, oldSubscriptions) => {
+const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
   var synced = []
-  var removed = []
+  var toCancel = []
   var toInclude = []
+  var toUpdate = []
+  var updated = []
   var included = []
+  var canceled = []
   var newSubscriptions = []
   var failed = []
+  var errorMessage = ''
 
   for (var i= 0; i < parsedData.length; i++) {
     if(i % 2 == 0) {
@@ -136,7 +147,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions) => {
       })
     }
   }
-  
+
   var oldSubscriptionsNumber = []
   oldSubscriptions.map(sub => oldSubscriptionsNumber.push(sub.number + sub.name))
   var newSubscriptionsNumber = []
@@ -146,8 +157,29 @@ const syncSubscriptions = async (parsedData, oldSubscriptions) => {
     return oldSubscriptionsNumber.includes(subscription.number + subscription.name)
   });
 
-  removed = oldSubscriptions.filter(subscription => {
-    return !newSubscriptionsNumber.includes(subscription.number + subscription.name)
+  toUpdate = newSubscriptions.filter(subscription => {
+    const matchSubscription = null
+    for(var i = 0; i < oldSubscriptions.length; i++) {
+      if(oldSubscriptions.length) {
+        if((oldSubscriptions[i].number + oldSubscriptions[i].name) == (subscription.number + subscription.name))
+        {
+          matchSubscription = oldSubscriptions[i]
+          break
+        }
+      }
+    }
+    
+    if(matchSubscription) {
+      var addressName = matchSubscription.address.split(',')[0].split(' ')
+      var mainAddress = addressName[0]
+      // ** Check if the registered order has different address or status
+      return !subscription.address.toLowerCase().includes(mainAddress.toLowerCase()) || matchSubscription.status === 'Canceled'
+    }
+    return false
+  })
+
+  toCancel = oldSubscriptions.filter(subscription => {
+    return !newSubscriptionsNumber.includes(subscription.number + subscription.name) && subscription.status === 'Actived'
   });
 
   toInclude = newSubscriptions.filter(subscription => {
@@ -156,38 +188,111 @@ const syncSubscriptions = async (parsedData, oldSubscriptions) => {
 
   if(oldSubscriptions.length > 1500) {
     for(var i = 0; i < toInclude.length; i++) {
+      if(errorMessage != '') break
       const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toInclude[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
         await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
           if(response.data.results.length > 0) {
             toInclude[i].address = response.data.results[0].formatted_address
             toInclude[i].latitude = response.data.results[0].geometry.location.lat
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
-            console.log('pushing: ' + JSON.stringify(toInclude[i]))
             await API.graphql(graphqlOperation(createMpsSubscription, {input: toInclude[i]}))
             console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
-            console.log('pushing to store: ' + JSON.stringify(toInclude[i]))
             included.push(toInclude[i])
           }
           else {
             failed.push(toInclude[i])
+            errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 
             console.log('error for: ' + urlRequest)
           }    
         }).catch(err => {
+          // errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 
           failed.push(toInclude[i])
           console.log('CRITICAL ERROR: ' + JSON.stringify(err))
         })
     }
+
+    for(var i = 0; i < toUpdate.length; i++) {
+      if(errorMessage != '') break
+        const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toUpdate[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
+        await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
+          if(response.data.results.length > 0) {
+            const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toUpdate[i]))
+            const version = itemQuery.data.getMpsSubscription._version
+            const versionedSub = {
+              id: toUpdate[i].number + toUpdate[i].name,
+              number: toUpdate[i].number,
+              subscriptionDate: toUpdate[i].subscriptionDate,
+              address: response.data.results[0].formatted_address,
+              email: toUpdate[i].email,
+              phone: toUpdate[i].phone,
+              name: toUpdate[i].name,
+              mealPlan: toUpdate[i].mealPlan,
+              latitude: response.data.results[0].geometry.location.lat,
+              avatar: toUpdate[i].avatar,
+              status: 'Actived',
+              longitude: response.data.results[0].geometry.location.lng,
+              deliveryInstruction: toUpdate[i].deliveryInstruction,
+              _version: version
+            }
+            await API.graphql(graphqlOperation(updateMpsSubscription, {input: versionedSub}))
+            console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
+            updated.push(versionedSub)
+          }
+          else {
+            errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number 
+            failed.push(toUpdate[i])
+            console.log('error for: ' + urlRequest)
+          }    
+        }).catch(err => {
+          errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number 
+          failed.push(toUpdate[i])
+          console.log('CRITICAL ERROR: ' + err)
+          console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+        })
+    }
+    for(var i = 0; i < toCancel.length; i ++) {
+      if(errorMessage != '') break
+      try {
+        console.log('removed: ' + JSON.stringify(toCancel[i]))
+        const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toCancel[i]))
+        const version = itemQuery.data.getMpsSubscription._version
+        const versionedSub = {
+          id: toCancel[i].number + toCancel[i].name,
+          number: toCancel[i].number,
+          subscriptionDate: toCancel[i].subscriptionDate,
+          address: toCancel[i].address,
+          email: toCancel[i].email,
+          phone: toCancel[i].phone,
+          name: toCancel[i].name,
+          mealPlan: toCancel[i].mealPlan,
+          latitude: toCancel[i].latitude,
+          avatar: toCancel[i].avatar,
+          status: 'Canceled',
+          longitude: toCancel[i].longitude,
+          deliveryInstruction: toCancel[i].deliveryInstruction,
+          _version: version
+      }
+      await API.graphql(graphqlOperation(updateMpsSubscription, {input: versionedSub}))
+      canceled.push(versionedSub)
+      }
+      catch(err) {
+          errorMessage = 'SYNC OPERATION: CANCEL: Error when processing order id: ' + toCancel[i].number 
+          failed.push(toCancel[i])
+          console.log('CRITICAL ERROR: ' + err)
+          console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+      }
+    }
   }
   else {
     synced = []
-    removed = []
+    toCancel = []
     toInclude = []
     included = []
     newSubscriptions = []
     failed = []
   }
   
-  return {synced, removed, included, failed}
+  return {synced, toCancel, included, failed, toUpdate, oldSubscriptions, canceled, errorMessage, callback}
 }
 
 export const deleteSubscription = createAsyncThunk('appSubscriptions/deleteData', async (id, { getState, dispatch }) => {
@@ -214,9 +319,14 @@ export const appSubscriptionSlice = createSlice({
     total: 1,
     params: {},
     allData: [],
-    locations: []
+    locations: [],
+    loading: false,
   },
-  reducers: {},
+  reducers: {
+    handleLoadingSubscriptions: (state, action) => {
+      state.loading = action.payload
+    },
+  },
   extraReducers: builder => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
       for(var i = 0; i < action.payload.length; i++) {
@@ -230,18 +340,36 @@ export const appSubscriptionSlice = createSlice({
       state.params = action.payload.params
       state.allData = action.payload
       state.total = action.payload.total
+      state.loading = false
     })
     builder.addCase(loadData.fulfilled, (state, action) => {
-      console.log('received in store: ' + JSON.stringify(action.payload))
-      const { synced, included } = action.payload
-      const subsToRefresh = state.data.concat(included)
-      const subsToRefreshSorted = subsToRefresh.sort((a, b) => parseFloat(a.subscriptionDate) - parseFloat(b.subscriptionDate))
-      state.data = subsToRefreshSorted
-      state.params = action.payload.params
-      state.allData = action.payload
-      state.total = action.payload.length
+      var { synced, toUpdate, included, params, canceled, callback, errorMessage} = action.payload
+      state.loading = false
+      state.params = params
+      if(errorMessage === '') {
+        
+        for(var i = 0; i < toUpdate.length; i ++) {
+          for(var k = 0; k < synced.length; k ++) {
+            var indexToUpdate = synced.indexOf(toUpdate[i])
+            synced[indexToUpdate] = toUpdate[i]
+          }
+        }
+        
+        const finalSubscriptionList = synced.concat(included, canceled)
+        state.data = finalSubscriptionList
+        state.params = action.payload.params
+        state.allData = action.payload
+
+        callback(false, "Subscriptions successfully synced  🎉")
+
+      }
+      else {
+        callback(true, errorMessage)
+      }
     })
   }
 })
+
+export const { handleLoadingSubscriptions } = appSubscriptionSlice.actions
 
 export default appSubscriptionSlice.reducer

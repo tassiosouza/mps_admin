@@ -21,6 +21,8 @@ import FormControl from '@mui/material/FormControl'
 import CardContent from '@mui/material/CardContent'
 import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
+import LinearProgress from '@mui/material/LinearProgress'
+
 
 // ** Icons Imports
 import Send from 'mdi-material-ui/Send'
@@ -43,7 +45,7 @@ import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchData, deleteSubscription } from 'src/store/apps/subscriptions'
+import { fetchData, deleteSubscription, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
@@ -114,16 +116,6 @@ const RowOptions = ({ id }) => {
       </Menu>
     </Fragment>
   )
-}
-
-// ** Vars
-const subscriptionStatusObj = {
-  Sent: { color: 'secondary', icon: <Send sx={{ fontSize: '1.25rem' }} /> },
-  Paid: { color: 'success', icon: <Check sx={{ fontSize: '1.25rem' }} /> },
-  Draft: { color: 'primary', icon: <ContentSaveOutline sx={{ fontSize: '1.25rem' }} /> },
-  'Partial Payment': { color: 'warning', icon: <ChartPie sx={{ fontSize: '1.25rem' }} /> },
-  'Past Due': { color: 'error', icon: <InformationOutline sx={{ fontSize: '1.25rem' }} /> },
-  Downloaded: { color: 'info', icon: <ArrowDown sx={{ fontSize: '1.25rem' }} /> }
 }
 
 // ** renders client column
@@ -260,6 +252,7 @@ const SubscriptionList = () => {
   const dispatch = useDispatch()
   const store = useSelector(state => state.subscriptions)
   useEffect(() => {
+    dispatch(handleLoadingSubscriptions(true))
     dispatch(
       fetchData({
         dates,
@@ -394,6 +387,7 @@ const SubscriptionList = () => {
       <Grid item xs={12}>
         <Card>
           <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} />
+          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight
             pagination
