@@ -7,6 +7,7 @@ import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import { DataGrid } from '@mui/x-data-grid'
+import { styled } from "@mui/material/styles";
 
 // ** Custom Components
 import CustomChip from 'src/@core/components/mui/chip'
@@ -34,6 +35,20 @@ const renderClient = params => {
     )
   }
 }
+
+export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  "& .MuiDataGrid-main": {
+    // remove overflow hidden overwise sticky does not work
+    overflow: "unset"
+  },
+  "& .MuiDataGrid-columnHeaders": {
+    position: "sticky"
+  },
+  "& .MuiDataGrid-virtualScroller": {
+    // remove the space left for the header
+    marginTop: "0!important"
+  }
+}));
 
 const statusObj = {
   1: { title: 'current', color: 'primary' },
@@ -121,19 +136,29 @@ const columns = [
   }
 ]
 
+const CardHeaderComponent = () => {
+  return (
+    <Box>
+      <Typography variant='h7'>Select Locations</Typography>
+      <Typography variant='h7'>Select the locations to be included in the route planning</Typography>
+    </Box>
+  )
+}
+
 const TableSelection = () => {
   // ** State
   const [pageSize, setPageSize] = useState(7)
 
   return (
     <Card>
-      <CardHeader title='Selection' />
-      <DataGrid
+      <CardHeader title='Select Locations'>
+      </CardHeader>
+      <StyledDataGrid
         autoHeight
         rows={rows}
         columns={columns}
         checkboxSelection
-        pageSize={pageSize}
+        pageSize={40}
         rowsPerPageOptions={[7, 10, 25, 50]}
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
       />

@@ -50,7 +50,7 @@ const navigation = () => {
     {
       title: 'Routes',
       icon: CarTractionControl,
-      path: '/apps/routes'
+      path: '/apps/routes/list'
     },
     {
       title: 'Subscriptions',

@@ -1,112 +1,103 @@
-// ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { useDispatch } from 'react-redux'
 
 // ** Axios Imports
 import axios from 'axios'
+import { Console, CosineWave } from 'mdi-material-ui';
 
-// ** Fetch Mails
-export const fetchMails = createAsyncThunk('appEmail/fetchMails', async params => {
-  const response = await axios.get('/apps/email/emails', {
-    params
-  })
+// ** Third Party Imports
+import Papa from "papaparse";
 
-  return { ...response.data, filter: params }
-})
+// ** Amplify Imports
+import { API, graphqlOperation } from 'aws-amplify'
+import { createMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
+import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
 
-// ** Get Current Mail
-export const getCurrentMail = createAsyncThunk('appEmail/selectMail', async id => {
-  const response = await axios.get('/apps/email/get-email', {
-    params: {
-      id
+// ** Utils Import
+import { getDateRange } from 'src/@core/utils/get-daterange'
+
+export const refreshLocations = createAsyncThunk('appRoutes/refreshLocations', async (params)  => {
+
+  var locations = []
+  const filter = {
+    status: {
+      eq: 'Actived'
+    }
+  }
+
+  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
+    filter,
+    limit: 5000
+  }))
+
+  response.data.listMpsSubscriptions.items.map(sub => {
+    var locationName = retreiveLocation(sub.address)
+    var found = locations.find(loc => loc.name == locationName)
+    if(found) {
+      found.deliveries += 1
+    }
+    else { 
+      locations.push({
+        name: locationName,
+        deliveries: 1
+      })
     }
   })
 
-  return response.data
+  const filtered = locations.filter(loc => loc.name.toLowerCase().includes(params.q.toLowerCase()))
+
+  return filtered;
 })
 
-// ** Update Mail
-export const updateMail = createAsyncThunk('appEmail/updateMail', async (params, { dispatch, getState }) => {
-  const response = await axios.post('/apps/email/update-emails', {
-    data: { emailIds: params.emailIds, dataToUpdate: params.dataToUpdate }
+export const deleteSubscription = createAsyncThunk('appRoutes/deleteData', async (id, { getState, dispatch }) => {
+  const response = await axios.delete('/apps/subscriptions/delete', {
+    data: id
   })
-  await dispatch(fetchMails(getState().email.filter))
-  if (Array.isArray(params.emailIds)) {
-    await dispatch(getCurrentMail(params.emailIds[0]))
-  }
+  await dispatch(fetchData(getState().invoice.params))
 
   return response.data
 })
 
-// ** Update Mail Label
-export const updateMailLabel = createAsyncThunk('appEmail/updateMailLabel', async (params, { dispatch, getState }) => {
-  const response = await axios.post('/apps/email/update-emails-label', {
-    data: { emailIds: params.emailIds, label: params.label }
-  })
-  await dispatch(fetchMails(getState().email.filter))
-  if (Array.isArray(params.emailIds)) {
-    await dispatch(getCurrentMail(params.emailIds[0]))
-  }
+const retreiveLocation = (address) => {
+  const addressComponents =  address.split(',')
+  const locationIndex = addressComponents.length - 3
+  return addressComponents[locationIndex]
+}
 
-  return response.data
-})
-
-// ** Prev/Next Mails
-export const paginateMail = createAsyncThunk('appEmail/paginateMail', async params => {
-  const response = await axios.get('/apps/email/paginate-email', { params })
-
-  return response.data
-})
-
-export const appOrderSlice = createSlice({
-  name: 'appOrders',
+export const appRoutesSlice = createSlice({
+  name: 'appRoutes',
   initialState: {
-    orders: null,
-    filter: {
-      region: '',
-      name: '',
-      distance: 200
-    },
-    currentOrder: null,
-    selectedOrders: []
+    data: [],
+    removeds: [],
+    included: [],
+    total: 1,
+    params: {},
+    allData: [],
+    locations: [],
+    loading: false,
+    locations:[],
+    selectedLocations: []
   },
   reducers: {
-    handleSelectOrder: (state, action) => {
-      const orders = state.selectedOrders
-      if (!orders.includes(action.payload)) {
-        orders.push(action.payload)
-      } else {
-        orders.splice(orders.indexOf(action.payload), 1)
-      }
-      state.selectedOrders = orders
+    addLocation: (state, action) => {
+      console.log('store updated :' + JSON.stringify(action.payload))
+      state.selectedLocations.push(action.payload)
     },
-    handleSelectAllOrders: (state, action) => {
-      const selectAllOrders = []
-      if (action.payload && state.orders !== null) {
-        selectAllOrders.length = 0
-
-        // @ts-ignore
-        state.orders.forEach(order => selectAllOrders.push(order.number))
-      } else {
-        selectAllOrders.length = 0
+    removeLocation: location => {
+      const index = array.indexOf(location)
+      if (index > -1) {
+        selectedLocations.splice(index, 1)
       }
-      state.selectedOrders = selectAllOrders
     }
   },
   extraReducers: builder => {
-    builder.addCase(fetchMails.fulfilled, (state, action) => {
-      state.mails = action.payload.emails
-      state.filter = action.payload.filter
-      state.mailMeta = action.payload.emailsMeta
-    })
-    builder.addCase(getCurrentMail.fulfilled, (state, action) => {
-      state.currentMail = action.payload
-    })
-    builder.addCase(paginateMail.fulfilled, (state, action) => {
-      state.currentMail = action.payload
+    builder.addCase(refreshLocations.fulfilled, (state, action) => {
+      console.log('received in store' + JSON.stringify(action.payload))
+      state.locations = action.payload
     })
   }
 })
 
-export const { handleSelectOrder, handleSelectAllOrders } = appOrderSlice.actions
+export const { addLocation } = appRoutesSlice.actions
 
-export default appOrderSlice.reducer
+export default appRoutesSlice.reducer

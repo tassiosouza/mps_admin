@@ -29,22 +29,18 @@ function createData(name, code, population, size) {
   return { location:name, deliveries:population, }
 }
 
-const TableStickyHeader = (props) => {
+const LocationsTable = (props) => {
 
   // ** Props
-  const { locations } = props
+  const { locations, addLocation, removeLocation } = props
  
-  // ** States
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage)
+  // ** Functions
+  const handleAddLocations = (location) => {
+    addLocation(location)
   }
 
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+  const handleRemoveLocations = (location) => {
+    removeLocation(location)
   }
 
   return (
@@ -61,19 +57,19 @@ const TableStickyHeader = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {locations.map(row => {
+            {locations.map(location => {
               return (
-                <TableRow hover tabIndex={-1} key={row.code}>
+                <TableRow hover tabIndex={-1} key={location.code}>
                   {columns.map(column => {
                     return column.id != 'action' ? (
                       <TableCell key={column.id} align={column.align}>
-                        {column.id === 'location' ? row.name : row.deliveries}
+                        {column.id === 'location' ? location.name : location.deliveries}
                       </TableCell>
                     ) : (
                       <TableCell key={column.id} align='right'>
                         <Box sx={{ display: 'flex', justifyContent: 'end' }}>
                           <Tooltip title='Add Location'>
-                            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => {}}>
+                            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleAddLocations(location)}>
                               <PlusCircleOutline />
                             </IconButton>
                           </Tooltip>
@@ -98,4 +94,4 @@ const TableStickyHeader = (props) => {
   )
 }
 
-export default TableStickyHeader
+export default LocationsTable
