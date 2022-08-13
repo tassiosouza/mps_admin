@@ -67,7 +67,7 @@ const TableHeader = props => {
           onChange={e => handleFilter(e.target.value)}
         />
         <Button sx={{ mb: 2}} variant='contained' onClick={handleOpenDialog}>
-          Generate Routes
+          New Routes Optimization
         </Button>
       </Box>
     </Box>
