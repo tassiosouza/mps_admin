@@ -14,19 +14,24 @@ import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
 import Checkbox from '@mui/material/Checkbox'
+import { styled } from '@mui/system';
 
 // * Icons
 import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
 import CloseCircleOutline from 'mdi-material-ui/CloseCircleOutline'
 
 const columns = [
-  { id: 'location', label: 'Location', minWidth: 70 },
-  { id: 'deliveries', label: 'Deliveries', minWidth: 20 },
-  { id: 'action', label: 'Action', minWidth: 10, align:'right'}
+  { id: 'location', label: 'Location', align:'start' },
+  { id: 'deliveries', label: 'Deliveries', align:'center' },
+  { id: 'action', label: 'Action', align:'right' }
 ]
 
-const LocationsTable = (props) => {
+const SmallTableCell = styled(TableCell)({
+  padding: '5px 20px 5px 20px !important',
+})
 
+
+const LocationsTable = (props) => {
   // ** Props
   const { locations, selectedLocations, addLocation, removeLocation } = props
  
@@ -42,28 +47,28 @@ const LocationsTable = (props) => {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 350 }} >
+      <TableContainer sx={{ maxHeight: 330 }} >
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
               {columns.map(column => (
-                <TableCell key={column.id} align={column.align} sx={{ minWidth: column.minWidth }}>
+                <SmallTableCell key={column.id} align={column.align}>
                   {column.label}
-                </TableCell>
+                </SmallTableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {locations.map(location => {
+            {locations.map((location, index) => {
               return (
-                <TableRow hover tabIndex={-1} key={location.code}>
-                  {columns.map(column => {
+                <TableRow hover tabIndex={-1} key={index}>
+                  {columns.map((column, index) => {
                     return column.id != 'action' ? (
-                      <TableCell key={column.id} align={column.align}>
+                      <SmallTableCell key={index} align={column.align}>
                         {column.id === 'location' ? location.name : location.deliveries}
-                      </TableCell>
+                      </SmallTableCell>
                     ) : (
-                      <TableCell key={column.id} align='right'>
+                      <SmallTableCell key={index} align='right'>
                         <Box sx={{ display: 'flex', justifyContent: 'end' }}>
                           
                           <Tooltip title='Add Location'>
@@ -76,7 +81,7 @@ const LocationsTable = (props) => {
                             </Checkbox>
                           </Tooltip>
                         </Box>
-                      </TableCell>
+                      </SmallTableCell>
                     )
                   })}
                 </TableRow>

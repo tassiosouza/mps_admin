@@ -19,7 +19,9 @@ import CardContent from '@mui/material/CardContent'
 import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
+import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
+import OutlinedInput from '@mui/material/OutlinedInput'
 import { DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions } from '@mui/material'
 
 // ** Custom Components Imports
@@ -70,28 +72,36 @@ const LocationsDialog = (props) => {
     dispatch(removeLocation(location))
   }
 
+  const getDeliveriesCount = () => {
+    var result = 0
+    store.selectedLocations.map(loc => result += loc.deliveries)
+    return result
+  }
+
   return (
       <Dialog
       open={open}
-      onClose={onClose}
       aria-labelledby='scroll-dialog-title'
       aria-describedby='scroll-dialog-description'
     >
       <DialogTitle id='scroll-dialog-title'>Generate Optimized Routes</DialogTitle>
         <DialogContent dividers={scroll === 'paper'}>
-        <Grid container spacing={3} sx={{mb:5}}>
+        <Grid container spacing={3} sx={{mb:5, justifyContent:'space-between'}}>
         <Grid item xs={7}>
-        <Typography variant='h7'>Select the numbers of drivers and the target locations you want to generate the optimized routes.</Typography>
+          <Typography variant='h7'>Select the numbers of drivers and the target locations you want to generate the optimized routes.</Typography>
         </Grid>
-        <Grid item xs={5}>
-          <Grid container spacing={3}>
-          <Grid item xs={3}>
-            <Typography variant='h7'>Drivers: </Typography>
-          </Grid>
-          <Grid item xs={9}>
-          <NumberPicker max={50} step={5} defaultValue={5}/>
-          </Grid>
-        </Grid>
+        <Grid item xs={5} sx={{textAlign:'right', pr:2}}>
+          <OutlinedInput
+            variant={'standard'}
+            size='small'
+            placeholder='Nº Drivers'
+            sx={{  mb: 2, maxWidth: '180px'}}
+            endAdornment={
+              <InputAdornment position='end'>
+                  <Typography variant='h7'>/ 15</Typography>
+              </InputAdornment>
+            }
+          />
         </Grid>
       </Grid>
         <LocationsTableHeader 
@@ -104,10 +114,17 @@ const LocationsDialog = (props) => {
           addLocation={handleAddLocation} 
           removeLocation={handleRemoveLocation}/>
       </DialogContent>
-      <DialogActions >
-        <Button onClick={handleClose}> Cancel</Button>
-        <Button> Run</Button>
-      </DialogActions>
+      <Grid container sx={{justifyContent:'space-between'}} direction='row'>
+        <Grid item xs={5} sx={{alignSelf:'center', pl:5}}>
+          <Typography variant='h7'>Total Deliveries: {getDeliveriesCount()}</Typography>
+        </Grid>
+        <Grid item xs={5}>
+          <DialogActions >
+            <Button onClick={handleClose}> Cancel</Button>
+            <Button> Run</Button>
+          </DialogActions>
+        </Grid>
+      </Grid>
     </Dialog>
   )
 }
