@@ -287,7 +287,6 @@ const RoutesList = () => {
   }
 
   const handleCloseDialog = () => {
-    console.log('closing')
     setOpenDialog(false)
   }
 

@@ -31,7 +31,7 @@ import NumberPicker from "react-widgets/NumberPicker";
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { refreshLocations, addLocation } from 'src/store/apps/routes'
+import { refreshLocations, addLocation, removeLocation, clearSelectedLocations } from 'src/store/apps/routes'
 
 const LocationsDialog = (props) => {
   // ** Props
@@ -58,16 +58,16 @@ const LocationsDialog = (props) => {
   }
 
   const handleClose = () => {
+    dispatch(clearSelectedLocations())
     onClose()
   }
 
   const handleAddLocation = location => {
-    console.log('add = ' + location.name)
     dispatch(addLocation(location))
   }
 
   const handleRemoveLocation = location => {
-
+    dispatch(removeLocation(location))
   }
 
   return (
@@ -94,8 +94,15 @@ const LocationsDialog = (props) => {
         </Grid>
         </Grid>
       </Grid>
-        <LocationsTableHeader value={value} selectedLocations={store.selectedLocations} handleFilter={handleFilter} />
-        <LocationsTable locations={store.locations} addLocation={handleAddLocation} removeLocation={handleRemoveLocation}/>
+        <LocationsTableHeader 
+          value={value} 
+          selectedLocations={store.selectedLocations} 
+          handleFilter={handleFilter} />
+        <LocationsTable 
+          locations={store.locations}
+          selectedLocations={store.selectedLocations} 
+          addLocation={handleAddLocation} 
+          removeLocation={handleRemoveLocation}/>
       </DialogContent>
       <DialogActions >
         <Button onClick={handleClose}> Cancel</Button>

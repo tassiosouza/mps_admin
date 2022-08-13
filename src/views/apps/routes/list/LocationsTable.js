@@ -13,6 +13,7 @@ import Box from '@mui/material/Box'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
+import Checkbox from '@mui/material/Checkbox'
 
 // * Icons
 import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
@@ -23,24 +24,20 @@ const columns = [
   { id: 'deliveries', label: 'Deliveries', minWidth: 20 },
   { id: 'action', label: 'Action', minWidth: 10, align:'right'}
 ]
-function createData(name, code, population, size) {
-  const density = population / size
-
-  return { location:name, deliveries:population, }
-}
 
 const LocationsTable = (props) => {
 
   // ** Props
-  const { locations, addLocation, removeLocation } = props
+  const { locations, selectedLocations, addLocation, removeLocation } = props
  
   // ** Functions
-  const handleAddLocations = (location) => {
-    addLocation(location)
-  }
-
-  const handleRemoveLocations = (location) => {
-    removeLocation(location)
+  const handleCheckLocation = (location) => {
+    if(selectedLocations.filter(loc => loc.name === location.name).length > 0) {
+      removeLocation(location)
+    }
+    else {
+      addLocation(location)
+    }
   }
 
   return (
@@ -68,18 +65,16 @@ const LocationsTable = (props) => {
                     ) : (
                       <TableCell key={column.id} align='right'>
                         <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+                          
                           <Tooltip title='Add Location'>
-                            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleAddLocations(location)}>
+                            {/* <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleAddLocations(location)}>
                               <PlusCircleOutline />
-                            </IconButton>
+                            </IconButton> */}
+                            <Checkbox
+                              onChange={() => handleCheckLocation(location)}
+                              checked={location.included}>
+                            </Checkbox>
                           </Tooltip>
-                          {/* <Tooltip title='Remove Location'>
-                            <Box>
-                              <IconButton size='small' onClick={() => {}}>
-                                <CloseCircleOutline />
-                              </IconButton>
-                            </Box>
-                          </Tooltip> */}
                         </Box>
                       </TableCell>
                     )

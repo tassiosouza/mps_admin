@@ -1,23 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { useDispatch } from 'react-redux'
-
-// ** Axios Imports
-import axios from 'axios'
-import { Console, CosineWave } from 'mdi-material-ui';
-
-// ** Third Party Imports
-import Papa from "papaparse";
 
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
-import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
+import { listMpsSubscriptions } from '../../../graphql/queries'
 
-// ** Utils Import
-import { getDateRange } from 'src/@core/utils/get-daterange'
-
-export const refreshLocations = createAsyncThunk('appRoutes/refreshLocations', async (params)  => {
-
+export const refreshLocations = createAsyncThunk('appRoutes/refreshLocations', async (params, { getState })  => {
+  const state = getState()
+  const selectedLocations = state.routes.selectedLocations
   var locations = []
   const filter = {
     status: {
@@ -32,20 +21,21 @@ export const refreshLocations = createAsyncThunk('appRoutes/refreshLocations', a
 
   response.data.listMpsSubscriptions.items.map(sub => {
     var locationName = retreiveLocation(sub.address)
-    var found = locations.find(loc => loc.name == locationName)
-    if(found) {
-      found.deliveries += 1
+    var registeredLocation = locations.find(loc => loc.name == locationName)
+    if(registeredLocation) {
+      registeredLocation.deliveries += 1
     }
-    else { 
+    else {
+      var selectedLocation = selectedLocations.find(loc => loc.name === locationName)
       locations.push({
         name: locationName,
-        deliveries: 1
+        deliveries: 1,
+        included: selectedLocation != null
       })
     }
   })
 
   const filtered = locations.filter(loc => loc.name.toLowerCase().includes(params.q.toLowerCase()))
-
   return filtered;
 })
 
@@ -75,29 +65,50 @@ export const appRoutesSlice = createSlice({
     allData: [],
     locations: [],
     loading: false,
-    locations:[],
+    locations: [],
     selectedLocations: []
   },
   reducers: {
     addLocation: (state, action) => {
-      console.log('store updated :' + JSON.stringify(action.payload))
-      state.selectedLocations.push(action.payload)
+      var location = action.payload
+
+      // ** Set included to true
+      var registeredLocation = state.locations.find(loc => loc.name === location.name)
+      var locationIndex = state.locations.indexOf(registeredLocation)
+      state.locations[locationIndex].included = true
+
+      // ** Add into selected locations list
+      state.selectedLocations.push(location)
     },
-    removeLocation: location => {
-      const index = array.indexOf(location)
-      if (index > -1) {
-        selectedLocations.splice(index, 1)
+    removeLocation: (state, action) => {
+      var location = action.payload
+      
+      // ** Set included to false
+      var registeredLocation = state.locations.find(loc => loc.name === location.name)
+      var locationIndex = state.locations.indexOf(registeredLocation)
+      state.locations[locationIndex].included = false
+      
+      // ** Remove from selected locations list
+      var locationToRemove = state.selectedLocations.find(loc => loc.name === location.name)
+      var indexToRemove = state.selectedLocations.indexOf(locationToRemove)
+      if(indexToRemove > -1) {
+        state.selectedLocations.splice(indexToRemove, 1)
       }
+    },
+    clearSelectedLocations: (state, action) => {
+      state.locations.map(loc => {
+        loc.included = false
+      })
+      state.selectedLocations = []
     }
   },
   extraReducers: builder => {
     builder.addCase(refreshLocations.fulfilled, (state, action) => {
-      console.log('received in store' + JSON.stringify(action.payload))
       state.locations = action.payload
     })
   }
 })
 
-export const { addLocation } = appRoutesSlice.actions
+export const { addLocation, removeLocation, clearSelectedLocations } = appRoutesSlice.actions
 
 export default appRoutesSlice.reducer
