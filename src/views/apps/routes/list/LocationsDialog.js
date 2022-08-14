@@ -34,6 +34,13 @@ import NumberPicker from "react-widgets/NumberPicker";
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { refreshLocations, addLocation, removeLocation, clearSelectedLocations } from 'src/store/apps/routes'
+import { Satellite } from 'mdi-material-ui'
+
+const Status = {
+  INITIAL: 'initial',
+  LOADING: 'loading',
+  DONE: 'done'
+}
 
 const LocationsDialog = (props) => {
   // ** Props
@@ -42,6 +49,7 @@ const LocationsDialog = (props) => {
 
   // ** States
   const [value, setValue] = useState('')
+  const [status, setStatus] = useState(Status.INITIAL)
 
   // ** Redux
   const dispatch = useDispatch()
@@ -59,9 +67,14 @@ const LocationsDialog = (props) => {
     setValue(val)
   }
 
+  const handleConfirm = () => {
+    setStatus(Status.LOADING)
+  }
+
   const handleClose = () => {
     dispatch(clearSelectedLocations())
     onClose()
+    setStatus(Status.INITIAL)
   }
 
   const handleAddLocation = location => {
@@ -85,43 +98,68 @@ const LocationsDialog = (props) => {
       aria-describedby='scroll-dialog-description'
     >
       <DialogTitle id='scroll-dialog-title'>Generate Optimized Routes</DialogTitle>
-        <DialogContent dividers={scroll === 'paper'}>
-        <Grid container spacing={3} sx={{mb:5, justifyContent:'space-between'}}>
-        <Grid item xs={7}>
-          <Typography variant='h7'>Select the numbers of drivers and the target locations you want to generate the optimized routes.</Typography>
-        </Grid>
-        <Grid item xs={5} sx={{textAlign:'right', pr:2}}>
-          <OutlinedInput
-            variant={'standard'}
-            size='small'
-            placeholder='Nº Drivers'
-            sx={{  mb: 2, maxWidth: '180px'}}
-            endAdornment={
-              <InputAdornment position='end'>
-                  <Typography variant='h7'>/ 15</Typography>
-              </InputAdornment>
-            }
-          />
-        </Grid>
-      </Grid>
-        <LocationsTableHeader 
-          value={value} 
-          selectedLocations={store.selectedLocations} 
-          handleFilter={handleFilter} />
-        <LocationsTable 
-          locations={store.locations}
-          selectedLocations={store.selectedLocations} 
-          addLocation={handleAddLocation} 
-          removeLocation={handleRemoveLocation}/>
+      <DialogContent dividers={scroll === 'paper'}>
+        {status === Status.INITIAL ? 
+          (
+          <div>
+            <Grid container spacing={3} sx={{mb:5, justifyContent:'space-between'}}>
+              <Grid item xs={7}>
+                <Typography variant='h7'>Select the numbers of drivers and the target locations you want to generate the optimized routes.</Typography>
+              </Grid>
+              <Grid item xs={5} sx={{textAlign:'right', pr:2}}>
+                <OutlinedInput
+                  variant={'standard'}
+                  size='small'
+                  placeholder='Nº Drivers'
+                  sx={{  mb: 2, maxWidth: '180px'}}
+                  endAdornment={
+                    <InputAdornment position='end'>
+                        <Typography variant='h7'>/ 15</Typography>
+                    </InputAdornment>
+                  }
+                />
+              </Grid>
+            </Grid>
+            <LocationsTableHeader 
+              value={value} 
+              selectedLocations={store.selectedLocations} 
+              handleFilter={handleFilter} />
+            <LocationsTable 
+              locations={store.locations}
+              selectedLocations={store.selectedLocations} 
+              addLocation={handleAddLocation} 
+              removeLocation={handleRemoveLocation}/>
+          </div>
+          ) : (
+            <Grid container spacing={3} direction='column'>
+              <Grid item xs={3}>
+                <Typography component='div'>Generating optimized routes for 
+                  <Box fontWeight='600' display='inline'> {getDeliveriesCount()} Deliveries </Box>
+                  and 
+                  <Box fontWeight='600' display='inline'> 15 Drivers</Box> 
+                </Typography>
+              </Grid>
+              <Grid item xs={3} sx={{mb: 8}}>
+                <Typography component='div'>Expected wait time: 
+                  <Box fontWeight='600' display='inline'> 1min </Box>
+                </Typography>
+              </Grid>
+              <Grid item xs={6} sx={{alignSelf:'center'}}>
+                <img src='/animations/optimizing.gif' width={300} height={300} />
+              </Grid>
+            </Grid>
+          )
+        } 
       </DialogContent>
       <Grid container sx={{justifyContent:'space-between'}} direction='row'>
         <Grid item xs={5} sx={{alignSelf:'center', pl:5}}>
-          <Typography variant='h7'>Total Deliveries: {getDeliveriesCount()}</Typography>
+          {status === Status.INITIAL && <Typography variant='h7'>Total Deliveries: {getDeliveriesCount()}</Typography>}
         </Grid>
         <Grid item xs={5}>
           <DialogActions >
             <Button onClick={handleClose}> Cancel</Button>
-            <Button> Run</Button>
+            {status === Status.INITIAL && <Button onClick={handleConfirm}> Generate </Button>}
+            {status === Status.DONE && <Button onClick={handleConfirm}> Done </Button>}
           </DialogActions>
         </Grid>
       </Grid>

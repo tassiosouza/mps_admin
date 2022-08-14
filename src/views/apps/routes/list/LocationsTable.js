@@ -70,16 +70,10 @@ const LocationsTable = (props) => {
                     ) : (
                       <SmallTableCell key={index} align='right'>
                         <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-                          
-                          <Tooltip title='Add Location'>
-                            {/* <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleAddLocations(location)}>
-                              <PlusCircleOutline />
-                            </IconButton> */}
-                            <Checkbox
-                              onChange={() => handleCheckLocation(location)}
-                              checked={location.included}>
-                            </Checkbox>
-                          </Tooltip>
+                          <Checkbox
+                            onChange={() => handleCheckLocation(location)}
+                            checked={location.included}>
+                          </Checkbox>
                         </Box>
                       </SmallTableCell>
                     )
