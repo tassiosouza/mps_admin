@@ -105,7 +105,7 @@ const defaultColumns = [
     flex: 0.25,
     field: 'driver',
     minWidth: 300,
-    headerName: 'Driver',
+    headerName: 'Name',
     renderCell: ({ row }) => {<Typography variant='body2'>{row.phone}</Typography>}
   }
 ]

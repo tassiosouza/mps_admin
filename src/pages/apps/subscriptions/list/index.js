@@ -45,7 +45,7 @@ import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchData, deleteSubscription, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
+import { fetchSubscriptions, deleteSubscription, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
@@ -254,7 +254,7 @@ const SubscriptionList = () => {
   useEffect(() => {
     dispatch(handleLoadingSubscriptions(true))
     dispatch(
-      fetchData({
+      fetchSubscriptions({
         dates,
         q: value,
         status: statusValue,

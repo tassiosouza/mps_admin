@@ -18,7 +18,7 @@ import Snackbar from '@mui/material/Snackbar'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { loadData, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
+import { loadSubscriptionsFromFile, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Icons Import
 import Reload from 'mdi-material-ui/Reload'
@@ -54,7 +54,7 @@ const TableHeader = props => {
         }
         dispatch(handleLoadingSubscriptions(true))
         dispatch(
-          loadData({file: inputFile, callback: finishSyncCallback})
+          loadSubscriptionsFromFile({file: inputFile, callback: finishSyncCallback})
         )
     }
   }
