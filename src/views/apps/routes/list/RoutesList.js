@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState, useEffect, forwardRef, useRef } from 'react'
+import { useState, useEffect, forwardRef } from 'react'
 
 // ** Next Import
 import Link from 'next/link'
@@ -8,7 +8,6 @@ import Link from 'next/link'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
-import Menu from '@mui/material/Menu'
 import Tooltip from '@mui/material/Tooltip'
 import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
@@ -22,23 +21,9 @@ import CardContent from '@mui/material/CardContent'
 import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
-import Button from '@mui/material/Button'
-import { DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions } from '@mui/material'
 
 // ** Icons Imports
-import Send from 'mdi-material-ui/Send'
-import Check from 'mdi-material-ui/Check'
-import ChartPie from 'mdi-material-ui/ChartPie'
-import Download from 'mdi-material-ui/Download'
-import ArrowDown from 'mdi-material-ui/ArrowDown'
-import Cancel from 'mdi-material-ui/Cancel'
-import TrendingUp from 'mdi-material-ui/TrendingUp'
-import ContentCopy from 'mdi-material-ui/ContentCopy'
-import DotsVertical from 'mdi-material-ui/DotsVertical'
-import PencilOutline from 'mdi-material-ui/PencilOutline'
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
-import InformationOutline from 'mdi-material-ui/InformationOutline'
-import ContentSaveOutline from 'mdi-material-ui/ContentSaveOutline'
 
 // ** Third Party Imports
 import format from 'date-fns/format'
@@ -46,17 +31,13 @@ import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { refreshLocations } from 'src/store/apps/routes'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
-import LocationsTableHeader from 'src/views/apps/routes/list/LocationsTableHeader'
-import LocationsTable from 'src/views/apps/routes/list/LocationsTable'
 import LocationsDialog from 'src/views/apps/routes/list/LocationsDialog'
 
 // ** Third Party Styles Imports
@@ -179,7 +160,6 @@ const RoutesList = () => {
   const store = useSelector(state => state.routes)
 
   useEffect(() => {
-
   }, [dispatch, dates, statusValue, value])
 
   const handleFilter = val => {

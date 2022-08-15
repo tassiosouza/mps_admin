@@ -4,14 +4,10 @@ import { createContext, useEffect, useState } from 'react'
 // ** Next Import
 import { useRouter } from 'next/router'
 
-// ** Axios
-import axios from 'axios'
-
 // ** Config
 import authConfig from 'src/configs/auth'
 
-import Amplify, {Auth} from 'aws-amplify';
-import { ConsoleLine } from 'mdi-material-ui';
+import { Auth } from 'aws-amplify';
 
 // ** Defaults
 const defaultProvider = {

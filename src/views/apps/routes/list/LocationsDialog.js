@@ -1,40 +1,22 @@
 // ** React Imports
-import { Fragment, useState, useEffect, forwardRef, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Menu from '@mui/material/Menu'
-import Tooltip from '@mui/material/Tooltip'
-import { styled } from '@mui/material/styles'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import CardHeader from '@mui/material/CardHeader'
-import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
-import FormControl from '@mui/material/FormControl'
-import CardContent from '@mui/material/CardContent'
-import { DataGrid } from '@mui/x-data-grid'
-import Select from '@mui/material/Select'
-import LinearProgress from '@mui/material/LinearProgress'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { DialogTitle, Dialog, DialogContent, DialogContentText, DialogActions } from '@mui/material'
+import { DialogTitle, Dialog, DialogContent, DialogActions } from '@mui/material'
 
 // ** Custom Components Imports
 import LocationsTableHeader from 'src/views/apps/routes/list/LocationsTableHeader'
 import LocationsTable from 'src/views/apps/routes/list/LocationsTable'
 
-// ** Third Party Imports
-import NumberPicker from "react-widgets/NumberPicker";
-
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { refreshLocations, addLocation, removeLocation, clearSelectedLocations } from 'src/store/apps/routes'
-import { Satellite } from 'mdi-material-ui'
+import { fetchLocations, addLocation, removeLocation, clearSelectedLocations } from 'src/store/apps/routes'
 
 const Status = {
   INITIAL: 'initial',
@@ -44,7 +26,6 @@ const Status = {
 
 const LocationsDialog = (props) => {
   // ** Props
-  console.log(JSON.stringify(props))
   const { open, onClose } = props
 
   // ** States
@@ -56,10 +37,7 @@ const LocationsDialog = (props) => {
   const store = useSelector(state => state.routes)
 
   useEffect(() => {
-    console.log('enter in use effect')
-    dispatch(
-        refreshLocations({q: value})
-      )
+    dispatch(fetchLocations({q: value}))
   }, [dispatch, value])
 
   // ** Functions

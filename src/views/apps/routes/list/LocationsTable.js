@@ -1,6 +1,3 @@
-// ** React Imports
-import { useState, useEffect } from 'react'
-
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -10,15 +7,8 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import Box from '@mui/material/Box'
-import Tooltip from '@mui/material/Tooltip'
-import IconButton from '@mui/material/IconButton'
-import Link from '@mui/material/Link'
 import Checkbox from '@mui/material/Checkbox'
 import { styled } from '@mui/system';
-
-// * Icons
-import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
-import CloseCircleOutline from 'mdi-material-ui/CloseCircleOutline'
 
 const columns = [
   { id: 'location', label: 'Location', align:'start' },

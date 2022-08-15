@@ -17,7 +17,7 @@ import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 
 // ** Store & Actions Imports
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { loadSubscriptionsFromFile, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Icons Import

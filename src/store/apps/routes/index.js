@@ -1,58 +1,20 @@
+// ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-// ** Amplify Imports
-import { API, graphqlOperation } from 'aws-amplify'
-import { listMpsSubscriptions } from '../../../graphql/queries'
+// ** Repository Imports
+import { getLocations, getDrivers } from 'src/repository/apps/routes';
 
-export const refreshLocations = createAsyncThunk('appRoutes/refreshLocations', async (params, { getState })  => {
-  const state = getState()
-  const selectedLocations = state.routes.selectedLocations
-  var locations = []
-  const filter = {
-    status: {
-      eq: 'Actived'
-    }
-  }
-
-  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
-    filter,
-    limit: 5000
-  }))
-
-  response.data.listMpsSubscriptions.items.map(sub => {
-    var locationName = retreiveLocation(sub.address)
-    var registeredLocation = locations.find(loc => loc.name == locationName)
-    if(registeredLocation) {
-      registeredLocation.deliveries += 1
-    }
-    else {
-      var selectedLocation = selectedLocations.find(loc => loc.name === locationName)
-      locations.push({
-        name: locationName,
-        deliveries: 1,
-        included: selectedLocation != null
-      })
-    }
-  })
-
-  const filtered = locations.filter(loc => loc.name.toLowerCase().includes(params.q.toLowerCase()))
-  return filtered;
+// ** Fetch Locations from activeds Subscriptions in the Server
+export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
+  const locations = await getLocations(params, getState)
+  return locations
 })
 
-export const deleteSubscription = createAsyncThunk('appRoutes/deleteData', async (id, { getState, dispatch }) => {
-  const response = await axios.delete('/apps/subscriptions/delete', {
-    data: id
-  })
-  await dispatch(fetchData(getState().invoice.params))
-
-  return response.data
+// ** Fetch Drivers from Server
+export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (params, { getState })  => {
+  const drivers = await getLocations(params, getState)
+  return drivers
 })
-
-const retreiveLocation = (address) => {
-  const addressComponents =  address.split(',')
-  const locationIndex = addressComponents.length - 3
-  return addressComponents[locationIndex]
-}
 
 export const appRoutesSlice = createSlice({
   name: 'appRoutes',
@@ -66,7 +28,8 @@ export const appRoutesSlice = createSlice({
     locations: [],
     loading: false,
     locations: [],
-    selectedLocations: []
+    selectedLocations: [],
+    drivers: []
   },
   reducers: {
     addLocation: (state, action) => {
@@ -103,8 +66,11 @@ export const appRoutesSlice = createSlice({
     }
   },
   extraReducers: builder => {
-    builder.addCase(refreshLocations.fulfilled, (state, action) => {
+    builder.addCase(fetchLocations.fulfilled, (state, action) => {
       state.locations = action.payload
+    })
+    builder.addCase(fetchDrivers.fulfilled, (state, action) => {
+      state.drivers = action.payload
     })
   }
 })
