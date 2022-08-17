@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 
 const DriversTableHeader = props => {
   // ** Props
-  const { value, handleFilter, openDialog } = props
+  const { value, handleFilter } = props
 
   return (
     <Box
@@ -18,14 +18,14 @@ const DriversTableHeader = props => {
         justifyContent:'space-between'
       }}
     > 
-      <Typography sx={{p: 2, pl:4, color:'#51AB3B'}} variant='body'>
+      <Typography sx={{ p: 2, pl:4 }} variant='body'>
         Available Drivers
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
         <TextField
           size='small'
           value={value}
-          placeholder='Search Driver'
+          placeholder='Search'
           sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
           onChange={e => handleFilter(e.target.value)}
         />

@@ -52,75 +52,41 @@ const StyledLink = styled('a')(({ theme }) => ({
   color: theme.palette.primary.main
 }))
 
-// ** renders client column
-const renderClient = row => {
-  if (row.avatar.length) {
-    return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
-  } else {
-    return (
-      <CustomAvatar
-        skin='light'
-        color={row.avatarColor || 'primary'}
-        sx={{ mr: 3, fontSize: '1rem', width: 34, height: 34 }}
-      >
-        {getInitials(row.name || 'John Doe')}
-      </CustomAvatar>
-    )
-  }
-}
-
 const defaultColumns = [
   {
     flex: 0.1,
-    field: 'number',
+    field: 'name',
     minWidth: 80,
-    headerName: '#',
-    renderCell: ({ row }) => (
-      <Link href={`/apps/route/preview/${row.number}`} passHref>
-        <StyledLink>{`${row.number}`}</StyledLink>
-      </Link>
-    )
+    headerName: 'ID',
+    renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
   },
   {
     flex: 0.1,
     minWidth: 80,
     field: 'routeStatus',
     headerName: 'Status',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.phone}</Typography>
+    renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
   },
   {
     flex: 0.25,
     field: 'driver',
     minWidth: 300,
     headerName: 'Driver',
-    renderCell: ({ row }) => {
-      const { name, address } = row
-
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {renderClient(row)}
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              noWrap
-              variant='body2'
-              sx={{ color: 'text.primary', fontWeight: 500, lineHeight: '22px', letterSpacing: '.1px' }}
-            >
-              {name}
-            </Typography>
-            <Typography noWrap variant='caption'>
-              {address}
-            </Typography>
-          </Box>
-        </Box>
-      )
-    }
+    renderCell: ({ row }) => <Typography variant='body2'>{'Unassigned'}</Typography>
   },
   {
     flex: 0.12,
     minWidth: 100,
     field: 'location',
     headerName: 'Location',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.phone}</Typography>
+    renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
+  },
+  {
+    flex: 0.12,
+    minWidth: 100,
+    field: 'orders',
+    headerName: 'Orders',
+    renderCell: ({ row }) => <Typography variant='body2'>{row.startTime}</Typography>
   },
   {
     flex: 0.1,
@@ -189,6 +155,7 @@ const RoutesList = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false)
+    console.log('routes list: ' + JSON.stringify(store.routes))
   }
 
   const columns = [
@@ -213,7 +180,6 @@ const RoutesList = () => {
               </IconButton>
             </Link>
           </Tooltip>
-          <RowOptions id={row.id} />
         </Box>
       )
     }
@@ -296,7 +262,7 @@ const RoutesList = () => {
           <DataGrid
             autoHeight
             pagination
-            rows={store.data}
+            rows={store.routes}
             columns={columns}
             checkboxSelection
             disableSelectionOnClick

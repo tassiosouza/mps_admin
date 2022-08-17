@@ -1,14 +1,16 @@
-type MpsRoute @model @auth(rules: [{allow: public}]) @mapsTo(name: "Route") {
+type MRoute @model @auth(rules: [{allow: public}]) {
   id: ID!
   cost: Float
-  startTime: AWSTimestamp
-  endTime: AWSTimestamp
+  startTime: Float
+  endTime: Float
   status: RouteStatus
   name: String!
-  orders: [MpOrder] @hasMany(indexName: "byRoute", fields: ["id"])
+  orders: [MOrder] @hasMany(indexName: "byRoute", fields: ["id"])
   driver: Driver @hasOne
   distance: Int
   duration: Int
+  location: String
+  routePlanName: String
 }
 
 type Coordinates @model @auth(rules: [{allow: public}]) {
@@ -19,39 +21,38 @@ type Coordinates @model @auth(rules: [{allow: public}]) {
 
 enum RouteStatus {
   PLANNED
+  ASSIGNED
   INITIATED
   CHECKING_BAGS
   IN_TRANSIT
   DONE
+  CANCELED
   ON_HOLD
-  ABORTED
   SENDING_WELCOME_MESSAGES
 }
 
 enum OrderStatus {
-  RECEIVED
-  IN_TRANSIT
-  DELIVERED
-  CHECKED
-}
-
-enum MpsOrderStatus {
-  RECEIVED
+  CREATED
   IN_TRANSIT
   DELIVERED
   CHECKED
   CANCELED
 }
 
-type MpOrder @model @auth(rules: [{allow: public}]) @mapsTo(name: "MpsOrder") {
+type MOrder @model @auth(rules: [{allow: public}]) {
   id: ID!
-  number: String!
+  number: String
   deliveryInstruction: String
-  mealsInstruction: String
-  status: MpsOrderStatus
-  customer: Customer @hasOne
+  mealPlan: String
+  status: OrderStatus
+  customerName: String
   eta: Int
   routeID: ID! @index(name: "byRoute")
+  address: String
+  latitude: Float
+  longitude: Float
+  orderDate: Float
+  phone: String
 }
 
 type MpsSubscription @model @auth(rules: [{allow: public}]) {
@@ -68,6 +69,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   latitude: Float
   longitude: Float
   avatar: String
+  location: String
 }
 
 type Customer @model @auth(rules: [{allow: public}]) {
@@ -88,6 +90,10 @@ type Driver @model @auth(rules: [{allow: public}]) {
   carCapacity: Int
   owner: String!
   onBoard: Boolean
+  status: Boolean
+  latitude: Float
+  longitude: Float
+  assignedRouteID: String
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

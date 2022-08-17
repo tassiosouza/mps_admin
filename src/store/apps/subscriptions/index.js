@@ -22,7 +22,7 @@ export const appSubscriptionSlice = createSlice({
 
       // ** Retreive Locations from fetched
       for(var i = 0; i < action.payload.length; i++) {
-        const location = retreiveLocation(action.payload[i].address)
+        const location = action.payload[i].location
         if(!state.locations.includes(location)) {
           state.locations.push(location)
         }
@@ -61,13 +61,6 @@ export const appSubscriptionSlice = createSlice({
     })
   }
 })
-
-// ** Local function to retreive locations
-const retreiveLocation = (address) => {
-  const addressComponents =  address.split(',')
-  const locationIndex = addressComponents.length - 3
-  return addressComponents[locationIndex]
-}
 
 // ** Fetch Subscriptions from Server
 export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData', async (params)  => {

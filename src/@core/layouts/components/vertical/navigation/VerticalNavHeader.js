@@ -118,7 +118,7 @@ const VerticalNavHeader = props => {
       ) : (
         <Link href='/' passHref>
           <StyledLink>
-            <img src='/images/favicon.png' width={33} height={30}></img>
+            <img src='/images/favicon.png' width={33} height={30} alt='logo'></img>
             <HeaderTitle variant='h6' sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2 }) }}>
               {themeConfig.templateName}
             </HeaderTitle>

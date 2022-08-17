@@ -131,6 +131,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         number: parsedData[i].number,
         subscriptionDate: Date.now(),
         address: parsedData[i].Address,
+        location: '',
         email: parsedData[i].email,
         phone: parsedData[i].phone,
         name: parsedData[i].name,
@@ -188,9 +189,13 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
       const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toInclude[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
         await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
           if(response.data.results.length > 0) {
+            const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
+            console.log(locality)
+            console.log(JSON.stringify(response.data.results[0].address_components))
             toInclude[i].address = response.data.results[0].formatted_address
             toInclude[i].latitude = response.data.results[0].geometry.location.lat
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
+            toInclude[i].location = locality[0].long_name,
             await API.graphql(graphqlOperation(createMpsSubscription, {input: toInclude[i]}))
             console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
             included.push(toInclude[i])
@@ -214,11 +219,15 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
           if(response.data.results.length > 0) {
             const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toUpdate[i]))
             const version = itemQuery.data.getMpsSubscription._version
+            const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
+            console.log(locality)
+            console.log(JSON.stringify(response.data.results[0].address_components))
             const versionedSub = {
               id: toUpdate[i].number + toUpdate[i].name,
               number: toUpdate[i].number,
               subscriptionDate: toUpdate[i].subscriptionDate,
               address: response.data.results[0].formatted_address,
+              location: locality[0].long_name,
               email: toUpdate[i].email,
               phone: toUpdate[i].phone,
               name: toUpdate[i].name,

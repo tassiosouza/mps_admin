@@ -33,7 +33,7 @@ const AppBarContent = props => {
       ) : (
         <Link href='/' passHref>
           <StyledLink>
-            <img src='/images/favicon.png' width={33} height={30}></img>
+            <img src='/images/favicon.png' width={33} height={30} alt='logo'></img>
             <Typography variant='h6' sx={{ ml: 2, fontWeight: 700, lineHeight: 1.2 }}>
               {themeConfig.templateName}
             </Typography>

@@ -2,18 +2,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getLocations, getDrivers } from 'src/repository/apps/routes';
+import { getLocations, getDrivers, getGraphHopperRoutes } from 'src/repository/apps/routes';
 
 // ** Fetch Locations from activeds Subscriptions in the Server
 export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
-  const locations = await getLocations(params, getState)
-  return locations
+  const { locations, subscriptions } = await getLocations(params, getState)
+  return { locations, subscriptions }
 })
 
 // ** Fetch Drivers from Server
-export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (params, { getState })  => {
-  const drivers = await getLocations(params, getState)
+export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (params)  => {
+  const drivers = await getDrivers(params)
   return drivers
+})
+
+// ** Generate Optimized Routes
+export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async (params, { getState }) => {
+  const { callback } = params
+  const routes = await getGraphHopperRoutes(params, getState)
+  return { routes, callback }
 })
 
 export const appRoutesSlice = createSlice({
@@ -29,7 +36,9 @@ export const appRoutesSlice = createSlice({
     loading: false,
     locations: [],
     selectedLocations: [],
-    drivers: []
+    subscriptions: [],
+    drivers: [],
+    routes:[]
   },
   reducers: {
     addLocation: (state, action) => {
@@ -67,11 +76,18 @@ export const appRoutesSlice = createSlice({
   },
   extraReducers: builder => {
     builder.addCase(fetchLocations.fulfilled, (state, action) => {
-      state.locations = action.payload
+      state.locations = action.payload.locations
+      state.subscriptions = action.payload.subscriptions
     })
     builder.addCase(fetchDrivers.fulfilled, (state, action) => {
       state.drivers = action.payload
     })
+    builder.addCase(generateRoutes.fulfilled, (state, action) => {
+      console.log('store routes: ' + JSON.stringify(action.payload.routes))
+      state.routes = action.payload.routes
+      action.payload.callback()
+    })
+    
   }
 })
 

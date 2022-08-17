@@ -1,9 +1,9 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateMpsRoute = /* GraphQL */ `
-  subscription OnCreateMpsRoute {
-    onCreateMpsRoute {
+export const onCreateMRoute = /* GraphQL */ `
+  subscription OnCreateMRoute {
+    onCreateMRoute {
       id
       cost
       startTime
@@ -15,40 +15,21 @@ export const onCreateMpsRoute = /* GraphQL */ `
           id
           number
           deliveryInstruction
-          mealsInstruction
+          mealPlan
           status
-          customer {
-            id
-            name
-            address
-            plan
-            phone
-            owner
-            coordinates {
-              id
-              latitude
-              longitude
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-            }
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-            customerCoordinatesId
-          }
+          customerName
           eta
           routeID
+          address
+          latitude
+          longitude
+          orderDate
+          phone
           createdAt
           updatedAt
           _version
           _deleted
           _lastChangedAt
-          mpOrderCustomerId
         }
         nextToken
         startedAt
@@ -61,6 +42,10 @@ export const onCreateMpsRoute = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -69,18 +54,20 @@ export const onCreateMpsRoute = /* GraphQL */ `
       }
       distance
       duration
+      location
+      routePlanName
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpsRouteDriverId
+      mRouteDriverId
     }
   }
 `;
-export const onUpdateMpsRoute = /* GraphQL */ `
-  subscription OnUpdateMpsRoute {
-    onUpdateMpsRoute {
+export const onUpdateMRoute = /* GraphQL */ `
+  subscription OnUpdateMRoute {
+    onUpdateMRoute {
       id
       cost
       startTime
@@ -92,40 +79,21 @@ export const onUpdateMpsRoute = /* GraphQL */ `
           id
           number
           deliveryInstruction
-          mealsInstruction
+          mealPlan
           status
-          customer {
-            id
-            name
-            address
-            plan
-            phone
-            owner
-            coordinates {
-              id
-              latitude
-              longitude
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-            }
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-            customerCoordinatesId
-          }
+          customerName
           eta
           routeID
+          address
+          latitude
+          longitude
+          orderDate
+          phone
           createdAt
           updatedAt
           _version
           _deleted
           _lastChangedAt
-          mpOrderCustomerId
         }
         nextToken
         startedAt
@@ -138,6 +106,10 @@ export const onUpdateMpsRoute = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -146,18 +118,20 @@ export const onUpdateMpsRoute = /* GraphQL */ `
       }
       distance
       duration
+      location
+      routePlanName
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpsRouteDriverId
+      mRouteDriverId
     }
   }
 `;
-export const onDeleteMpsRoute = /* GraphQL */ `
-  subscription OnDeleteMpsRoute {
-    onDeleteMpsRoute {
+export const onDeleteMRoute = /* GraphQL */ `
+  subscription OnDeleteMRoute {
+    onDeleteMRoute {
       id
       cost
       startTime
@@ -169,40 +143,21 @@ export const onDeleteMpsRoute = /* GraphQL */ `
           id
           number
           deliveryInstruction
-          mealsInstruction
+          mealPlan
           status
-          customer {
-            id
-            name
-            address
-            plan
-            phone
-            owner
-            coordinates {
-              id
-              latitude
-              longitude
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-            }
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-            customerCoordinatesId
-          }
+          customerName
           eta
           routeID
+          address
+          latitude
+          longitude
+          orderDate
+          phone
           createdAt
           updatedAt
           _version
           _deleted
           _lastChangedAt
-          mpOrderCustomerId
         }
         nextToken
         startedAt
@@ -215,6 +170,10 @@ export const onDeleteMpsRoute = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -223,12 +182,14 @@ export const onDeleteMpsRoute = /* GraphQL */ `
       }
       distance
       duration
+      location
+      routePlanName
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpsRouteDriverId
+      mRouteDriverId
     }
   }
 `;
@@ -274,132 +235,75 @@ export const onDeleteCoordinates = /* GraphQL */ `
     }
   }
 `;
-export const onCreateMpOrder = /* GraphQL */ `
-  subscription OnCreateMpOrder {
-    onCreateMpOrder {
+export const onCreateMOrder = /* GraphQL */ `
+  subscription OnCreateMOrder {
+    onCreateMOrder {
       id
       number
       deliveryInstruction
-      mealsInstruction
+      mealPlan
       status
-      customer {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
+      customerName
       eta
       routeID
+      address
+      latitude
+      longitude
+      orderDate
+      phone
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpOrderCustomerId
     }
   }
 `;
-export const onUpdateMpOrder = /* GraphQL */ `
-  subscription OnUpdateMpOrder {
-    onUpdateMpOrder {
+export const onUpdateMOrder = /* GraphQL */ `
+  subscription OnUpdateMOrder {
+    onUpdateMOrder {
       id
       number
       deliveryInstruction
-      mealsInstruction
+      mealPlan
       status
-      customer {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
+      customerName
       eta
       routeID
+      address
+      latitude
+      longitude
+      orderDate
+      phone
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpOrderCustomerId
     }
   }
 `;
-export const onDeleteMpOrder = /* GraphQL */ `
-  subscription OnDeleteMpOrder {
-    onDeleteMpOrder {
+export const onDeleteMOrder = /* GraphQL */ `
+  subscription OnDeleteMOrder {
+    onDeleteMOrder {
       id
       number
       deliveryInstruction
-      mealsInstruction
+      mealPlan
       status
-      customer {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
+      customerName
       eta
       routeID
+      address
+      latitude
+      longitude
+      orderDate
+      phone
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpOrderCustomerId
     }
   }
 `;
@@ -419,6 +323,7 @@ export const onCreateMpsSubscription = /* GraphQL */ `
       latitude
       longitude
       avatar
+      location
       createdAt
       updatedAt
       _version
@@ -443,6 +348,7 @@ export const onUpdateMpsSubscription = /* GraphQL */ `
       latitude
       longitude
       avatar
+      location
       createdAt
       updatedAt
       _version
@@ -467,6 +373,7 @@ export const onDeleteMpsSubscription = /* GraphQL */ `
       latitude
       longitude
       avatar
+      location
       createdAt
       updatedAt
       _version
@@ -569,6 +476,10 @@ export const onCreateDriver = /* GraphQL */ `
       carCapacity
       owner
       onBoard
+      status
+      latitude
+      longitude
+      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -587,6 +498,10 @@ export const onUpdateDriver = /* GraphQL */ `
       carCapacity
       owner
       onBoard
+      status
+      latitude
+      longitude
+      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -605,6 +520,10 @@ export const onDeleteDriver = /* GraphQL */ `
       carCapacity
       owner
       onBoard
+      status
+      latitude
+      longitude
+      assignedRouteID
       createdAt
       updatedAt
       _version

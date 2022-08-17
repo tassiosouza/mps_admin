@@ -1,9 +1,9 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const getMpsRoute = /* GraphQL */ `
-  query GetMpsRoute($id: ID!) {
-    getMpsRoute(id: $id) {
+export const getMRoute = /* GraphQL */ `
+  query GetMRoute($id: ID!) {
+    getMRoute(id: $id) {
       id
       cost
       startTime
@@ -15,40 +15,21 @@ export const getMpsRoute = /* GraphQL */ `
           id
           number
           deliveryInstruction
-          mealsInstruction
+          mealPlan
           status
-          customer {
-            id
-            name
-            address
-            plan
-            phone
-            owner
-            coordinates {
-              id
-              latitude
-              longitude
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-            }
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-            customerCoordinatesId
-          }
+          customerName
           eta
           routeID
+          address
+          latitude
+          longitude
+          orderDate
+          phone
           createdAt
           updatedAt
           _version
           _deleted
           _lastChangedAt
-          mpOrderCustomerId
         }
         nextToken
         startedAt
@@ -61,6 +42,10 @@ export const getMpsRoute = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -69,22 +54,24 @@ export const getMpsRoute = /* GraphQL */ `
       }
       distance
       duration
+      location
+      routePlanName
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpsRouteDriverId
+      mRouteDriverId
     }
   }
 `;
-export const listMpsRoutes = /* GraphQL */ `
-  query ListMpsRoutes(
-    $filter: ModelMpsRouteFilterInput
+export const listMRoutes = /* GraphQL */ `
+  query ListMRoutes(
+    $filter: ModelMRouteFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listMpsRoutes(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listMRoutes(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
         cost
@@ -97,30 +84,21 @@ export const listMpsRoutes = /* GraphQL */ `
             id
             number
             deliveryInstruction
-            mealsInstruction
+            mealPlan
             status
-            customer {
-              id
-              name
-              address
-              plan
-              phone
-              owner
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-              customerCoordinatesId
-            }
+            customerName
             eta
             routeID
+            address
+            latitude
+            longitude
+            orderDate
+            phone
             createdAt
             updatedAt
             _version
             _deleted
             _lastChangedAt
-            mpOrderCustomerId
           }
           nextToken
           startedAt
@@ -133,6 +111,10 @@ export const listMpsRoutes = /* GraphQL */ `
           carCapacity
           owner
           onBoard
+          status
+          latitude
+          longitude
+          assignedRouteID
           createdAt
           updatedAt
           _version
@@ -141,26 +123,28 @@ export const listMpsRoutes = /* GraphQL */ `
         }
         distance
         duration
+        location
+        routePlanName
         createdAt
         updatedAt
         _version
         _deleted
         _lastChangedAt
-        mpsRouteDriverId
+        mRouteDriverId
       }
       nextToken
       startedAt
     }
   }
 `;
-export const syncMpsRoutes = /* GraphQL */ `
-  query SyncMpsRoutes(
-    $filter: ModelMpsRouteFilterInput
+export const syncMRoutes = /* GraphQL */ `
+  query SyncMRoutes(
+    $filter: ModelMRouteFilterInput
     $limit: Int
     $nextToken: String
     $lastSync: AWSTimestamp
   ) {
-    syncMpsRoutes(
+    syncMRoutes(
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -178,30 +162,21 @@ export const syncMpsRoutes = /* GraphQL */ `
             id
             number
             deliveryInstruction
-            mealsInstruction
+            mealPlan
             status
-            customer {
-              id
-              name
-              address
-              plan
-              phone
-              owner
-              createdAt
-              updatedAt
-              _version
-              _deleted
-              _lastChangedAt
-              customerCoordinatesId
-            }
+            customerName
             eta
             routeID
+            address
+            latitude
+            longitude
+            orderDate
+            phone
             createdAt
             updatedAt
             _version
             _deleted
             _lastChangedAt
-            mpOrderCustomerId
           }
           nextToken
           startedAt
@@ -214,6 +189,10 @@ export const syncMpsRoutes = /* GraphQL */ `
           carCapacity
           owner
           onBoard
+          status
+          latitude
+          longitude
+          assignedRouteID
           createdAt
           updatedAt
           _version
@@ -222,12 +201,14 @@ export const syncMpsRoutes = /* GraphQL */ `
         }
         distance
         duration
+        location
+        routePlanName
         createdAt
         updatedAt
         _version
         _deleted
         _lastChangedAt
-        mpsRouteDriverId
+        mRouteDriverId
       }
       nextToken
       startedAt
@@ -298,108 +279,70 @@ export const syncCoordinates = /* GraphQL */ `
     }
   }
 `;
-export const getMpOrder = /* GraphQL */ `
-  query GetMpOrder($id: ID!) {
-    getMpOrder(id: $id) {
+export const getMOrder = /* GraphQL */ `
+  query GetMOrder($id: ID!) {
+    getMOrder(id: $id) {
       id
       number
       deliveryInstruction
-      mealsInstruction
+      mealPlan
       status
-      customer {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
+      customerName
       eta
       routeID
+      address
+      latitude
+      longitude
+      orderDate
+      phone
       createdAt
       updatedAt
       _version
       _deleted
       _lastChangedAt
-      mpOrderCustomerId
     }
   }
 `;
-export const listMpOrders = /* GraphQL */ `
-  query ListMpOrders(
-    $filter: ModelMpOrderFilterInput
+export const listMOrders = /* GraphQL */ `
+  query ListMOrders(
+    $filter: ModelMOrderFilterInput
     $limit: Int
     $nextToken: String
   ) {
-    listMpOrders(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listMOrders(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
         number
         deliveryInstruction
-        mealsInstruction
+        mealPlan
         status
-        customer {
-          id
-          name
-          address
-          plan
-          phone
-          owner
-          coordinates {
-            id
-            latitude
-            longitude
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-          }
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-          customerCoordinatesId
-        }
+        customerName
         eta
         routeID
+        address
+        latitude
+        longitude
+        orderDate
+        phone
         createdAt
         updatedAt
         _version
         _deleted
         _lastChangedAt
-        mpOrderCustomerId
       }
       nextToken
       startedAt
     }
   }
 `;
-export const syncMpOrders = /* GraphQL */ `
-  query SyncMpOrders(
-    $filter: ModelMpOrderFilterInput
+export const syncMOrders = /* GraphQL */ `
+  query SyncMOrders(
+    $filter: ModelMOrderFilterInput
     $limit: Int
     $nextToken: String
     $lastSync: AWSTimestamp
   ) {
-    syncMpOrders(
+    syncMOrders(
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -409,40 +352,21 @@ export const syncMpOrders = /* GraphQL */ `
         id
         number
         deliveryInstruction
-        mealsInstruction
+        mealPlan
         status
-        customer {
-          id
-          name
-          address
-          plan
-          phone
-          owner
-          coordinates {
-            id
-            latitude
-            longitude
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-          }
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-          customerCoordinatesId
-        }
+        customerName
         eta
         routeID
+        address
+        latitude
+        longitude
+        orderDate
+        phone
         createdAt
         updatedAt
         _version
         _deleted
         _lastChangedAt
-        mpOrderCustomerId
       }
       nextToken
       startedAt
@@ -465,6 +389,7 @@ export const getMpsSubscription = /* GraphQL */ `
       latitude
       longitude
       avatar
+      location
       createdAt
       updatedAt
       _version
@@ -498,6 +423,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         latitude
         longitude
         avatar
+        location
         createdAt
         updatedAt
         _version
@@ -536,6 +462,7 @@ export const syncMpsSubscriptions = /* GraphQL */ `
         latitude
         longitude
         avatar
+        location
         createdAt
         updatedAt
         _version
@@ -663,6 +590,10 @@ export const getDriver = /* GraphQL */ `
       carCapacity
       owner
       onBoard
+      status
+      latitude
+      longitude
+      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -686,6 +617,10 @@ export const listDrivers = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -718,6 +653,10 @@ export const syncDrivers = /* GraphQL */ `
         carCapacity
         owner
         onBoard
+        status
+        latitude
+        longitude
+        assignedRouteID
         createdAt
         updatedAt
         _version

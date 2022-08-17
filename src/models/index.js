@@ -4,41 +4,34 @@ import { schema } from './schema';
 
 const RouteStatus = {
   "PLANNED": "PLANNED",
+  "ASSIGNED": "ASSIGNED",
   "INITIATED": "INITIATED",
   "CHECKING_BAGS": "CHECKING_BAGS",
   "IN_TRANSIT": "IN_TRANSIT",
   "DONE": "DONE",
+  "CANCELED": "CANCELED",
   "ON_HOLD": "ON_HOLD",
-  "ABORTED": "ABORTED",
   "SENDING_WELCOME_MESSAGES": "SENDING_WELCOME_MESSAGES"
 };
 
-const MpsOrderStatus = {
-  "RECEIVED": "RECEIVED",
+const OrderStatus = {
+  "CREATED": "CREATED",
   "IN_TRANSIT": "IN_TRANSIT",
   "DELIVERED": "DELIVERED",
   "CHECKED": "CHECKED",
   "CANCELED": "CANCELED"
 };
 
-const OrderStatus = {
-  "RECEIVED": "RECEIVED",
-  "IN_TRANSIT": "IN_TRANSIT",
-  "DELIVERED": "DELIVERED",
-  "CHECKED": "CHECKED"
-};
-
-const { MpsRoute, MpOrder, Customer, Coordinates, Driver, MpsSubscription, Todo } = initSchema(schema);
+const { MRoute, MOrder, Driver, Coordinates, MpsSubscription, Customer, Todo } = initSchema(schema);
 
 export {
-  MpsRoute,
-  MpOrder,
-  Customer,
-  Coordinates,
+  MRoute,
+  MOrder,
   Driver,
+  Coordinates,
   MpsSubscription,
+  Customer,
   Todo,
   RouteStatus,
-  MpsOrderStatus,
   OrderStatus
 };

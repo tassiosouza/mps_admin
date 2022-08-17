@@ -154,7 +154,7 @@ const LoginV2 = () => {
                 justifyContent: 'center'
               }}
             >
-              <img src='/images/favicon.png' width={100} height={100}></img>
+              <img src='/images/favicon.png' width={100} height={100} alt='logo'></img>
               <Typography variant='h6' sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}>
                 {themeConfig.templateName}
               </Typography>
