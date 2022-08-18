@@ -56,6 +56,7 @@ export const getMRoute = /* GraphQL */ `
       duration
       location
       routePlanName
+      routeDate
       createdAt
       updatedAt
       _version
@@ -125,6 +126,7 @@ export const listMRoutes = /* GraphQL */ `
         duration
         location
         routePlanName
+        routeDate
         createdAt
         updatedAt
         _version
@@ -203,6 +205,7 @@ export const syncMRoutes = /* GraphQL */ `
         duration
         location
         routePlanName
+        routeDate
         createdAt
         updatedAt
         _version

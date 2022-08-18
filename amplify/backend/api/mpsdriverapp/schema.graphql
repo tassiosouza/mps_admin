@@ -11,6 +11,7 @@ type MRoute @model @auth(rules: [{allow: public}]) {
   duration: Int
   location: String
   routePlanName: String
+  routeDate: Float
 }
 
 type Coordinates @model @auth(rules: [{allow: public}]) {

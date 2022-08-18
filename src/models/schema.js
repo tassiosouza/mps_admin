@@ -103,6 +103,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "routeDate": {
+                    "name": "routeDate",
+                    "isArray": false,
+                    "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -846,5 +853,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "6702af96cc2cd4d1372181fa4f23db35"
+    "version": "3393d0f0aeb8587806a75a8214d4467a"
 };

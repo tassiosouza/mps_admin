@@ -7099,6 +7099,11 @@ linkify-it@^2.2.0:
   dependencies:
     uc.micro "^1.0.1"
 
+little-loader@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/little-loader/-/little-loader-0.2.0.tgz#d572b842ab95ab6fab40571f79514ad49ab8d9bd"
+  integrity sha512-MYNYfBqP/f5C7XO6MR2cylmAzAKgBkDD1UGZ4KjxFviV3mKbjOEnxVj1nhnN3i2zcwbkPeUDsjAMjLnlL9kRLA==
+
 load-json-file@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-1.1.0.tgz#956905708d58b4bab4c2261b04f59f31c99374c0"
@@ -8290,6 +8295,13 @@ react-map-gl@7.0.10:
   integrity sha512-4rhkwVa2HG+Uro7sTaVCTRMIF8nhlLjQnDSTUvKkWBLyHdCsKyoKkNqTfVp05OjqDXhcdXuixUDcg8aDvbr4xw==
   dependencies:
     "@types/mapbox-gl" "^2.6.0"
+
+react-mapkit@^0.6.6:
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/react-mapkit/-/react-mapkit-0.6.6.tgz#53307c129704fd197e9a3ae4c71848709c9466fa"
+  integrity sha512-rxE8Q8NHHyzFOdV1XO0V7vws15/V0twSX4GDsIIt8wnOaNvFLkianLJE2LuoMQSUStml1dkkpXQyUaYXMBqFNA==
+  dependencies:
+    little-loader "^0.2.0"
 
 react-native-get-random-values@^1.4.0:
   version "1.8.0"

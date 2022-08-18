@@ -1,15 +1,11 @@
 // ** React Imports
 import { useState, useEffect, forwardRef } from 'react'
 
-// ** Next Import
-import Link from 'next/link'
-
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Tooltip from '@mui/material/Tooltip'
-import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
@@ -24,6 +20,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 
 // ** Icons Imports
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
+import EyeOutline from 'mdi-material-ui/EyeOutline'
 
 // ** Third Party Imports
 import format from 'date-fns/format'
@@ -32,25 +29,16 @@ import DatePicker from 'react-datepicker'
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
 
-// ** Utils Import
-import { getInitials } from 'src/@core/utils/get-initials'
-
 // ** Custom Components Imports
-import CustomAvatar from 'src/@core/components/mui/avatar'
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
 import LocationsDialog from 'src/views/apps/routes/list/LocationsDialog'
+import RoutesDialog from 'src/views/apps/routes/list/RoutesDialog'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-
-// ** Styled component for the link in the dataTable
-const StyledLink = styled('a')(({ theme }) => ({
-  textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
 
 const defaultColumns = [
   {
@@ -68,9 +56,9 @@ const defaultColumns = [
     renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
   },
   {
-    flex: 0.25,
+    flex: 0.20,
     field: 'driver',
-    minWidth: 300,
+    minWidth: 120,
     headerName: 'Driver',
     renderCell: ({ row }) => <Typography variant='body2'>{'Unassigned'}</Typography>
   },
@@ -79,17 +67,17 @@ const defaultColumns = [
     minWidth: 100,
     field: 'location',
     headerName: 'Location',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
+    renderCell: ({ row }) => <Typography variant='body2'>{row.location}</Typography>
+  },
+  {
+    flex: 0.10,
+    minWidth: 70,
+    field: 'orders',
+    headerName: 'Orders',
+    renderCell: ({ row }) => <Typography variant='body2'>{row.orders.length}</Typography>
   },
   {
     flex: 0.12,
-    minWidth: 100,
-    field: 'orders',
-    headerName: 'Orders',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.startTime}</Typography>
-  },
-  {
-    flex: 0.1,
     minWidth: 90,
     field: 'issuedDate',
     headerName: 'Date',
@@ -119,7 +107,8 @@ const RoutesList = () => {
   const [endDateRange, setEndDateRange] = useState(null)
   const [selectedRows, setSelectedRows] = useState([])
   const [startDateRange, setStartDateRange] = useState(null)
-  const [openDialog, setOpenDialog] = useState(false)
+  const [openLocationsDialog, setOpenLocationsDialog] = useState(false)
+  const [openRoutesDialog, setOpenRoutesDialog] = useState(false)
 
   // ** Redux
   const dispatch = useDispatch()
@@ -149,13 +138,21 @@ const RoutesList = () => {
     setEndDateRange(end)
   }
 
-  const handleOpenDialog = () => {
-    setOpenDialog(true)
+  const handleOpenLocationsDialog = () => {
+    setOpenLocationsDialog(true)
   }
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false)
-    console.log('routes list: ' + JSON.stringify(store.routes))
+  const handleOpenRoutesDialog = () => {
+    console.log('enter here')
+    setOpenRoutesDialog(true)
+  }
+
+  const handleCloseLocationsDialog = () => {
+    setOpenLocationsDialog(false)
+  }
+
+  const handleCloseRoutesDialog = () => {
+    setOpenRoutesDialog(false)
   }
 
   const columns = [
@@ -168,17 +165,15 @@ const RoutesList = () => {
       headerName: 'Actions',
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title='Delete route'>
+          <Tooltip title='Delete Route'>
             <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => dispatch(deleteroute(row.id))}>
               <DeleteOutline />
             </IconButton>
           </Tooltip>
-          <Tooltip title='Inactivate route'>
-            <Link href={`/apps/route/preview/${row.id}`} passHref>
-              <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }}>
-                <DeleteOutline />
-              </IconButton>
-            </Link>
+          <Tooltip title='View Route'>
+            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={handleOpenRoutesDialog}>
+              <EyeOutline />
+            </IconButton>
           </Tooltip>
         </Box>
       )
@@ -195,7 +190,6 @@ const RoutesList = () => {
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
                   <InputLabel id='route-status-select'>Route Status</InputLabel>
-
                   <Select
                     fullWidth
                     value={statusValue}
@@ -257,7 +251,7 @@ const RoutesList = () => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} openDialog={handleOpenDialog} />
+          <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} openDialog={handleOpenLocationsDialog} />
           {store.loading && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight
@@ -275,9 +269,13 @@ const RoutesList = () => {
         </Card>
       </Grid>
       <LocationsDialog
-        open={openDialog}
-        onClose={handleCloseDialog}>
-      </LocationsDialog>
+        open={openLocationsDialog}
+        onClose={handleCloseLocationsDialog}
+      />
+      <RoutesDialog 
+        open={openRoutesDialog}
+        onClose={handleCloseRoutesDialog}
+      />
     </Grid>
   )
 }

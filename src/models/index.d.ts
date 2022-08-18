@@ -63,6 +63,7 @@ export declare class MRoute {
   readonly duration?: number | null;
   readonly location?: string | null;
   readonly routePlanName?: string | null;
+  readonly routeDate?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   readonly mRouteDriverId?: string | null;

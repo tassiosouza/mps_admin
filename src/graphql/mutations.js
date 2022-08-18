@@ -59,6 +59,7 @@ export const createMRoute = /* GraphQL */ `
       duration
       location
       routePlanName
+      routeDate
       createdAt
       updatedAt
       _version
@@ -126,6 +127,7 @@ export const updateMRoute = /* GraphQL */ `
       duration
       location
       routePlanName
+      routeDate
       createdAt
       updatedAt
       _version
@@ -193,6 +195,7 @@ export const deleteMRoute = /* GraphQL */ `
       duration
       location
       routePlanName
+      routeDate
       createdAt
       updatedAt
       _version

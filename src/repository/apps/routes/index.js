@@ -1,8 +1,6 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { TruckDelivery } from 'mdi-material-ui'
 import { OrderStatus } from 'src/models'
-import { MOrder } from 'src/models'
 import { listMpsSubscriptions, listDrivers } from '../../../graphql/queries'
 
 // ** Axios Party Imports
@@ -76,17 +74,17 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     rest = orders.length%dividerFactor
     requestCount = parseInt(orders.length/dividerFactor)
     ordersInRequest = (orders.length - rest) / requestCount
-    console.log(requestCount + ' requests of ' + ordersInRequest + ' + 1 request of: ' + rest)
   }
 
   for(var i = 0; i < requestCount; i ++) {
-    const splicedOrders = orders.splice(currentSpliceIndex, ordersInRequest)
+    var ordersCopy = [...orders]
+    const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
     const ghBody = getGraphHopperRequestBody(splicedOrders, params.driversCount)
 
     // console.log(JSON.stringify(ghBody))
     const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
 
-    routes.push(...getRoutesFromResponse(res))
+    routes.push(...getRoutesFromResponse(res, orders))
 
     currentSpliceIndex += ordersInRequest
   }
@@ -94,27 +92,41 @@ export const getGraphHopperRoutes = async (params, getState )  => {
   return routes
 }
 
-const getRoutesFromResponse = response => {
+const getRoutesFromResponse = (response, orders) => {
   var routes = []
   const ghRoutes = response.data.solution.routes
-  console.log(JSON.stringify(response.data.solution.routes))
 
   ghRoutes.map(route => {
-    console.log(JSON.stringify(route))
+    var routeOrders = []
+    var routeID = 'R' + parseFloat(Date.now()).toString()
+    const deliveries = route.activities.filter(ac => ac.type == 'service')
+
+    for(var k = 0; k < deliveries.length; k++) {
+      for(var i = 0; i < orders.length; i++) {
+
+        if(deliveries[k].id === orders[i].id) {
+          orders[i].sort = k // ** Assign the sorted position of the order
+          orders[i].routeID = routeID // ** Assing the order route id
+          orders[i].eta = deliveries[k].arr_time // ** Assing the order ETA
+          routeOrders.push(orders[i]) // ** Assing the processed order to route order list
+        }
+      }
+    }
     routes.push(
       {
-        id: 'R' + parseFloat(Date.now()).toString(),
+        id: routeID,
         cost: 0,
         startTime: 0,
         endTime: 0,
         status: RouteStatus.PLANNED,
         name: 'R' + parseFloat(Date.now()).toString(),
-        orders: [],
+        orders: routeOrders,
         driver: null,
         distance: route.distance,
         duration: route.completion_time,
-        location: '',
-        routePlanName: ''
+        location: routeOrders[0].location,
+        routePlanName: '',
+        routeDate: parseFloat(Date.now())
       }
     )
   })
@@ -155,7 +167,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers) => {
           lon: -117.2310085, // ** MPS longitude
           lat: 33.1522247 // ** MPS latitude
         },
-        max_driving_time: 18000 // ** Fixed max driver in transit duration: 5 hours
+        max_driving_time: 15000 // ** Fixed max driver in transit duration: 2hours and 30min
     })
   }
 
