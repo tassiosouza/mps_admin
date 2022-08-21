@@ -81,7 +81,6 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
     const ghBody = getGraphHopperRequestBody(splicedOrders, params.driversCount)
 
-    // console.log(JSON.stringify(ghBody))
     const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
 
     routes.push(...getRoutesFromResponse(res, orders))
@@ -103,7 +102,6 @@ const getRoutesFromResponse = (response, orders) => {
 
     for(var k = 0; k < deliveries.length; k++) {
       for(var i = 0; i < orders.length; i++) {
-
         if(deliveries[k].id === orders[i].id) {
           orders[i].sort = k // ** Assign the sorted position of the order
           orders[i].routeID = routeID // ** Assing the order route id
@@ -112,6 +110,7 @@ const getRoutesFromResponse = (response, orders) => {
         }
       }
     }
+
     routes.push(
       {
         id: routeID,
@@ -126,11 +125,12 @@ const getRoutesFromResponse = (response, orders) => {
         duration: route.completion_time,
         location: routeOrders[0].location,
         routePlanName: '',
-        routeDate: parseFloat(Date.now())
+        routeDate: parseFloat(Date.now()),
+        points: route.points
       }
+      
     )
   })
-
   return routes
 }
 
@@ -173,7 +173,12 @@ const getGraphHopperRequestBody = (orders, maxDrivers) => {
 
   var body = {
     vehicles,
-    services
+    services,
+    configuration: {
+      routing: {
+        calc_points: true
+      }
+    }
   }
   return body
 }

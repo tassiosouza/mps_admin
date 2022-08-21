@@ -109,6 +109,7 @@ const RoutesList = () => {
   const [startDateRange, setStartDateRange] = useState(null)
   const [openLocationsDialog, setOpenLocationsDialog] = useState(false)
   const [openRoutesDialog, setOpenRoutesDialog] = useState(false)
+  const [selectedRoute, setSelectedRoute] = useState(null)
 
   // ** Redux
   const dispatch = useDispatch()
@@ -142,8 +143,8 @@ const RoutesList = () => {
     setOpenLocationsDialog(true)
   }
 
-  const handleOpenRoutesDialog = () => {
-    console.log('enter here')
+  const handleOpenRoutesDialog = row => {
+    setSelectedRoute(row)
     setOpenRoutesDialog(true)
   }
 
@@ -171,7 +172,7 @@ const RoutesList = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title='View Route'>
-            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={handleOpenRoutesDialog}>
+            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => handleOpenRoutesDialog(row)}>
               <EyeOutline />
             </IconButton>
           </Tooltip>
@@ -275,6 +276,7 @@ const RoutesList = () => {
       <RoutesDialog 
         open={openRoutesDialog}
         onClose={handleCloseRoutesDialog}
+        route={selectedRoute}
       />
     </Grid>
   )

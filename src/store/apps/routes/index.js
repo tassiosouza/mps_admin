@@ -83,7 +83,6 @@ export const appRoutesSlice = createSlice({
       state.drivers = action.payload
     })
     builder.addCase(generateRoutes.fulfilled, (state, action) => {
-      console.log('store routes: ' + JSON.stringify(action.payload.routes))
       state.routes = action.payload.routes
       action.payload.callback()
     })
