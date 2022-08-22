@@ -44,10 +44,13 @@ export const getLocations = async (params, getState)  => {
 }
 
 export const getDrivers = async (params)  => {
+  console.log('trying to fectch')
   // ** Query Server Drivers
   const response = await API.graphql(graphqlOperation(listDrivers, {
     limit: 5000
   }))
+
+  console.log('fetched drivers: ' + JSON.stringify(response))
 
   const filteredDrivers = response.data.listDrivers.items.filter(driver => {
     return driver.name.toLowerCase().includes(params.query.toLowerCase())

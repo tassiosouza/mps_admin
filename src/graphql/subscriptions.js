@@ -57,6 +57,7 @@ export const onCreateMRoute = /* GraphQL */ `
       location
       routePlanName
       routeDate
+      points
       createdAt
       updatedAt
       _version
@@ -122,6 +123,7 @@ export const onUpdateMRoute = /* GraphQL */ `
       location
       routePlanName
       routeDate
+      points
       createdAt
       updatedAt
       _version
@@ -187,6 +189,7 @@ export const onDeleteMRoute = /* GraphQL */ `
       location
       routePlanName
       routeDate
+      points
       createdAt
       updatedAt
       _version

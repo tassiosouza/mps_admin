@@ -2,11 +2,5 @@
   "AppSyncApiName": "mpsdriverapp",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
-  "AuthModeLastUpdated": "2022-06-22T00:38:18.143Z",
-  "AuthCognitoUserPoolId": {
-    "Fn::GetAtt": [
-      "authmpsdriverapp",
-      "Outputs.UserPoolId"
-    ]
-  }
+  "AuthModeLastUpdated": "2022-08-22T00:36:59.594Z"
 }

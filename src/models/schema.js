@@ -110,6 +110,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "points": {
+                    "name": "points",
+                    "isArray": false,
+                    "type": "AWSJSON",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -853,5 +860,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "3393d0f0aeb8587806a75a8214d4467a"
+    "version": "63eb0c269fabc5eba4d4029f5c661688"
 };

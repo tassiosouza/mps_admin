@@ -12,6 +12,7 @@ type MRoute @model @auth(rules: [{allow: public}]) {
   location: String
   routePlanName: String
   routeDate: Float
+  points: AWSJSON
 }
 
 type Coordinates @model @auth(rules: [{allow: public}]) {
@@ -104,3 +105,4 @@ type Todo @model @auth(rules: [{allow: public}]) {
   isComplete: Boolean!
   owner: String!
 }
+ 
