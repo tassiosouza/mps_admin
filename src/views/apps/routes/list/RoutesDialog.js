@@ -21,10 +21,12 @@ const DialogFullScreen = (props) => {
     useScript('/scripts/mapkit.js');
   }
 
-  const ordersToDisplay = null
+  const ordersToDisplay = []
+  const routeToDisplay = null
   const routeID = 'No route to display'
 
   if(route != null) {
+    routeToDisplay = route
     routeID = route.id
     ordersToDisplay = orders.filter(order => {
       return order.assignedRouteID === route.id
@@ -55,7 +57,7 @@ const DialogFullScreen = (props) => {
           <div 
           id="map"
           style={divStyle}
-          route={route ? JSON.stringify(route) : ''}
+          route={routeToDisplay ? JSON.stringify(routeToDisplay) : ''}
           orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''} >
             <MapKit/>
           </div>

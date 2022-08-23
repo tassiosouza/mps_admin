@@ -5,6 +5,12 @@ mapkit.init({
   }
 });
 
+// ** Init variables
+var route = null
+var orders = []
+var points = []
+var coordinates = []
+
 // ** Create and Set Map Initial View
 var coordinate = new mapkit.Coordinate(33.1522247, -117.2310085)
 var map = new mapkit.Map("map", { center: coordinate});
@@ -19,15 +25,13 @@ for (var att, i = 0, atts = document.getElementById("map").attributes, n = atts.
   nodes.push(att.nodeName);
   values.push(att.nodeValue);
 }
-var coordinates = []
-var route = JSON.parse(values[1])
-var orders = JSON.parse(values[2])
 
-console.log('Route: ' + JSON.stringify(route))
-console.log('Orders: ' + JSON.stringify(orders))
+route = JSON.parse(values[1])
+orders = JSON.parse(values[2])
+points = JSON.parse(route.points)
 
-for(var i = 0; i < route.points.points.length; i++) {
-  JSON.parse(values[1]).points[i].coordinates.map(cord => {
+for(var i = 0; i < points.length; i++) {
+  points.map(cord => {
       coordinates.push(new mapkit.Coordinate(cord[1], cord[0]))
   })
 }
@@ -44,10 +48,10 @@ map.addOverlay(pol)
 
 
 for(var i = 0; i < orders.length; i++) {
-  var coordinate = new mapkit.Coordinate(JSON.parse(values[1]).orders[i].latitude, JSON.parse(values[1]).orders[i].longitude)
+  var coordinate = new mapkit.Coordinate(orders[i].latitude, orders[i].longitude)
   var annot = new mapkit.MarkerAnnotation(coordinate, {
-      title: JSON.parse(values[1]).orders[i].number,
-      subtitle: JSON.parse(values[1]).orders[i].customerName,
+      title: orders[i].number,
+      subtitle: orders[i].customerName,
       color: "#3AB81A",
       glyphColor: "#2F2E41",
       glyphText: i + "°"

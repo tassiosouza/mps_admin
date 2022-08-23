@@ -180,9 +180,14 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
       }
     }
 
+    console.log('points: ' + JSON.stringify(route.points))
+
     const polyline = []
+    var indexx = 0
     route.points.map(point => {
+      if(indexx > 0 && indexx < route.points.length -2)
       polyline.push(...point.coordinates)
+      indexx += 1
     })
 
     console.log('pushing points: ' + JSON.stringify(polyline))
