@@ -25,6 +25,8 @@ export const onCreateMRoute = /* GraphQL */ `
           longitude
           orderDate
           phone
+          location
+          sort
           createdAt
           updatedAt
           _version
@@ -91,6 +93,8 @@ export const onUpdateMRoute = /* GraphQL */ `
           longitude
           orderDate
           phone
+          location
+          sort
           createdAt
           updatedAt
           _version
@@ -157,6 +161,8 @@ export const onDeleteMRoute = /* GraphQL */ `
           longitude
           orderDate
           phone
+          location
+          sort
           createdAt
           updatedAt
           _version
@@ -257,6 +263,8 @@ export const onCreateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      sort
       createdAt
       updatedAt
       _version
@@ -281,6 +289,8 @@ export const onUpdateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      sort
       createdAt
       updatedAt
       _version
@@ -305,6 +315,8 @@ export const onDeleteMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      sort
       createdAt
       updatedAt
       _version

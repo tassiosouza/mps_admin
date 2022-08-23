@@ -86,6 +86,8 @@ export declare class MOrder {
   readonly longitude?: number | null;
   readonly orderDate?: number | null;
   readonly phone?: string | null;
+  readonly location?: string | null;
+  readonly sort?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MOrder, MOrderMetaData>);

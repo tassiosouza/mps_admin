@@ -25,6 +25,8 @@ export const getMRoute = /* GraphQL */ `
           longitude
           orderDate
           phone
+          location
+          sort
           createdAt
           updatedAt
           _version
@@ -96,6 +98,8 @@ export const listMRoutes = /* GraphQL */ `
             longitude
             orderDate
             phone
+            location
+            sort
             createdAt
             updatedAt
             _version
@@ -176,6 +180,8 @@ export const syncMRoutes = /* GraphQL */ `
             longitude
             orderDate
             phone
+            location
+            sort
             createdAt
             updatedAt
             _version
@@ -301,6 +307,8 @@ export const getMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      sort
       createdAt
       updatedAt
       _version
@@ -330,6 +338,8 @@ export const listMOrders = /* GraphQL */ `
         longitude
         orderDate
         phone
+        location
+        sort
         createdAt
         updatedAt
         _version
@@ -368,6 +378,8 @@ export const syncMOrders = /* GraphQL */ `
         longitude
         orderDate
         phone
+        location
+        sort
         createdAt
         updatedAt
         _version

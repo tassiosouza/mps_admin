@@ -10,7 +10,7 @@ type MRoute @model @auth(rules: [{allow: public}]) {
   distance: Int
   duration: Int
   location: String
-  routePlanName: String
+  routePlanNdame: String
   routeDate: Float
   points: AWSJSON
 }
@@ -55,6 +55,8 @@ type MOrder @model @auth(rules: [{allow: public}]) {
   longitude: Float
   orderDate: Float
   phone: String
+  location: String
+  sort: Int
 }
 
 type MpsSubscription @model @auth(rules: [{allow: public}]) {

@@ -10,8 +10,8 @@
     "config": {
       "SourceDir": "src",
       "DistributionDir": "build",
-      "BuildCommand": "yarn build",
-      "StartCommand": "yarn start"
+      "BuildCommand": "yarn next build",
+      "StartCommand": "yarn next start"
     }
   }
 }

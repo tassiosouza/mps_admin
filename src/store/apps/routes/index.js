@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getLocations, getDrivers, getGraphHopperRoutes } from 'src/repository/apps/routes';
+import { getLocations, getDrivers, getGraphHopperRoutes, saveAmplifyRoutes } from 'src/repository/apps/routes';
 
 // ** Fetch Locations from activeds Subscriptions in the Server
 export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
@@ -19,8 +19,21 @@ export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (pa
 // ** Generate Optimized Routes
 export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async (params, { getState }) => {
   const { callback } = params
-  const routes = await getGraphHopperRoutes(params, getState)
-  return { routes, callback }
+  const { routes, solution } = await getGraphHopperRoutes(params, getState)
+  return { routes, solution, callback }
+})
+
+// ** Save Generated Routes to Amplify
+export const saveRoutes = createAsyncThunk('appRoutes/saveRoutes', async (params, { getState }) => {
+  const { callback } = params
+  const newRoutes = getState().routes.tempRoutes
+
+  // ** Save Routes in Amplify
+  await saveAmplifyRoutes(newRoutes)
+
+  console.log('finish saving in store')
+
+  return { routes:[] , callback }
 })
 
 export const appRoutesSlice = createSlice({
@@ -38,7 +51,9 @@ export const appRoutesSlice = createSlice({
     selectedLocations: [],
     subscriptions: [],
     drivers: [],
-    routes:[]
+    routes:[],
+    tempRoutes:[],
+    solution: null
   },
   reducers: {
     addLocation: (state, action) => {
@@ -72,6 +87,10 @@ export const appRoutesSlice = createSlice({
         loc.included = false
       })
       state.selectedLocations = []
+    },
+    clearTempResults: (state, action) => {
+      state.tempRoutes = []
+      state.solution = []
     }
   },
   extraReducers: builder => {
@@ -83,13 +102,17 @@ export const appRoutesSlice = createSlice({
       state.drivers = action.payload
     })
     builder.addCase(generateRoutes.fulfilled, (state, action) => {
+      state.solution = action.payload.solution
+      state.tempRoutes = action.payload.routes
+      action.payload.callback()
+    })
+    builder.addCase(saveRoutes.fulfilled, (state, action) => {
       state.routes = action.payload.routes
       action.payload.callback()
     })
-    
   }
 })
 
-export const { addLocation, removeLocation, clearSelectedLocations } = appRoutesSlice.actions
+export const { addLocation, removeLocation, clearSelectedLocations, clearTempResults } = appRoutesSlice.actions
 
 export default appRoutesSlice.reducer
