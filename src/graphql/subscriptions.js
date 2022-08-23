@@ -9,51 +9,7 @@ export const onCreateMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
@@ -65,7 +21,6 @@ export const onCreateMRoute = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      mRouteDriverId
     }
   }
 `;
@@ -77,51 +32,7 @@ export const onUpdateMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
@@ -133,7 +44,6 @@ export const onUpdateMRoute = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      mRouteDriverId
     }
   }
 `;
@@ -145,100 +55,13 @@ export const onDeleteMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
       routePlanName
       routeDate
       points
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      mRouteDriverId
-    }
-  }
-`;
-export const onCreateCoordinates = /* GraphQL */ `
-  subscription OnCreateCoordinates {
-    onCreateCoordinates {
-      id
-      latitude
-      longitude
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const onUpdateCoordinates = /* GraphQL */ `
-  subscription OnUpdateCoordinates {
-    onUpdateCoordinates {
-      id
-      latitude
-      longitude
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const onDeleteCoordinates = /* GraphQL */ `
-  subscription OnDeleteCoordinates {
-    onDeleteCoordinates {
-      id
-      latitude
-      longitude
       createdAt
       updatedAt
       _version
@@ -257,7 +80,7 @@ export const onCreateMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -283,7 +106,7 @@ export const onUpdateMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -309,7 +132,7 @@ export const onDeleteMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -400,90 +223,6 @@ export const onDeleteMpsSubscription = /* GraphQL */ `
     }
   }
 `;
-export const onCreateCustomer = /* GraphQL */ `
-  subscription OnCreateCustomer {
-    onCreateCustomer {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
-export const onUpdateCustomer = /* GraphQL */ `
-  subscription OnUpdateCustomer {
-    onUpdateCustomer {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
-export const onDeleteCustomer = /* GraphQL */ `
-  subscription OnDeleteCustomer {
-    onDeleteCustomer {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
 export const onCreateDriver = /* GraphQL */ `
   subscription OnCreateDriver {
     onCreateDriver {
@@ -497,7 +236,6 @@ export const onCreateDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -519,7 +257,6 @@ export const onUpdateDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -541,7 +278,6 @@ export const onDeleteDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version

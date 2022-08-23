@@ -12,51 +12,7 @@ export const createMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
@@ -68,7 +24,6 @@ export const createMRoute = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      mRouteDriverId
     }
   }
 `;
@@ -83,51 +38,7 @@ export const updateMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
@@ -139,7 +50,6 @@ export const updateMRoute = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      mRouteDriverId
     }
   }
 `;
@@ -154,109 +64,13 @@ export const deleteMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
       routePlanName
       routeDate
       points
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      mRouteDriverId
-    }
-  }
-`;
-export const createCoordinates = /* GraphQL */ `
-  mutation CreateCoordinates(
-    $input: CreateCoordinatesInput!
-    $condition: ModelCoordinatesConditionInput
-  ) {
-    createCoordinates(input: $input, condition: $condition) {
-      id
-      latitude
-      longitude
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const updateCoordinates = /* GraphQL */ `
-  mutation UpdateCoordinates(
-    $input: UpdateCoordinatesInput!
-    $condition: ModelCoordinatesConditionInput
-  ) {
-    updateCoordinates(input: $input, condition: $condition) {
-      id
-      latitude
-      longitude
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const deleteCoordinates = /* GraphQL */ `
-  mutation DeleteCoordinates(
-    $input: DeleteCoordinatesInput!
-    $condition: ModelCoordinatesConditionInput
-  ) {
-    deleteCoordinates(input: $input, condition: $condition) {
-      id
-      latitude
-      longitude
       createdAt
       updatedAt
       _version
@@ -278,7 +92,7 @@ export const createMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -307,7 +121,7 @@ export const updateMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -336,7 +150,7 @@ export const deleteMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -436,99 +250,6 @@ export const deleteMpsSubscription = /* GraphQL */ `
     }
   }
 `;
-export const createCustomer = /* GraphQL */ `
-  mutation CreateCustomer(
-    $input: CreateCustomerInput!
-    $condition: ModelCustomerConditionInput
-  ) {
-    createCustomer(input: $input, condition: $condition) {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
-export const updateCustomer = /* GraphQL */ `
-  mutation UpdateCustomer(
-    $input: UpdateCustomerInput!
-    $condition: ModelCustomerConditionInput
-  ) {
-    updateCustomer(input: $input, condition: $condition) {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
-export const deleteCustomer = /* GraphQL */ `
-  mutation DeleteCustomer(
-    $input: DeleteCustomerInput!
-    $condition: ModelCustomerConditionInput
-  ) {
-    deleteCustomer(input: $input, condition: $condition) {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
 export const createDriver = /* GraphQL */ `
   mutation CreateDriver(
     $input: CreateDriverInput!
@@ -545,7 +266,6 @@ export const createDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -570,7 +290,6 @@ export const updateDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -595,7 +314,6 @@ export const deleteDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version

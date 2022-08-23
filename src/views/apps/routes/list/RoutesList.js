@@ -28,6 +28,7 @@ import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
+import { fetchRoutesAndOrders } from 'src/store/apps/routes'
 
 // ** Custom Components Imports
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
@@ -39,62 +40,6 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-
-const defaultColumns = [
-  {
-    flex: 0.1,
-    field: 'name',
-    minWidth: 80,
-    headerName: 'ID',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
-  },
-  {
-    flex: 0.1,
-    minWidth: 80,
-    field: 'routeStatus',
-    headerName: 'Status',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
-  },
-  {
-    flex: 0.20,
-    field: 'driver',
-    minWidth: 120,
-    headerName: 'Driver',
-    renderCell: ({ row }) => <Typography variant='body2'>{'Unassigned'}</Typography>
-  },
-  {
-    flex: 0.12,
-    minWidth: 100,
-    field: 'location',
-    headerName: 'Location',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.location}</Typography>
-  },
-  {
-    flex: 0.10,
-    minWidth: 70,
-    field: 'orders',
-    headerName: 'Orders',
-    renderCell: ({ row }) => <Typography variant='body2'>{row.orders.length}</Typography>
-  },
-  {
-    flex: 0.12,
-    minWidth: 90,
-    field: 'issuedDate',
-    headerName: 'Date',
-    renderCell: ({ row }) => <Typography variant='body2'>{
-      new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
-  }
-]
-/* eslint-disable */
-const CustomInput = forwardRef((props, ref) => {
-  const startDate = props.start !== null ? format(props.start, 'MM/dd/yyyy') : ''
-  const endDate = props.end !== null ? ` - ${format(props.end, 'MM/dd/yyyy')}` : null
-  const value = `${startDate}${endDate !== null ? endDate : ''}`
-  props.start === null && props.dates.length && props.setDates ? props.setDates([]) : null
-  const updatedProps = { ...props }
-  delete updatedProps.setDates
-  return <TextField fullWidth inputRef={ref} {...updatedProps} label={props.label || ''} value={value} />
-})
 
 /* eslint-enable */
 const RoutesList = () => {
@@ -111,11 +56,75 @@ const RoutesList = () => {
   const [openRoutesDialog, setOpenRoutesDialog] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState(null)
 
+  const defaultColumns = [
+    {
+      flex: 0.1,
+      field: 'name',
+      minWidth: 80,
+      headerName: 'ID',
+      renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
+    },
+    {
+      flex: 0.1,
+      minWidth: 80,
+      field: 'routeStatus',
+      headerName: 'Status',
+      renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
+    },
+    {
+      flex: 0.20,
+      field: 'driver',
+      minWidth: 120,
+      headerName: 'Driver',
+      renderCell: ({ row }) => <Typography variant='body2'>{'Unassigned'}</Typography>
+    },
+    {
+      flex: 0.12,
+      minWidth: 100,
+      field: 'location',
+      headerName: 'Location',
+      renderCell: ({ row }) => <Typography variant='body2'>{row.location}</Typography>
+    },
+    {
+      flex: 0.10,
+      minWidth: 70,
+      field: 'orders',
+      headerName: 'Orders',
+      renderCell: ({ row }) => <Typography variant='body2'>{getRouteOrders(row.id).length}</Typography>
+    },
+    {
+      flex: 0.12,
+      minWidth: 90,
+      field: 'issuedDate',
+      headerName: 'Date',
+      renderCell: ({ row }) => <Typography variant='body2'>{
+        new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
+    }
+  ]
+  /* eslint-disable */
+  const CustomInput = forwardRef((props, ref) => {
+    const startDate = props.start !== null ? format(props.start, 'MM/dd/yyyy') : ''
+    const endDate = props.end !== null ? ` - ${format(props.end, 'MM/dd/yyyy')}` : null
+    const value = `${startDate}${endDate !== null ? endDate : ''}`
+    props.start === null && props.dates.length && props.setDates ? props.setDates([]) : null
+    const updatedProps = { ...props }
+    delete updatedProps.setDates
+    return <TextField fullWidth inputRef={ref} {...updatedProps} label={props.label || ''} value={value} />
+  })
+
+  const getRouteOrders = (routeID) => {
+    return store.orders.filter(order => {
+      return order.assignedRouteID === routeID
+    })
+  }
+
   // ** Redux
   const dispatch = useDispatch()
   const store = useSelector(state => state.routes)
 
   useEffect(() => {
+    // ** Fetch routes and orders from server
+    dispatch(fetchRoutesAndOrders())
   }, [dispatch, dates, statusValue, value])
 
   const handleFilter = val => {
@@ -143,8 +152,8 @@ const RoutesList = () => {
     setOpenLocationsDialog(true)
   }
 
-  const handleOpenRoutesDialog = row => {
-    setSelectedRoute(row)
+  const handleOpenRoutesDialog = (route) => {
+    setSelectedRoute(route)
     setOpenRoutesDialog(true)
   }
 
@@ -253,7 +262,7 @@ const RoutesList = () => {
       <Grid item xs={12}>
         <Card>
           <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} openDialog={handleOpenLocationsDialog} />
-          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
+          {store.loadingRoutes && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight
             pagination
@@ -277,6 +286,7 @@ const RoutesList = () => {
         open={openRoutesDialog}
         onClose={handleCloseRoutesDialog}
         route={selectedRoute}
+        orders={store.orders}
       />
     </Grid>
   )

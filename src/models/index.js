@@ -22,15 +22,13 @@ const OrderStatus = {
   "CANCELED": "CANCELED"
 };
 
-const { MRoute, MOrder, Driver, Coordinates, MpsSubscription, Customer, Todo } = initSchema(schema);
+const { MRoute, MOrder, MpsSubscription, Driver, Todo } = initSchema(schema);
 
 export {
   MRoute,
   MOrder,
-  Driver,
-  Coordinates,
   MpsSubscription,
-  Customer,
+  Driver,
   Todo,
   RouteStatus,
   OrderStatus

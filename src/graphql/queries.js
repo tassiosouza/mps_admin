@@ -9,51 +9,7 @@ export const getMRoute = /* GraphQL */ `
       startTime
       endTime
       status
-      name
-      orders {
-        items {
-          id
-          number
-          deliveryInstruction
-          mealPlan
-          status
-          customerName
-          eta
-          routeID
-          address
-          latitude
-          longitude
-          orderDate
-          phone
-          location
-          sort
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        nextToken
-        startedAt
-      }
-      driver {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        assignedRouteID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
+      driverID
       distance
       duration
       location
@@ -65,7 +21,6 @@ export const getMRoute = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      mRouteDriverId
     }
   }
 `;
@@ -82,51 +37,7 @@ export const listMRoutes = /* GraphQL */ `
         startTime
         endTime
         status
-        name
-        orders {
-          items {
-            id
-            number
-            deliveryInstruction
-            mealPlan
-            status
-            customerName
-            eta
-            routeID
-            address
-            latitude
-            longitude
-            orderDate
-            phone
-            location
-            sort
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-          }
-          nextToken
-          startedAt
-        }
-        driver {
-          id
-          name
-          email
-          phone
-          carCapacity
-          owner
-          onBoard
-          status
-          latitude
-          longitude
-          assignedRouteID
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
+        driverID
         distance
         duration
         location
@@ -138,7 +49,6 @@ export const listMRoutes = /* GraphQL */ `
         _version
         _deleted
         _lastChangedAt
-        mRouteDriverId
       }
       nextToken
       startedAt
@@ -164,122 +74,13 @@ export const syncMRoutes = /* GraphQL */ `
         startTime
         endTime
         status
-        name
-        orders {
-          items {
-            id
-            number
-            deliveryInstruction
-            mealPlan
-            status
-            customerName
-            eta
-            routeID
-            address
-            latitude
-            longitude
-            orderDate
-            phone
-            location
-            sort
-            createdAt
-            updatedAt
-            _version
-            _deleted
-            _lastChangedAt
-          }
-          nextToken
-          startedAt
-        }
-        driver {
-          id
-          name
-          email
-          phone
-          carCapacity
-          owner
-          onBoard
-          status
-          latitude
-          longitude
-          assignedRouteID
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
+        driverID
         distance
         duration
         location
         routePlanName
         routeDate
         points
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        mRouteDriverId
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const getCoordinates = /* GraphQL */ `
-  query GetCoordinates($id: ID!) {
-    getCoordinates(id: $id) {
-      id
-      latitude
-      longitude
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-    }
-  }
-`;
-export const listCoordinates = /* GraphQL */ `
-  query ListCoordinates(
-    $filter: ModelCoordinatesFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listCoordinates(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const syncCoordinates = /* GraphQL */ `
-  query SyncCoordinates(
-    $filter: ModelCoordinatesFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncCoordinates(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        latitude
-        longitude
         createdAt
         updatedAt
         _version
@@ -301,7 +102,7 @@ export const getMOrder = /* GraphQL */ `
       status
       customerName
       eta
-      routeID
+      assignedRouteID
       address
       latitude
       longitude
@@ -332,7 +133,7 @@ export const listMOrders = /* GraphQL */ `
         status
         customerName
         eta
-        routeID
+        assignedRouteID
         address
         latitude
         longitude
@@ -372,7 +173,7 @@ export const syncMOrders = /* GraphQL */ `
         status
         customerName
         eta
-        routeID
+        assignedRouteID
         address
         latitude
         longitude
@@ -492,112 +293,6 @@ export const syncMpsSubscriptions = /* GraphQL */ `
     }
   }
 `;
-export const getCustomer = /* GraphQL */ `
-  query GetCustomer($id: ID!) {
-    getCustomer(id: $id) {
-      id
-      name
-      address
-      plan
-      phone
-      owner
-      coordinates {
-        id
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      createdAt
-      updatedAt
-      _version
-      _deleted
-      _lastChangedAt
-      customerCoordinatesId
-    }
-  }
-`;
-export const listCustomers = /* GraphQL */ `
-  query ListCustomers(
-    $filter: ModelCustomerFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listCustomers(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const syncCustomers = /* GraphQL */ `
-  query SyncCustomers(
-    $filter: ModelCustomerFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncCustomers(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        address
-        plan
-        phone
-        owner
-        coordinates {
-          id
-          latitude
-          longitude
-          createdAt
-          updatedAt
-          _version
-          _deleted
-          _lastChangedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-        customerCoordinatesId
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getDriver = /* GraphQL */ `
   query GetDriver($id: ID!) {
     getDriver(id: $id) {
@@ -611,7 +306,6 @@ export const getDriver = /* GraphQL */ `
       status
       latitude
       longitude
-      assignedRouteID
       createdAt
       updatedAt
       _version
@@ -638,7 +332,6 @@ export const listDrivers = /* GraphQL */ `
         status
         latitude
         longitude
-        assignedRouteID
         createdAt
         updatedAt
         _version
@@ -674,7 +367,6 @@ export const syncDrivers = /* GraphQL */ `
         status
         latitude
         longitude
-        assignedRouteID
         createdAt
         updatedAt
         _version

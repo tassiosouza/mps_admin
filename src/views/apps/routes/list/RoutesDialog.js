@@ -15,14 +15,20 @@ import useScript from 'src/hooks/useScript'
 
 const DialogFullScreen = (props) => {
 
-  const { open, onClose, route } = props
-
-  if(route) {
-    console.log('starting map script with: ' + JSON.stringify(route))
-  }
+  const { open, onClose, route, orders } = props
   
   const MapKit = props => {
     useScript('/scripts/mapkit.js');
+  }
+
+  const ordersToDisplay = null
+  const routeID = 'No route to display'
+
+  if(route != null) {
+    routeID = route.id
+    ordersToDisplay = orders.filter(order => {
+      return order.assignedRouteID === route.id
+    })
   }
 
   const divStyle = {
@@ -35,7 +41,7 @@ const DialogFullScreen = (props) => {
       <Dialog fullScreen onClose aria-labelledby='full-screen-dialog-title' open={open}>
         <DialogTitle id='full-screen-dialog-title'>
           <Typography variant='h6' component='span'>
-            Modal title
+            {routeID} - Unassigned
           </Typography>
           <IconButton
             aria-label='close'
@@ -49,12 +55,13 @@ const DialogFullScreen = (props) => {
           <div 
           id="map"
           style={divStyle}
-          data={route ? JSON.stringify(route) : ''}>
+          route={route ? JSON.stringify(route) : ''}
+          orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''} >
             <MapKit/>
           </div>
         </DialogContent>
         <DialogActions sx={{ p: theme => `${theme.spacing(3)} !important` }}>
-          <Button onClick={onClose}>Save changes</Button>
+          <Button onClick={onClose}>Done</Button>
         </DialogActions>
       </Dialog>
     </div>

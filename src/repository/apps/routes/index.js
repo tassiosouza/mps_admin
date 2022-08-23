@@ -1,7 +1,7 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
 import { OrderStatus } from 'src/models'
-import { listMpsSubscriptions, listDrivers } from '../../../graphql/queries'
+import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders } from '../../../graphql/queries'
 import { createMRoute, createMOrder } from '../../../graphql/mutations'
 
 // ** Axios Party Imports
@@ -45,13 +45,10 @@ export const getLocations = async (params, getState)  => {
 }
 
 export const getDrivers = async (params)  => {
-  console.log('trying to fectch')
   // ** Query Server Drivers
   const response = await API.graphql(graphqlOperation(listDrivers, {
     limit: 5000
   }))
-
-  console.log('fetched drivers: ' + JSON.stringify(response))
 
   const filteredDrivers = response.data.listDrivers.items.filter(driver => {
     return driver.name.toLowerCase().includes(params.query.toLowerCase())
@@ -91,6 +88,8 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     ordersInRequest = (orders.length - rest) / requestCount
   }
 
+  var globalRequestAvaiableID = await getAvaiableRouteId()
+
   for(var i = 0; i < requestCount; i ++) {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
@@ -98,10 +97,11 @@ export const getGraphHopperRoutes = async (params, getState )  => {
 
     try {
       const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
-      console.log('response success: ' + JSON.stringify(res))
       
       // ** Request successfuly completed (Process routes and solution)
-      const { routes, solution } = getRoutesFromResponse(res, orders)
+      const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+
+      globalRequestAvaiableID = avaiableID
       
       avaiableDrivers = solution.notAssigneds
       currentSpliceIndex += ordersInRequest
@@ -117,14 +117,13 @@ export const getGraphHopperRoutes = async (params, getState )  => {
         finalSolution.result = 'problem'
       }
       finalRoutes.push(...routes)
-      
     }
     catch(e) { // ** Handle Request Error
       // ** Server error
       if(e.status == 500) {
         const errorMessage = 'GH internal error. Code: ' + e.status
         console.log(errorMessage)
-        finalSolution.details.push(res.message)
+        finalSolution.details.push(e.message)
         splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
       }
       // ** Error in optimization -> No driver left to make the order
@@ -137,10 +136,13 @@ export const getGraphHopperRoutes = async (params, getState )  => {
       break
     }
   }
-  return { routes: finalRoutes, solution: finalSolution }
+
+  console.log('FINAL ROUTES FROM GRAPHHOOPER: ' + JSON.stringify(finalRoutes))
+
+  return { routes: finalRoutes, solution: finalSolution, orders }
 }
 
-const getRoutesFromResponse = (response, orders) => {
+const getRoutesFromResponse = (response, orders, avaiableID) => {
   const ghRoutes = response.data.solution.routes
   var routes = []
   var ordersLeft = []
@@ -160,21 +162,30 @@ const getRoutesFromResponse = (response, orders) => {
     ordersLeft
   }
 
-  ghRoutes.map(route => {
-    var routeOrders = []
-    var routeID = 'R' + parseFloat(Date.now()).toString()
+  var currentIndex = 0
+
+  ghRoutes.map(async route => {
+    avaiableID = avaiableID + currentIndex
+    var routeID = 'R' + avaiableID
+    
     const deliveries = route.activities.filter(ac => ac.type == 'service')
 
     for(var k = 0; k < deliveries.length; k++) {
       for(var i = 0; i < orders.length; i++) {
         if(deliveries[k].id === orders[i].id) {
           orders[i].sort = k // ** Assign the sorted position of the order
-          orders[i].routeID = routeID // ** Assing the order route id
+          orders[i].assignedRouteID = routeID // ** Assing the order route id
           orders[i].eta = deliveries[k].arr_time // ** Assing the order ETA
-          routeOrders.push(orders[i]) // ** Assing the processed order to route order list
         }
       }
     }
+
+    const polyline = []
+    route.points.map(point => {
+      polyline.push(...point.coordinates)
+    })
+
+    console.log('pushing points: ' + JSON.stringify(polyline))
 
     routes.push(
       {
@@ -183,20 +194,28 @@ const getRoutesFromResponse = (response, orders) => {
         startTime: 0,
         endTime: 0,
         status: RouteStatus.PLANNED,
-        name: 'R' + parseFloat(Date.now()).toString(),
-        orders: routeOrders,
-        driver: null,
+        driverID: '',
         distance: route.distance,
         duration: route.completion_time,
-        location: routeOrders[0].location,
+        location: '',
         routePlanName: '',
         routeDate: parseFloat(Date.now()),
-        points: {points: route.points }
+        points: JSON.stringify(polyline)
       }
-      
     )
+    currentIndex += 1
   })
-  return { routes, solution }
+  
+  return { routes, solution, avaiableID: avaiableID + 1 }
+}
+
+const getAvaiableRouteId = async () => {
+  const response = await API.graphql(graphqlOperation(listMRoutes))
+  const routesID = []
+  response.data.listMRoutes.items.map(route => routesID.push(parseInt(route.id.replace('R',''))))
+  
+  const max = Math.max(...routesID)
+  return routesID.length > 0 ? max + 1 : 0
 }
 
 const getOptimizedFactor = (x, y) => {
@@ -270,7 +289,8 @@ const generateOrders = state => {
     status: OrderStatus.CREATED,
     customerName: sub.name,
     eta: 0,
-    routeID:'',
+    sort:0,
+    assignedRouteID:'',
     address: sub.address,
     latitude: sub.latitude,
     longitude: sub.longitude,
@@ -282,21 +302,41 @@ const generateOrders = state => {
   return orders
 }
 
-export const saveAmplifyRoutes = async routes => {
-  // ** Mutate Server Routes
-  console.log('start saving')
-  for(var i = 0; i < routes.length; i++) {
-    console.log('route: ' + JSON.stringify(routes[i]))
-    for(var k = 0; k < routes[i].orders.length; k++) {
-      console.log('order: ' + JSON.stringify(routes[i].orders[k]))
-      const response = await API.graphql(graphqlOperation(createMOrder, {
-        input: routes[i].orders[k]
-      }))
-      console.log('amplify order response: ' + JSON.stringify(response))
-    }
-  }
-  
-  console.log('finish saving in repository')
+export const fetchRoutes = async () => {
+  // ** Query Server Routes
+  const routesResponse = await API.graphql(graphqlOperation(listMRoutes))
+  const routes = routesResponse.data.listMRoutes.items
 
-  return [];
+  return routes
+}
+
+export const fetchOrders = async () => {
+  // ** Query Server Orders
+  const ordersResponse = await API.graphql(graphqlOperation(listMOrders))
+  const orders = ordersResponse.data.listMOrders.items
+
+  return orders
+}
+
+export const saveRoutesAndOrders = async (routes, orders) => {
+  // ** Mutate Server Orders
+  for(var i = 0; i < orders.length; i++) {
+    await API.graphql(graphqlOperation(createMOrder, {
+      input: orders[i]
+    }))
+  }
+  // ** Mutate Server Routes
+  for(var i = 0; i < routes.length; i++) {
+    await API.graphql(graphqlOperation(createMRoute, {
+      input: routes[i]
+    }))
+  }
+
+  // ** Query Server Routes
+  const fetchedRoutes = await fetchRoutes()
+
+  // ** Query Server Orders
+  const fetchedOrders = await fetchOrders()
+
+  return {routes: fetchedRoutes, orders: fetchedOrders};
 }

@@ -30,19 +30,11 @@ type MOrderMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
-type DriverMetaData = {
-  readOnlyFields: 'createdAt' | 'updatedAt';
-}
-
-type CoordinatesMetaData = {
-  readOnlyFields: 'createdAt' | 'updatedAt';
-}
-
 type MpsSubscriptionMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
-type CustomerMetaData = {
+type DriverMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
@@ -56,9 +48,7 @@ export declare class MRoute {
   readonly startTime?: number | null;
   readonly endTime?: number | null;
   readonly status?: RouteStatus | keyof typeof RouteStatus | null;
-  readonly name: string;
-  readonly orders?: (MOrder | null)[] | null;
-  readonly driver?: Driver | null;
+  readonly driverID?: string | null;
   readonly distance?: number | null;
   readonly duration?: number | null;
   readonly location?: string | null;
@@ -67,7 +57,6 @@ export declare class MRoute {
   readonly points?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
-  readonly mRouteDriverId?: string | null;
   constructor(init: ModelInit<MRoute, MRouteMetaData>);
   static copyOf(source: MRoute, mutator: (draft: MutableModel<MRoute, MRouteMetaData>) => MutableModel<MRoute, MRouteMetaData> | void): MRoute;
 }
@@ -80,7 +69,7 @@ export declare class MOrder {
   readonly status?: OrderStatus | keyof typeof OrderStatus | null;
   readonly customerName?: string | null;
   readonly eta?: number | null;
-  readonly routeID: string;
+  readonly assignedRouteID?: string | null;
   readonly address?: string | null;
   readonly latitude?: number | null;
   readonly longitude?: number | null;
@@ -92,34 +81,6 @@ export declare class MOrder {
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MOrder, MOrderMetaData>);
   static copyOf(source: MOrder, mutator: (draft: MutableModel<MOrder, MOrderMetaData>) => MutableModel<MOrder, MOrderMetaData> | void): MOrder;
-}
-
-export declare class Driver {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly phone?: string | null;
-  readonly carCapacity?: number | null;
-  readonly owner: string;
-  readonly onBoard?: boolean | null;
-  readonly status?: boolean | null;
-  readonly latitude?: number | null;
-  readonly longitude?: number | null;
-  readonly assignedRouteID?: string | null;
-  readonly createdAt?: string | null;
-  readonly updatedAt?: string | null;
-  constructor(init: ModelInit<Driver, DriverMetaData>);
-  static copyOf(source: Driver, mutator: (draft: MutableModel<Driver, DriverMetaData>) => MutableModel<Driver, DriverMetaData> | void): Driver;
-}
-
-export declare class Coordinates {
-  readonly id: string;
-  readonly latitude: number;
-  readonly longitude: number;
-  readonly createdAt?: string | null;
-  readonly updatedAt?: string | null;
-  constructor(init: ModelInit<Coordinates, CoordinatesMetaData>);
-  static copyOf(source: Coordinates, mutator: (draft: MutableModel<Coordinates, CoordinatesMetaData>) => MutableModel<Coordinates, CoordinatesMetaData> | void): Coordinates;
 }
 
 export declare class MpsSubscription {
@@ -143,19 +104,21 @@ export declare class MpsSubscription {
   static copyOf(source: MpsSubscription, mutator: (draft: MutableModel<MpsSubscription, MpsSubscriptionMetaData>) => MutableModel<MpsSubscription, MpsSubscriptionMetaData> | void): MpsSubscription;
 }
 
-export declare class Customer {
+export declare class Driver {
   readonly id: string;
   readonly name: string;
-  readonly address: string;
-  readonly plan?: string | null;
-  readonly phone: string;
-  readonly owner?: string | null;
-  readonly coordinates?: Coordinates | null;
+  readonly email: string;
+  readonly phone?: string | null;
+  readonly carCapacity?: number | null;
+  readonly owner: string;
+  readonly onBoard?: boolean | null;
+  readonly status?: boolean | null;
+  readonly latitude?: number | null;
+  readonly longitude?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
-  readonly customerCoordinatesId?: string | null;
-  constructor(init: ModelInit<Customer, CustomerMetaData>);
-  static copyOf(source: Customer, mutator: (draft: MutableModel<Customer, CustomerMetaData>) => MutableModel<Customer, CustomerMetaData> | void): Customer;
+  constructor(init: ModelInit<Driver, DriverMetaData>);
+  static copyOf(source: Driver, mutator: (draft: MutableModel<Driver, DriverMetaData>) => MutableModel<Driver, DriverMetaData> | void): Driver;
 }
 
 export declare class Todo {

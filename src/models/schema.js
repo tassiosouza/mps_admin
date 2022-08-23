@@ -40,40 +40,12 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "name": {
-                    "name": "name",
+                "driverID": {
+                    "name": "driverID",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
-                },
-                "orders": {
-                    "name": "orders",
-                    "isArray": true,
-                    "type": {
-                        "model": "MOrder"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "isArrayNullable": true,
-                    "association": {
-                        "connectionType": "HAS_MANY",
-                        "associatedWith": "routeID"
-                    }
-                },
-                "driver": {
-                    "name": "driver",
-                    "isArray": false,
-                    "type": {
-                        "model": "Driver"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "mRouteDriverId"
-                    }
                 },
                 "distance": {
                     "name": "distance",
@@ -132,13 +104,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isReadOnly": true
-                },
-                "mRouteDriverId": {
-                    "name": "mRouteDriverId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
                 }
             },
             "syncable": true,
@@ -220,11 +185,11 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "routeID": {
-                    "name": "routeID",
+                "assignedRouteID": {
+                    "name": "assignedRouteID",
                     "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
+                    "type": "String",
+                    "isRequired": false,
                     "attributes": []
                 },
                 "address": {
@@ -295,203 +260,6 @@ export const schema = {
             },
             "syncable": true,
             "pluralName": "MOrders",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                },
-                {
-                    "type": "key",
-                    "properties": {
-                        "name": "byRoute",
-                        "fields": [
-                            "routeID"
-                        ]
-                    }
-                },
-                {
-                    "type": "auth",
-                    "properties": {
-                        "rules": [
-                            {
-                                "allow": "public",
-                                "operations": [
-                                    "create",
-                                    "update",
-                                    "delete",
-                                    "read"
-                                ]
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        "Driver": {
-            "name": "Driver",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "name": {
-                    "name": "name",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "email": {
-                    "name": "email",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "phone": {
-                    "name": "phone",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "carCapacity": {
-                    "name": "carCapacity",
-                    "isArray": false,
-                    "type": "Int",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "owner": {
-                    "name": "owner",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "onBoard": {
-                    "name": "onBoard",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "status": {
-                    "name": "status",
-                    "isArray": false,
-                    "type": "Boolean",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "latitude": {
-                    "name": "latitude",
-                    "isArray": false,
-                    "type": "Float",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "longitude": {
-                    "name": "longitude",
-                    "isArray": false,
-                    "type": "Float",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "assignedRouteID": {
-                    "name": "assignedRouteID",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
-                    "attributes": []
-                },
-                "createdAt": {
-                    "name": "createdAt",
-                    "isArray": false,
-                    "type": "AWSDateTime",
-                    "isRequired": false,
-                    "attributes": [],
-                    "isReadOnly": true
-                },
-                "updatedAt": {
-                    "name": "updatedAt",
-                    "isArray": false,
-                    "type": "AWSDateTime",
-                    "isRequired": false,
-                    "attributes": [],
-                    "isReadOnly": true
-                }
-            },
-            "syncable": true,
-            "pluralName": "Drivers",
-            "attributes": [
-                {
-                    "type": "model",
-                    "properties": {}
-                },
-                {
-                    "type": "auth",
-                    "properties": {
-                        "rules": [
-                            {
-                                "allow": "public",
-                                "operations": [
-                                    "create",
-                                    "update",
-                                    "delete",
-                                    "read"
-                                ]
-                            }
-                        ]
-                    }
-                }
-            ]
-        },
-        "Coordinates": {
-            "name": "Coordinates",
-            "fields": {
-                "id": {
-                    "name": "id",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "latitude": {
-                    "name": "latitude",
-                    "isArray": false,
-                    "type": "Float",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "longitude": {
-                    "name": "longitude",
-                    "isArray": false,
-                    "type": "Float",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "createdAt": {
-                    "name": "createdAt",
-                    "isArray": false,
-                    "type": "AWSDateTime",
-                    "isRequired": false,
-                    "attributes": [],
-                    "isReadOnly": true
-                },
-                "updatedAt": {
-                    "name": "updatedAt",
-                    "isArray": false,
-                    "type": "AWSDateTime",
-                    "isRequired": false,
-                    "attributes": [],
-                    "isReadOnly": true
-                }
-            },
-            "syncable": true,
-            "pluralName": "Coordinates",
             "attributes": [
                 {
                     "type": "model",
@@ -658,8 +426,8 @@ export const schema = {
                 }
             ]
         },
-        "Customer": {
-            "name": "Customer",
+        "Driver": {
+            "name": "Driver",
             "fields": {
                 "id": {
                     "name": "id",
@@ -675,47 +443,61 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "address": {
-                    "name": "address",
+                "email": {
+                    "name": "email",
                     "isArray": false,
                     "type": "String",
                     "isRequired": true,
-                    "attributes": []
-                },
-                "plan": {
-                    "name": "plan",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
                     "attributes": []
                 },
                 "phone": {
                     "name": "phone",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "carCapacity": {
+                    "name": "carCapacity",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
                     "attributes": []
                 },
                 "owner": {
                     "name": "owner",
                     "isArray": false,
                     "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "onBoard": {
+                    "name": "onBoard",
+                    "isArray": false,
+                    "type": "Boolean",
                     "isRequired": false,
                     "attributes": []
                 },
-                "coordinates": {
-                    "name": "coordinates",
+                "status": {
+                    "name": "status",
                     "isArray": false,
-                    "type": {
-                        "model": "Coordinates"
-                    },
+                    "type": "Boolean",
                     "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "customerCoordinatesId"
-                    }
+                    "attributes": []
+                },
+                "latitude": {
+                    "name": "latitude",
+                    "isArray": false,
+                    "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "longitude": {
+                    "name": "longitude",
+                    "isArray": false,
+                    "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
                 },
                 "createdAt": {
                     "name": "createdAt",
@@ -732,17 +514,10 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isReadOnly": true
-                },
-                "customerCoordinatesId": {
-                    "name": "customerCoordinatesId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
                 }
             },
             "syncable": true,
-            "pluralName": "Customers",
+            "pluralName": "Drivers",
             "attributes": [
                 {
                     "type": "model",
@@ -874,5 +649,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "21009f27d739f9606de76e3f3916dd6e"
+    "version": "a135bd9a1552688545b5634a4cac7f46"
 };

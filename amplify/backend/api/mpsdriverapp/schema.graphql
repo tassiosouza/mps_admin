@@ -4,21 +4,13 @@ type MRoute @model @auth(rules: [{allow: public}]) {
   startTime: Float
   endTime: Float
   status: RouteStatus
-  name: String!
-  orders: [MOrder] @hasMany(indexName: "byRoute", fields: ["id"])
-  driver: Driver @hasOne
+  driverID: String
   distance: Int
   duration: Int
   location: String
-  routePlanNdame: String
+  routePlanName: String
   routeDate: Float
   points: AWSJSON
-}
-
-type Coordinates @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  latitude: Float!
-  longitude: Float!
 }
 
 enum RouteStatus {
@@ -49,7 +41,7 @@ type MOrder @model @auth(rules: [{allow: public}]) {
   status: OrderStatus
   customerName: String
   eta: Int
-  routeID: ID! @index(name: "byRoute")
+  assignedRouteID: String
   address: String
   latitude: Float
   longitude: Float
@@ -76,16 +68,6 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   location: String
 }
 
-type Customer @model @auth(rules: [{allow: public}]) {
-  id: ID!
-  name: String!
-  address: String!
-  plan: String
-  phone: String!
-  owner: String
-  coordinates: Coordinates @hasOne
-}
-
 type Driver @model @auth(rules: [{allow: public}]) {
   id: ID!
   name: String!
@@ -97,7 +79,6 @@ type Driver @model @auth(rules: [{allow: public}]) {
   status: Boolean
   latitude: Float
   longitude: Float
-  assignedRouteID: String
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

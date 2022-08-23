@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getLocations, getDrivers, getGraphHopperRoutes, saveAmplifyRoutes } from 'src/repository/apps/routes';
+import { getLocations, getDrivers, getGraphHopperRoutes, saveRoutesAndOrders, fetchOrders, fetchRoutes } from 'src/repository/apps/routes';
 
 // ** Fetch Locations from activeds Subscriptions in the Server
 export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
@@ -19,21 +19,29 @@ export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (pa
 // ** Generate Optimized Routes
 export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async (params, { getState }) => {
   const { callback } = params
-  const { routes, solution } = await getGraphHopperRoutes(params, getState)
-  return { routes, solution, callback }
+  const { routes, solution, orders } = await getGraphHopperRoutes(params, getState)
+  return { routes, solution, orders, callback }
+})
+
+// ** Generate Optimized Routes
+export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOrders', async (params, { getState }) => {
+  const routes = await fetchRoutes()
+  const orders = await fetchOrders()
+  return { routes, orders }
 })
 
 // ** Save Generated Routes to Amplify
 export const saveRoutes = createAsyncThunk('appRoutes/saveRoutes', async (params, { getState }) => {
   const { callback } = params
   const newRoutes = getState().routes.tempRoutes
+  const newOrders = getState().routes.tempOrders
 
   // ** Save Routes in Amplify
-  await saveAmplifyRoutes(newRoutes)
+  const { routes, orders } = await saveRoutesAndOrders(newRoutes, newOrders)
 
   console.log('finish saving in store')
 
-  return { routes:[] , callback }
+  return { routes, orders , callback }
 })
 
 export const appRoutesSlice = createSlice({
@@ -53,7 +61,10 @@ export const appRoutesSlice = createSlice({
     drivers: [],
     routes:[],
     tempRoutes:[],
-    solution: null
+    solution: null,
+    tempOrders:[],
+    orders:[],
+    loadingRoutes: true
   },
   reducers: {
     addLocation: (state, action) => {
@@ -94,6 +105,11 @@ export const appRoutesSlice = createSlice({
     }
   },
   extraReducers: builder => {
+    builder.addCase(fetchRoutesAndOrders.fulfilled, (state, action) => {
+      state.routes = action.payload.routes
+      state.orders = action.payload.orders
+      state.loadingRoutes = false
+    })
     builder.addCase(fetchLocations.fulfilled, (state, action) => {
       state.locations = action.payload.locations
       state.subscriptions = action.payload.subscriptions
@@ -104,10 +120,12 @@ export const appRoutesSlice = createSlice({
     builder.addCase(generateRoutes.fulfilled, (state, action) => {
       state.solution = action.payload.solution
       state.tempRoutes = action.payload.routes
+      state.tempOrders = action.payload.orders
       action.payload.callback()
     })
     builder.addCase(saveRoutes.fulfilled, (state, action) => {
       state.routes = action.payload.routes
+      state.orders = action.payload.orders
       action.payload.callback()
     })
   }
