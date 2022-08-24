@@ -198,8 +198,8 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
         cost: 0,
         startTime: 0,
         endTime: 0,
-        status: RouteStatus.PLANNED,
-        driverID: '',
+        status: RouteStatus.ASSIGNED,
+        driverID: 'a1316a98-6e9c-432d-b916-59ab2d1cf952',
         distance: route.distance,
         duration: route.completion_time,
         location: '',
@@ -309,7 +309,9 @@ const generateOrders = state => {
 
 export const fetchRoutes = async () => {
   // ** Query Server Routes
+  console.log('quering')
   const routesResponse = await API.graphql(graphqlOperation(listMRoutes))
+  console.log('response: ' + JSON.stringify(routesResponse))
   const routes = routesResponse.data.listMRoutes.items
 
   return routes

@@ -25,6 +25,7 @@ export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async
 
 // ** Generate Optimized Routes
 export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOrders', async (params, { getState }) => {
+  console.log('store quering')
   const routes = await fetchRoutes()
   const orders = await fetchOrders()
   return { routes, orders }

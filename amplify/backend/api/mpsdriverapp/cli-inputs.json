@@ -13,10 +13,7 @@
         "mode": "AWS_IAM"
       }
     ],
-    "conflictResolution": {
-      "defaultResolutionStrategy": {
-        "type": "AUTOMERGE"
-      }
-    }
+    "conflictResolution": {},
+    "gqlSchemaPath": "/Users/tassiosouza/Projects/mps_driver_app/amplify/backend/api/mpsdriverapp/schema.graphql"
   }
 }

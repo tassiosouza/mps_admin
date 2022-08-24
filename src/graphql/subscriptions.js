@@ -18,9 +18,6 @@ export const onCreateMRoute = /* GraphQL */ `
       points
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -41,9 +38,6 @@ export const onUpdateMRoute = /* GraphQL */ `
       points
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -64,9 +58,6 @@ export const onDeleteMRoute = /* GraphQL */ `
       points
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -90,9 +81,6 @@ export const onCreateMOrder = /* GraphQL */ `
       sort
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -116,9 +104,6 @@ export const onUpdateMOrder = /* GraphQL */ `
       sort
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -142,9 +127,6 @@ export const onDeleteMOrder = /* GraphQL */ `
       sort
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -167,9 +149,6 @@ export const onCreateMpsSubscription = /* GraphQL */ `
       location
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -192,9 +171,6 @@ export const onUpdateMpsSubscription = /* GraphQL */ `
       location
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -217,9 +193,6 @@ export const onDeleteMpsSubscription = /* GraphQL */ `
       location
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -238,9 +211,6 @@ export const onCreateDriver = /* GraphQL */ `
       longitude
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -259,9 +229,6 @@ export const onUpdateDriver = /* GraphQL */ `
       longitude
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -280,9 +247,6 @@ export const onDeleteDriver = /* GraphQL */ `
       longitude
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -296,9 +260,6 @@ export const onCreateTodo = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -312,9 +273,6 @@ export const onUpdateTodo = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -328,9 +286,6 @@ export const onDeleteTodo = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;

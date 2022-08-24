@@ -18,9 +18,6 @@ export const getMRoute = /* GraphQL */ `
       points
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -46,49 +43,8 @@ export const listMRoutes = /* GraphQL */ `
         points
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncMRoutes = /* GraphQL */ `
-  query SyncMRoutes(
-    $filter: ModelMRouteFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncMRoutes(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        cost
-        startTime
-        endTime
-        status
-        driverID
-        distance
-        duration
-        location
-        routePlanName
-        routeDate
-        points
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -112,9 +68,6 @@ export const getMOrder = /* GraphQL */ `
       sort
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -143,52 +96,8 @@ export const listMOrders = /* GraphQL */ `
         sort
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncMOrders = /* GraphQL */ `
-  query SyncMOrders(
-    $filter: ModelMOrderFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncMOrders(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        number
-        deliveryInstruction
-        mealPlan
-        status
-        customerName
-        eta
-        assignedRouteID
-        address
-        latitude
-        longitude
-        orderDate
-        phone
-        location
-        sort
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -211,9 +120,6 @@ export const getMpsSubscription = /* GraphQL */ `
       location
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -245,51 +151,8 @@ export const listMpsSubscriptions = /* GraphQL */ `
         location
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncMpsSubscriptions = /* GraphQL */ `
-  query SyncMpsSubscriptions(
-    $filter: ModelMpsSubscriptionFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncMpsSubscriptions(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        number
-        deliveryInstruction
-        mealPlan
-        subscriptionDate
-        address
-        status
-        name
-        email
-        phone
-        latitude
-        longitude
-        avatar
-        location
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -308,9 +171,6 @@ export const getDriver = /* GraphQL */ `
       longitude
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -334,47 +194,8 @@ export const listDrivers = /* GraphQL */ `
         longitude
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncDrivers = /* GraphQL */ `
-  query SyncDrivers(
-    $filter: ModelDriverFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncDrivers(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        email
-        phone
-        carCapacity
-        owner
-        onBoard
-        status
-        latitude
-        longitude
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -388,9 +209,6 @@ export const getTodo = /* GraphQL */ `
       owner
       createdAt
       updatedAt
-      _version
-      _deleted
-      _lastChangedAt
     }
   }
 `;
@@ -409,42 +227,8 @@ export const listTodos = /* GraphQL */ `
         owner
         createdAt
         updatedAt
-        _version
-        _deleted
-        _lastChangedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncTodos = /* GraphQL */ `
-  query SyncTodos(
-    $filter: ModelTodoFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncTodos(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        name
-        description
-        isComplete
-        owner
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;

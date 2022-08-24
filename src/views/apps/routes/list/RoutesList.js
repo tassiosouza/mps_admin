@@ -76,7 +76,7 @@ const RoutesList = () => {
       field: 'driver',
       minWidth: 120,
       headerName: 'Driver',
-      renderCell: ({ row }) => <Typography variant='body2'>{'Unassigned'}</Typography>
+      renderCell: ({ row }) => <Typography variant='body2'>{row.driverID === '' ? 'Unassigned' : row.driverID}</Typography>
     },
     {
       flex: 0.12,
