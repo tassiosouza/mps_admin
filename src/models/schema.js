@@ -499,6 +499,15 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "assignStatus": {
+                    "name": "assignStatus",
+                    "isArray": false,
+                    "type": {
+                        "enum": "AssignStatus"
+                    },
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -646,8 +655,16 @@ export const schema = {
                 "CHECKED",
                 "CANCELED"
             ]
+        },
+        "AssignStatus": {
+            "name": "AssignStatus",
+            "values": [
+                "ASSIGNED",
+                "ASSIGNING",
+                "UNASSIGNED"
+            ]
         }
     },
     "nonModels": {},
-    "version": "a135bd9a1552688545b5634a4cac7f46"
+    "version": "baa186c0d47d1bed625f2fac12614b52"
 };

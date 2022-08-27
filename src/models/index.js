@@ -22,6 +22,12 @@ const OrderStatus = {
   "CANCELED": "CANCELED"
 };
 
+const AssignStatus = {
+  "ASSIGNED": "ASSIGNED",
+  "ASSIGNING": "ASSIGNING",
+  "UNASSIGNED": "UNASSIGNED"
+};
+
 const { MRoute, MOrder, MpsSubscription, Driver, Todo } = initSchema(schema);
 
 export {
@@ -31,5 +37,6 @@ export {
   Driver,
   Todo,
   RouteStatus,
-  OrderStatus
+  OrderStatus,
+  AssignStatus
 };

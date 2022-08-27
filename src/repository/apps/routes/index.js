@@ -1,12 +1,13 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
 import { OrderStatus } from 'src/models'
-import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders } from '../../../graphql/queries'
-import { createMRoute, createMOrder } from '../../../graphql/mutations'
+import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders, getMRoute } from '../../../graphql/queries'
+import { createMRoute, createMOrder, updateMRoute, updateDriver } from '../../../graphql/mutations'
 
 // ** Axios Party Imports
 import axios from 'axios'
 import { RouteStatus } from 'src/models'
+import { AssignStatus } from 'src/models'
 
 export const getLocations = async (params, getState)  => {
   const state = getState()
@@ -57,6 +58,51 @@ export const getDrivers = async (params)  => {
   return filteredDrivers;
 }
 
+export const assignAmplifyDriver = async (routeID, driverID)  => {
+
+  console.log('getting in repository: ' + routeID)
+
+  // ** Query Route to be Assigned
+  const qResponse = await API.graphql(graphqlOperation(getMRoute, {id: routeID}))
+  const route = qResponse.data.getMRoute ? qResponse.data.getMRoute : null
+  if(route != null) {
+    if(route.driverID != '') {
+      return {route: null, error: 'Route already assigned', driver: null}
+    }
+    else {
+      //TODO: ASSIGN ROUTE HERE
+      const routeToUpdate = {
+        id: route.id,
+        driverID: driverID,
+        status: RouteStatus.ASSIGNED
+      };
+      const driverToUpdate = {
+        id: driverID,
+        assignStatus: AssignStatus.ASSIGNED
+      };
+      const updatedRoute = await (await API.graphql(graphqlOperation(updateMRoute, {input: routeToUpdate}))).data.updateMRoute;
+      const updatedDriver = await (await API.graphql(graphqlOperation(updateDriver, {input: driverToUpdate}))).data.updateDriver;
+
+      return {route: updatedRoute, error: null, driver: updatedDriver}
+    }
+  }
+  else {
+    return {
+      error: 'Invalid route id'
+    }
+  }
+  // ** Mutate Server Route with Driver ID
+  // const response = await API.graphql(graphqlOperation(updateMRoute, {
+  //   input: 5000
+  // }))
+
+  // const filteredDrivers = response.data.listDrivers.items.filter(driver => {
+  //   return driver.name.toLowerCase().includes(params.query.toLowerCase())
+  // })
+  
+  return null;
+}
+
 export const getGraphHopperRoutes = async (params, getState )  => {
   // ** Create Orders from Active Subscriptions
   const state = getState()
@@ -94,6 +140,8 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
     const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers)
+
+    console.log('gh request: ' + JSON.stringify(ghBody))
 
     try {
       const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
@@ -137,8 +185,6 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     }
   }
 
-  console.log('FINAL ROUTES FROM GRAPHHOOPER: ' + JSON.stringify(finalRoutes))
-
   return { routes: finalRoutes, solution: finalSolution, orders }
 }
 
@@ -180,8 +226,6 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
       }
     }
 
-    console.log('points: ' + JSON.stringify(route.points))
-
     const polyline = []
     var indexx = 0
     route.points.map(point => {
@@ -190,16 +234,14 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
       indexx += 1
     })
 
-    console.log('pushing points: ' + JSON.stringify(polyline))
-
     routes.push(
       {
         id: routeID,
         cost: 0,
         startTime: 0,
         endTime: 0,
-        status: RouteStatus.ASSIGNED,
-        driverID: 'a1316a98-6e9c-432d-b916-59ab2d1cf952',
+        status: RouteStatus.PLANNED,
+        driverID: '',
         distance: route.distance,
         duration: route.completion_time,
         location: '',
@@ -309,9 +351,7 @@ const generateOrders = state => {
 
 export const fetchRoutes = async () => {
   // ** Query Server Routes
-  console.log('quering')
   const routesResponse = await API.graphql(graphqlOperation(listMRoutes))
-  console.log('response: ' + JSON.stringify(routesResponse))
   const routes = routesResponse.data.listMRoutes.items
 
   return routes

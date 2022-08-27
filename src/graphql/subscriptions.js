@@ -209,6 +209,7 @@ export const onCreateDriver = /* GraphQL */ `
       status
       latitude
       longitude
+      assignStatus
       createdAt
       updatedAt
     }
@@ -227,6 +228,7 @@ export const onUpdateDriver = /* GraphQL */ `
       status
       latitude
       longitude
+      assignStatus
       createdAt
       updatedAt
     }
@@ -245,6 +247,7 @@ export const onDeleteDriver = /* GraphQL */ `
       status
       latitude
       longitude
+      assignStatus
       createdAt
       updatedAt
     }

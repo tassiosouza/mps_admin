@@ -33,6 +33,12 @@ enum OrderStatus {
   CANCELED
 }
 
+enum AssignStatus {
+  ASSIGNED
+  ASSIGNING
+  UNASSIGNED
+}
+
 type MOrder @model @auth(rules: [{allow: public}]) {
   id: ID!
   number: String
@@ -79,6 +85,7 @@ type Driver @model @auth(rules: [{allow: public}]) {
   status: Boolean
   latitude: Float
   longitude: Float
+  assignStatus: AssignStatus
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

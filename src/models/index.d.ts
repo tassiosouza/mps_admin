@@ -20,6 +20,12 @@ export enum OrderStatus {
   CANCELED = "CANCELED"
 }
 
+export enum AssignStatus {
+  ASSIGNED = "ASSIGNED",
+  ASSIGNING = "ASSIGNING",
+  UNASSIGNED = "UNASSIGNED"
+}
+
 
 
 type MRouteMetaData = {
@@ -115,6 +121,7 @@ export declare class Driver {
   readonly status?: boolean | null;
   readonly latitude?: number | null;
   readonly longitude?: number | null;
+  readonly assignStatus?: AssignStatus | keyof typeof AssignStatus | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Driver, DriverMetaData>);

@@ -28,6 +28,7 @@ for (var att, i = 0, atts = document.getElementById("map").attributes, n = atts.
 
 route = JSON.parse(values[1])
 orders = JSON.parse(values[2])
+orders.sort((a, b) => (a.sort > b.sort) ? 1 : -1)
 points = JSON.parse(route.points)
 
 for(var i = 0; i < points.length; i++) {
@@ -36,15 +37,15 @@ for(var i = 0; i < points.length; i++) {
   })
 }
 
-var pol = new mapkit.PolylineOverlay(coordinates,
-{
-  style: new mapkit.Style({
-      lineWidth: 2,
-      strokeColor: "#3AB81A"
-  })
-});
+// var pol = new mapkit.PolylineOverlay(coordinates,
+// {
+//   style: new mapkit.Style({
+//       lineWidth: 2,
+//       strokeColor: "#3AB81A"
+//   })
+// });
 
-map.addOverlay(pol)
+// map.addOverlay(pol)
 
 
 for(var i = 0; i < orders.length; i++) {
