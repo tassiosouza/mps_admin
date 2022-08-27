@@ -69,7 +69,7 @@ const LocationsDialog = (props) => {
   }
 
   const handleConfirm = () => {
-    dispatch(saveRoutes({callback: onClose}))
+    dispatch(saveRoutes({callback: handleClose}))
     setStatus(Status.SAVING)
   }
 

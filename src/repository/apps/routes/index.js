@@ -2,7 +2,7 @@
 import { API, graphqlOperation } from 'aws-amplify'
 import { OrderStatus } from 'src/models'
 import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders, getMRoute } from '../../../graphql/queries'
-import { createMRoute, createMOrder, updateMRoute, updateDriver } from '../../../graphql/mutations'
+import { createMRoute, createMOrder, updateMRoute, updateDriver, deleteMRoute, deleteMOrder } from '../../../graphql/mutations'
 
 // ** Axios Party Imports
 import axios from 'axios'
@@ -59,9 +59,6 @@ export const getDrivers = async (params)  => {
 }
 
 export const assignAmplifyDriver = async (routeID, driverID)  => {
-
-  console.log('getting in repository: ' + routeID)
-
   // ** Query Route to be Assigned
   const qResponse = await API.graphql(graphqlOperation(getMRoute, {id: routeID}))
   const route = qResponse.data.getMRoute ? qResponse.data.getMRoute : null
@@ -70,7 +67,7 @@ export const assignAmplifyDriver = async (routeID, driverID)  => {
       return {route: null, error: 'Route already assigned', driver: null}
     }
     else {
-      //TODO: ASSIGN ROUTE HERE
+      // ** Assign driver to the route in Amplify
       const routeToUpdate = {
         id: route.id,
         driverID: driverID,
@@ -91,16 +88,26 @@ export const assignAmplifyDriver = async (routeID, driverID)  => {
       error: 'Invalid route id'
     }
   }
-  // ** Mutate Server Route with Driver ID
-  // const response = await API.graphql(graphqlOperation(updateMRoute, {
-  //   input: 5000
-  // }))
+}
 
-  // const filteredDrivers = response.data.listDrivers.items.filter(driver => {
-  //   return driver.name.toLowerCase().includes(params.query.toLowerCase())
-  // })
-  
-  return null;
+export const deleteRoute = async (route, orders)  => {
+  // ** Mutate (Delete) Route in Amplify
+  const response = await API.graphql(graphqlOperation(deleteMRoute, {input: {id:route.id}}))
+  const routeResult = response.data.deleteMRoute ? response.data.deleteMRoute : null
+
+  if(routeResult) {
+    // ** Mutate (Unassign) Driver in Amplify if route is already assigned
+    if(routeResult.driverID != '') {
+      await API.graphql(graphqlOperation(updateDriver, {input: {id:route.driverID, assignStatus: AssignStatus.UNASSIGNED}}))
+    }
+
+    // ** Mutate (Delete) Orders in Amplify the where linked to the route
+    for(var i = 0; i < orders.length; i ++) {
+      await API.graphql(graphqlOperation(deleteMOrder, {input: {id:orders[i].id}}))
+    }
+  }
+
+  return routeResult
 }
 
 export const getGraphHopperRoutes = async (params, getState )  => {

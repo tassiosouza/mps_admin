@@ -21,6 +21,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 // ** Icons Imports
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import EyeOutline from 'mdi-material-ui/EyeOutline'
+import DownloadOutline from 'mdi-material-ui/DownloadOutline'
 
 // ** Third Party Imports
 import format from 'date-fns/format'
@@ -34,6 +35,7 @@ import { fetchRoutesAndOrders } from 'src/store/apps/routes'
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
 import LocationsDialog from 'src/views/apps/routes/list/LocationsDialog'
 import RoutesDialog from 'src/views/apps/routes/list/RoutesDialog'
+import DeleteRouteDialog from 'src/views/apps/routes/list/DeleteRouteDialog'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
@@ -42,7 +44,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 /* eslint-enable */
-const RoutesList = () => {
+const RoutesList = (props) => {
+
+  const { store } = props
+
   // ** State
   const [dates, setDates] = useState([])
   const [value, setValue] = useState('')
@@ -55,17 +60,18 @@ const RoutesList = () => {
   const [openLocationsDialog, setOpenLocationsDialog] = useState(false)
   const [openRoutesDialog, setOpenRoutesDialog] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState(null)
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false)
 
   const defaultColumns = [
     {
-      flex: 0.1,
+      flex: 0.06,
       field: 'name',
       minWidth: 80,
       headerName: 'ID',
       renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
     },
     {
-      flex: 0.1,
+      flex: 0.12,
       minWidth: 80,
       field: 'routeStatus',
       headerName: 'Status',
@@ -76,18 +82,11 @@ const RoutesList = () => {
       field: 'driver',
       minWidth: 120,
       headerName: 'Driver',
-      renderCell: ({ row }) => <Typography variant='body2'>{row.driverID === '' ? 'Unassigned' : row.driverID}</Typography>
+      renderCell: ({ row }) => <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
     },
     {
-      flex: 0.12,
-      minWidth: 100,
-      field: 'location',
-      headerName: 'Location',
-      renderCell: ({ row }) => <Typography variant='body2'>{row.location}</Typography>
-    },
-    {
-      flex: 0.10,
-      minWidth: 70,
+      flex: 0.07,
+      minWidth: 80,
       field: 'orders',
       headerName: 'Orders',
       renderCell: ({ row }) => <Typography variant='body2'>{getRouteOrders(row.id).length}</Typography>
@@ -113,14 +112,16 @@ const RoutesList = () => {
   })
 
   const getRouteOrders = (routeID) => {
-    return store.orders.filter(order => {
-      return order.assignedRouteID === routeID
-    })
+    if(routeID != '') {
+      return store.orders.filter(order => {
+        return order.assignedRouteID === routeID
+      })
+    }
+    return []
   }
 
   // ** Redux
   const dispatch = useDispatch()
-  const store = useSelector(state => state.routes)
 
   useEffect(() => {
     // ** Fetch routes and orders from server
@@ -129,6 +130,14 @@ const RoutesList = () => {
 
   const handleFilter = val => {
     setValue(val)
+  }
+
+  const getDriverName = driverID => {
+    const drivers = store.drivers.filter(dr => dr.id === driverID)
+    if(drivers.length) {
+      return drivers[0].name
+    }
+    return 'Unassigned'
   }
 
   const handleStatusValue = e => {
@@ -157,6 +166,11 @@ const RoutesList = () => {
     setOpenRoutesDialog(true)
   }
 
+  const handleOpenDeleteConfirm = (route) => {
+    setSelectedRoute(route)
+    setOpenDeleteConfirm(true)
+  }
+
   const handleCloseLocationsDialog = () => {
     setOpenLocationsDialog(false)
   }
@@ -165,10 +179,24 @@ const RoutesList = () => {
     setOpenRoutesDialog(false)
   }
 
+  const handleDeleteConfirm = route => {
+    if(route) {
+      dispatch(fetchRoutesAndOrders())
+      setOpenDeleteConfirm(false)
+    }
+    else {
+      console.log('ERROR: The delete operation failed')
+    }
+  }
+
+  const handleCloseConfirmDialog = () => {
+    setOpenDeleteConfirm(false)
+  }
+
   const columns = [
     ...defaultColumns,
     {
-      flex: 0.1,
+      flex: 0.11,
       minWidth: 130,
       sortable: false,
       field: 'actions',
@@ -176,13 +204,18 @@ const RoutesList = () => {
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title='Delete Route'>
-            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => dispatch(deleteroute(row.id))}>
+            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDeleteConfirm(row)}>
               <DeleteOutline />
             </IconButton>
           </Tooltip>
           <Tooltip title='View Route'>
             <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => handleOpenRoutesDialog(row)}>
               <EyeOutline />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title='Export Route'>
+            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => {}}>
+              <DownloadOutline />
             </IconButton>
           </Tooltip>
         </Box>
@@ -288,6 +321,13 @@ const RoutesList = () => {
         route={selectedRoute}
         orders={store.orders}
       />
+      <DeleteRouteDialog 
+        route={selectedRoute}
+        orders={getRouteOrders(selectedRoute ? selectedRoute.id : '')}
+        open={openDeleteConfirm}
+        onDelete={handleDeleteConfirm}
+        onCancel={handleCloseConfirmDialog}>
+      </DeleteRouteDialog>
     </Grid>
   )
 }

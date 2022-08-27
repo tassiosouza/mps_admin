@@ -131,7 +131,6 @@ export const appRoutesSlice = createSlice({
       state.subscriptions = action.payload.subscriptions
     })
     builder.addCase(fetchDrivers.fulfilled, (state, action) => {
-      console.log(JSON.stringify(action.payload))
       state.drivers = action.payload
     })
     builder.addCase(generateRoutes.fulfilled, (state, action) => {
@@ -143,28 +142,31 @@ export const appRoutesSlice = createSlice({
     builder.addCase(saveRoutes.fulfilled, (state, action) => {
       state.routes = action.payload.routes
       state.orders = action.payload.orders
+      state.locations.map(loc => {
+        loc.included = false
+      })
+      state.selectedLocations = []
       action.payload.callback()
     })
     builder.addCase(assignDriver.fulfilled, (state, action) => {
       const route = action.payload.route
       const driver = action.payload.driver
 
-      console.log('store result: ' + JSON.stringify(action.payload))
-
       //** Assign performed with success
       if(action.payload.error == null) {
         for(var i = 0; i < state.drivers.length; i++) { //** Update driver on local store
           if(state.drivers[i].id === driver.id) {
-            console.log('updating driver to: ' + JSON.stringify(driver))
             state.drivers[i] = driver
           }
         } 
         for(var i = 0; i < state.routes.length; i++) { //** Update route on local store
           if(state.routes[i].id === route.id) {
-            console.log('updating route to: ' + JSON.stringify(route))
             state.routes[i] = route
           }
         } 
+      }
+      else {
+        state.drivers[i].assignStatus = AssignStatus.UNASSIGNED
       }
       
       //** Return result to interface

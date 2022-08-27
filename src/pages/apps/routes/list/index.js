@@ -1,8 +1,6 @@
-// ** React Imports
-import { useState, useEffect } from 'react'
-
 // ** Redux Imports
-import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
+
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -17,16 +15,8 @@ import RoutesList from 'src/views/apps/routes/list/RoutesList'
 import DriversList from 'src/views/apps/routes/list/DriversList'
 
 const RoutesPage = () => {
-
-  // ** States
-  const [query, setQuery] = useState('')
-
-  // ** Hooks
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-
-  }, [dispatch, query])
+    // ** Redux
+    const store = useSelector(state => state.routes)
 
   return (
     <Grid 
@@ -40,7 +30,7 @@ const RoutesPage = () => {
       }}
     > 
       <Grid item xs={8}>
-        <RoutesList/>
+        <RoutesList store={store}/>
       </Grid>
       <Grid item xs={4}>
         <Grid container spacing={5}>
@@ -66,7 +56,7 @@ const RoutesPage = () => {
             </Card>
           </Grid>
           <Grid item sx={{width:'100%'}}>
-            <DriversList/>
+            <DriversList store={store}/>
           </Grid>
         </Grid>
       </Grid>

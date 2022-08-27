@@ -12,6 +12,9 @@ import LinearProgress from '@mui/material/LinearProgress'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
+import Menu from '@mui/material/Menu'
+import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
 
 // ** Icons Imports
 import DotsVertical from 'mdi-material-ui/DotsVertical'
@@ -44,7 +47,10 @@ const defaultColumns = [
 ]
 
 /* eslint-enable */
-const DriversList = () => {
+const DriversList = (props) => {
+
+  const { store } = props
+
   // ** State
   const [value, setValue] = useState('')
   const [pageSize, setPageSize] = useState(10)
@@ -52,11 +58,10 @@ const DriversList = () => {
   const [selectedRows, setSelectedRows] = useState([])
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [messageInfo, setMessageInfo] = useState('')
+  const [anchorEl, setAnchorEl] = useState(null)
 
   // ** Redux
   const dispatch = useDispatch()
-  const store = useSelector(state => state.routes)
-  
 
   useEffect(() => {
     dispatch(fetchDrivers({query: value}))
@@ -69,7 +74,6 @@ const DriversList = () => {
   const handleRouteAssignment = (e, driverID) => {
     if(e.keyCode == 13) {
       const routeID = e.target.value
-       console.log('assign driver: ' + driverID + ' to route: ' +  e.target.value)
        dispatch(setAssigningDriver({driverID}))
        dispatch(assignDriver({routeID, driverID, callback: assignDriverCallback}))
     }
@@ -89,6 +93,14 @@ const DriversList = () => {
       console.log('sucess')
     }
   } 
+
+  const handleClick = event => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null)
+  }
 
   const columns = [
     ...defaultColumns,
@@ -120,9 +132,16 @@ const DriversList = () => {
             </Popup>
           }
           {row.assignStatus == AssignStatus.ASSIGNED && <Check/>}
-          <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }}>
-            <DotsVertical/>
-          </IconButton>
+          <div>
+            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={handleClick}>
+              <DotsVertical/>
+            </IconButton>
+            <Menu keepMounted id='simple-menu' anchorEl={anchorEl} onClose={handleCloseMenu} open={Boolean(anchorEl)}>
+                <MenuItem onClick={handleCloseMenu}>Unassign</MenuItem>
+                <MenuItem onClick={handleCloseMenu}>View</MenuItem>
+                <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
+              </Menu>
+          </div>
         </Box>
       )
     }
@@ -159,7 +178,7 @@ const DriversList = () => {
           onClose={handleCloseSnackbar}
           severity={messageInfo != '' ? 'error' : 'success'}
         >
-          {messageInfo != '' ? messageInfo : 'Success'}
+          {messageInfo != '' ? messageInfo : 'Successfuly assigned the driver'}
         </Alert>
       </Snackbar>
     </Grid>
