@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { AssignStatus } from 'src/models';
 
 // ** Repository Imports
-import { getLocations, getDrivers, getGraphHopperRoutes, saveRoutesAndOrders, fetchOrders, fetchRoutes, assignAmplifyDriver } from 'src/repository/apps/routes';
+import { getLocations, getDrivers, getGraphHopperRoutes, saveRoutesAndOrders, fetchOrders, fetchRoutes, assignAmplifyDriver, unassignAmplifyDriver } from 'src/repository/apps/routes';
 
 // ** Fetch Locations from activeds Subscriptions in the Server
 export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
@@ -50,7 +50,17 @@ export const assignDriver = createAsyncThunk('appRoutes/assignDriver', async (pa
   // Assign driver to route in Amplify
   const {route, driver, error} = await assignAmplifyDriver(routeID, driverID)
 
-  return { error, route, driver, callback }
+  return { error, route, driver, driverID, callback }
+})
+
+// ** Assign Driver to Route
+export const unassignDriver = createAsyncThunk('appRoutes/unassignDriver', async (params) => {
+  const { routeID, driverID, callback } = params
+
+  // Unsassign driver to route in Amplify
+  const {route, driver, error} = await unassignAmplifyDriver(routeID, driverID)
+
+  return { error, route, driver, driverID, callback }
 })
 
 export const appRoutesSlice = createSlice({
@@ -151,6 +161,7 @@ export const appRoutesSlice = createSlice({
     builder.addCase(assignDriver.fulfilled, (state, action) => {
       const route = action.payload.route
       const driver = action.payload.driver
+      const driverID = action.payload.driverID
 
       //** Assign performed with success
       if(action.payload.error == null) {
@@ -166,7 +177,38 @@ export const appRoutesSlice = createSlice({
         } 
       }
       else {
-        state.drivers[i].assignStatus = AssignStatus.UNASSIGNED
+        const drivers = state.drivers.filter(dr => dr.id === driverID)
+        const driver = drivers[0]
+        const index = state.drivers.indexOf(driver)
+        state.drivers[index].assignStatus = AssignStatus.UNASSIGNED
+      }
+      
+      //** Return result to interface
+      action.payload.callback(action.payload.error)
+    })
+    builder.addCase(unassignDriver.fulfilled, (state, action) => {
+      const route = action.payload.route
+      const driver = action.payload.driver
+      const driverID = action.payload.driverID
+
+      //** Unassign performed with success
+      if(action.payload.error == null) {
+        for(var i = 0; i < state.drivers.length; i++) { //** Update driver on local store
+          if(state.drivers[i].id === driver.id) {
+            state.drivers[i] = driver
+          }
+        } 
+        for(var i = 0; i < state.routes.length; i++) { //** Update route on local store
+          if(state.routes[i].id === route.id) {
+            state.routes[i] = route
+          }
+        } 
+      }
+      else {
+        const drivers = state.drivers.filter(dr => dr.id === driverID)
+        const driver = drivers[0]
+        const index = state.drivers.indexOf(driver)
+        state.drivers[index].assignStatus = AssignStatus.ASSIGNED
       }
       
       //** Return result to interface

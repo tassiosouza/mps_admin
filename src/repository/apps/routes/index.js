@@ -90,6 +90,41 @@ export const assignAmplifyDriver = async (routeID, driverID)  => {
   }
 }
 
+export const unassignAmplifyDriver = async (routeID, driverID)  => {
+  // ** Query Route to be Unassigned
+  const qResponse = await API.graphql(graphqlOperation(getMRoute, {id: routeID}))
+  const route = qResponse.data.getMRoute ? qResponse.data.getMRoute : null
+  if(route != null) {
+    if(route.driverID == '') {
+      return {route: null, error: 'Route already unassigned', driver: null}
+    }
+    if(route.status != RouteStatus.ASSIGNED) {
+      return {route: null, error: 'This route can not be unassigned', driver: null}
+    }
+    else {
+      // ** Unassign driver to the route in Amplify
+      const routeToUpdate = {
+        id: route.id,
+        driverID: '',
+        status: RouteStatus.PLANNED
+      };
+      const driverToUpdate = {
+        id: driverID,
+        assignStatus: AssignStatus.UNASSIGNED
+      };
+      const updatedRoute = await (await API.graphql(graphqlOperation(updateMRoute, {input: routeToUpdate}))).data.updateMRoute;
+      const updatedDriver = await (await API.graphql(graphqlOperation(updateDriver, {input: driverToUpdate}))).data.updateDriver;
+
+      return {route: updatedRoute, error: null, driver: updatedDriver}
+    }
+  }
+  else {
+    return {
+      error: 'Could not find a route to unassign'
+    }
+  }
+}
+
 export const deleteRoute = async (route, orders)  => {
   // ** Mutate (Delete) Route in Amplify
   const response = await API.graphql(graphqlOperation(deleteMRoute, {input: {id:route.id}}))
