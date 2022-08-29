@@ -25,10 +25,53 @@ export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async
 })
 
 // ** Generate Optimized Routes
-export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOrders', async (params, { getState }) => {
-  const routes = await fetchRoutes()
+export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOrders', async (params) => {
+  
+  const {status, dates, q} = params
+
+  const routes = await fetchRoutes(status)
   const orders = await fetchOrders()
-  return { routes, orders }
+
+  // ** Filter routes to return to Interface
+  const queryLowered = q.toLowerCase()
+
+  const filteredData = routes.filter(route => {
+    if (dates.length) {
+      const [start, end] = dates
+      const filtered = []
+      const range = getDateRange(start, end)
+      const routeDate = new Date(route.routeDate)
+      range.filter(date => {
+        const rangeDate = new Date(date)
+        if (
+          routeDate.getFullYear() === rangeDate.getFullYear() &&
+          routeDate.getDate() === rangeDate.getDate() &&
+          routeDate.getMonth() === rangeDate.getMonth()
+        ) {
+          filtered.push(route.id)
+        }
+      })
+
+      if (filtered.length && filtered.includes(route.id)) {
+        return (
+          (
+            route.id.toLowerCase().includes(queryLowered) ||
+            route.status.toLowerCase().includes(queryLowered)
+          )
+        )
+      }
+    } else {
+      return (
+        (
+          route.id.toLowerCase().includes(queryLowered) ||
+          route.status.toLowerCase().includes(queryLowered)
+        )
+      )
+    }
+  })
+
+
+  return { routes: filteredData, orders }
 })
 
 // ** Save Generated Routes to Amplify

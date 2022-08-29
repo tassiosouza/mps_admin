@@ -22,10 +22,13 @@ import LinearProgress from '@mui/material/LinearProgress'
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import DownloadOutline from 'mdi-material-ui/DownloadOutline'
+import CircleMedium from 'mdi-material-ui/CircleMedium'
+
 
 // ** Third Party Imports
 import format from 'date-fns/format'
 import DatePicker from 'react-datepicker'
+import { RouteStatus } from 'src/models'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -65,17 +68,21 @@ const RoutesList = (props) => {
   const defaultColumns = [
     {
       flex: 0.06,
-      field: 'name',
+      field: 'id',
       minWidth: 80,
       headerName: 'ID',
       renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
     },
     {
-      flex: 0.12,
-      minWidth: 80,
-      field: 'routeStatus',
+      flex: 0.15,
+      minWidth: 100,
+      field:'status',
       headerName: 'Status',
-      renderCell: ({ row }) => <Typography variant='body2'>{row.status}</Typography>
+      renderCell: ({ row }) => 
+      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+        {toPascalCase(row.status)} 
+        <CircleMedium sx={{color:getStatusColor(row.status)}}/>
+      </Box>
     },
     {
       flex: 0.20,
@@ -125,7 +132,7 @@ const RoutesList = (props) => {
 
   useEffect(() => {
     // ** Fetch routes and orders from server
-    dispatch(fetchRoutesAndOrders())
+    dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
   }, [dispatch, dates, statusValue, value])
 
   const handleFilter = val => {
@@ -193,6 +200,31 @@ const RoutesList = (props) => {
     setOpenDeleteConfirm(false)
   }
 
+  const toPascalCase = (text) => {
+    text = text.replace('_', ' ')
+    return text.replace(/(\w)(\w*)/g,
+        function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+  }
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case RouteStatus.PLANNED:
+        return '#51AB3B'
+      case RouteStatus.ASSIGNED:
+        return '#e0d53a'
+      case RouteStatus.CHECKING_BAGS:
+        return '#4d3ae0'
+      case RouteStatus.IN_TRANSIT:
+        return '#dd3ae0'
+      case RouteStatus.DONE:
+        return '#3ac4e0'
+      case RouteStatus.CANCELED:
+        return '#e03d3a'
+      default:
+        return '#e03d3a'
+    }
+  }
+
   const columns = [
     ...defaultColumns,
     {
@@ -242,8 +274,42 @@ const RoutesList = (props) => {
                     labelId='route-status-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    <MenuItem value='Actived'>Actived</MenuItem>
-                    <MenuItem value='Canceled'>Canceled</MenuItem>
+                    <MenuItem value='PLANNED'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.PLANNED)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.PLANNED)}}/>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value='ASSIGNED'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.ASSIGNED)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.ASSIGNED)}}/>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value='CHECKING_BAGS'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.CHECKING_BAGS)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.CHECKING_BAGS)}}/>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value='IN_TRANSIT'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.IN_TRANSIT)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.IN_TRANSIT)}}/>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value='DONE'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.DONE)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.DONE)}}/>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value='CANCELED'>
+                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        {toPascalCase(RouteStatus.CANCELED)} 
+                        <CircleMedium sx={{color:getStatusColor(RouteStatus.CANCELED)}}/>
+                      </Box>
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -255,11 +321,11 @@ const RoutesList = (props) => {
                     value={locationValue}
                     sx={{ mr: 4, mb: 2 }}
                     label='route Location'
-                    onChange={handleLocationValue}
+                    // onChange={handleLocationValue}
                     labelId='route-location-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)}
+                    {/* {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)} */}
                     
                   </Select>
                 </FormControl>

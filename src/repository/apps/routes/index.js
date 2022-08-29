@@ -156,6 +156,7 @@ export const getGraphHopperRoutes = async (params, getState )  => {
   var currentSpliceIndex = 0
   const finalRoutes = []
   const avaiableDrivers = params.driversCount
+  const maxTime = params.maxTime
 
   const finalSolution = {
     costs: 0,
@@ -181,7 +182,7 @@ export const getGraphHopperRoutes = async (params, getState )  => {
   for(var i = 0; i < requestCount; i ++) {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
-    const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers)
+    const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers, maxTime)
 
     console.log('gh request: ' + JSON.stringify(ghBody))
 
@@ -316,7 +317,7 @@ const getOptimizedFactor = (x, y) => {
   return y;
 }
 
-const getGraphHopperRequestBody = (orders, maxDrivers) => {
+const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
   const services = []
   const vehicles = []
 
@@ -340,7 +341,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers) => {
           lon: -117.2310085, // ** MPS longitude
           lat: 33.1522247 // ** MPS latitude
         },
-        max_driving_time: 15000 // ** Fixed max driver in transit duration: 2hours and 30min
+        max_driving_time: maxTime * 60 // ** Receive in minutes and send in seconds
     })
   }
 
@@ -391,12 +392,15 @@ const generateOrders = state => {
   return orders
 }
 
-export const fetchRoutes = async () => {
+export const fetchRoutes = async (status) => {
   // ** Query Server Routes
-  const routesResponse = await API.graphql(graphqlOperation(listMRoutes))
+  const routesResponse = await API.graphql(graphqlOperation(listMRoutes), {
+    limit: 5000
+  })
   const routes = routesResponse.data.listMRoutes.items
+  const statusFiltered = routes.filter(route => route.status === status)
 
-  return routes
+  return status ? statusFiltered : routes
 }
 
 export const fetchOrders = async () => {

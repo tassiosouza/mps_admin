@@ -34,6 +34,7 @@ const LocationsDialog = (props) => {
   // ** States
   const [value, setValue] = useState('')
   const [driversValue, setDriversValue] = useState('')
+  const [maxTimeValue, setMaxTimeValue] = useState('')
   const [status, setStatus] = useState(Status.INITIAL)
   const [error, setError] = useState('')
 
@@ -62,10 +63,15 @@ const LocationsDialog = (props) => {
       setError('Select at least one location')
       return
     } 
+    if(maxTimeValue === '' || parseInt(maxTimeValue) == 0)
+    {
+      setError('The maximum time should be greater than 0')
+      return
+    } 
 
     setError('')
     setStatus(Status.LOADING)
-    dispatch(generateRoutes({driversCount: parseInt(driversValue), callback: optimizationCallback}))
+    dispatch(generateRoutes({driversCount: parseInt(driversValue), maxTime:parseInt(maxTimeValue), callback: optimizationCallback}))
   }
 
   const handleConfirm = () => {
@@ -88,6 +94,7 @@ const LocationsDialog = (props) => {
     onClose()
     setError('')
     setDriversValue('')
+    setMaxTimeValue('')
     setValue('')
     setStatus(Status.INITIAL)
   }
@@ -106,6 +113,15 @@ const LocationsDialog = (props) => {
     // ** if value is not blank, then test the regex
     if (e.target.value === '' || re.test(e.target.value)) {
        setDriversValue(e.target.value)
+    }
+  }
+
+  const handleMaxTimeChange = (e) => {
+    const re = /^[0-9\b]+$/;
+
+    // ** if value is not blank, then test the regex
+    if (e.target.value === '' || re.test(e.target.value)) {
+       setMaxTimeValue(e.target.value)
     }
   }
 
@@ -197,10 +213,10 @@ const LocationsDialog = (props) => {
           (
           <div>
             <Grid container spacing={3} sx={{mb:5, justifyContent:'space-between'}}>
-              <Grid item xs={7}>
-                <Typography variant='h7'>Select the numbers of drivers and the target locations you want to generate the optimized routes.</Typography>
+              <Grid item xs={6}>
+                <Typography variant='h7'>Select the numbers of drivers, the target locations and the maximum 'in route' time(min).</Typography>
               </Grid>
-              <Grid item xs={5} sx={{textAlign:'right', pr:2}}>
+              <Grid item xs={3} sx={{textAlign:'right', pr:2}}>
                 <OutlinedInput
                   variant={'standard'}
                   size='small'
@@ -213,6 +229,21 @@ const LocationsDialog = (props) => {
                     </InputAdornment>
                   }
                   onChange={handleDriversCountChange}
+                />
+              </Grid>
+              <Grid item xs={3} sx={{textAlign:'right', pr:2}}>
+                <OutlinedInput
+                  variant={'standard'}
+                  size='small'
+                  value={maxTimeValue}
+                  placeholder='Max'
+                  sx={{  mb: 2, maxWidth: '180px'}}
+                  endAdornment={
+                    <InputAdornment position='end'>
+                        <Typography variant='h7'>minutes</Typography>
+                    </InputAdornment>
+                  }
+                  onChange={handleMaxTimeChange}
                 />
               </Grid>
             </Grid>
