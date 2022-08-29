@@ -151,10 +151,6 @@ const RoutesList = (props) => {
     setStatusValue(e.target.value)
   }
 
-  const handleLocationValue = e => {
-    setLocationValue(e.target.value)
-  }
-
   const handleOnChangeRange = dates => {
     const [start, end] = dates
     if (start !== null && end !== null) {
@@ -188,7 +184,7 @@ const RoutesList = (props) => {
 
   const handleDeleteConfirm = route => {
     if(route) {
-      dispatch(fetchRoutesAndOrders())
+      dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
       setOpenDeleteConfirm(false)
     }
     else {

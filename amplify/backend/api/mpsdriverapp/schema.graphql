@@ -55,6 +55,7 @@ type MOrder @model @auth(rules: [{allow: public}]) {
   phone: String
   location: String
   sort: Int
+  subscriptionID: String
 }
 
 type MpsSubscription @model @auth(rules: [{allow: public}]) {

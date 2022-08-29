@@ -175,7 +175,8 @@ export const appRoutesSlice = createSlice({
   },
   extraReducers: builder => {
     builder.addCase(fetchRoutesAndOrders.fulfilled, (state, action) => {
-      state.routes = action.payload.routes
+      const sortedRoutes = action.payload.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      state.routes = sortedRoutes
       state.orders = action.payload.orders
       state.loadingRoutes = false
     })
@@ -225,6 +226,10 @@ export const appRoutesSlice = createSlice({
         const index = state.drivers.indexOf(driver)
         state.drivers[index].assignStatus = AssignStatus.UNASSIGNED
       }
+
+      // ** Sort routes by last updated
+      const sortedRoutes = state.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      state.routes = sortedRoutes
       
       //** Return result to interface
       action.payload.callback(action.payload.error)
@@ -253,6 +258,10 @@ export const appRoutesSlice = createSlice({
         const index = state.drivers.indexOf(driver)
         state.drivers[index].assignStatus = AssignStatus.ASSIGNED
       }
+
+      // ** Sort routes by last updated
+      const sortedRoutes = state.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      state.routes = sortedRoutes
       
       //** Return result to interface
       action.payload.callback(action.payload.error)

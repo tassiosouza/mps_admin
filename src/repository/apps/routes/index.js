@@ -148,7 +148,7 @@ export const deleteRoute = async (route, orders)  => {
 export const getGraphHopperRoutes = async (params, getState )  => {
   // ** Create Orders from Active Subscriptions
   const state = getState()
-  var orders = generateOrders(state)
+  var orders = await generateOrders(state)
 
   const rest = 0
   const requestCount = 1
@@ -183,8 +183,6 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
     const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers, maxTime)
-
-    console.log('gh request: ' + JSON.stringify(ghBody))
 
     try {
       const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
@@ -308,6 +306,15 @@ const getAvaiableRouteId = async () => {
   return routesID.length > 0 ? max + 1 : 0
 }
 
+const getAvaiableOrderId = async () => {
+  const response = await API.graphql(graphqlOperation(listMOrders))
+  const ordersID = []
+  response.data.listMOrders.items.map(order => ordersID.push(parseInt(order.id.replace('#',''))))
+  
+  const max = Math.max(...ordersID)
+  return ordersID.length > 0 ? max + 1 : 0
+}
+
 const getOptimizedFactor = (x, y) => {
   var reminder = x % y
   if(reminder < 20)
@@ -357,7 +364,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
   return body
 }
 
-const generateOrders = state => {
+const generateOrders = async (state) => {
   const locationsToProcess = state.routes.locations.filter(loc => loc.included)
   const subscriptionsToProcess = state.routes.subscriptions.filter(sub => {
     var result = false
@@ -371,23 +378,30 @@ const generateOrders = state => {
   })
 
   var orders = []
+  var avaiableID = await getAvaiableOrderId()
+  var index = 0
+
   subscriptionsToProcess.map(sub => {
-    orders.push({id: sub.id + '-' + parseFloat(Date.now()).toString(),
-    number: sub.number,
-    deliveryInstruction: sub.deliveryInstruction,
-    mealPlan: sub.mealPlan,
-    status: OrderStatus.CREATED,
-    customerName: sub.name,
-    eta: 0,
-    sort:0,
-    assignedRouteID:'',
-    address: sub.address,
-    latitude: sub.latitude,
-    longitude: sub.longitude,
-    orderDate: parseFloat(Date.now()),
-    phone: sub.phone,
-    location: sub.location
+    const id = '#' + (avaiableID + index)
+    orders.push({
+      id: id,
+      number: sub.number,
+      deliveryInstruction: sub.deliveryInstruction,
+      mealPlan: sub.mealPlan,
+      status: OrderStatus.CREATED,
+      customerName: sub.name,
+      eta: 0,
+      sort:0,
+      assignedRouteID:'',
+      address: sub.address,
+      latitude: sub.latitude,
+      longitude: sub.longitude,
+      orderDate: parseFloat(Date.now()),
+      phone: sub.phone,
+      location: sub.location,
+      subscriptionID: sub.id
     })
+    index += 1
   })
   return orders
 }

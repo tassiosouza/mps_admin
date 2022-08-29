@@ -66,6 +66,7 @@ export const getMOrder = /* GraphQL */ `
       phone
       location
       sort
+      subscriptionID
       createdAt
       updatedAt
     }
@@ -94,6 +95,7 @@ export const listMOrders = /* GraphQL */ `
         phone
         location
         sort
+        subscriptionID
         createdAt
         updatedAt
       }
