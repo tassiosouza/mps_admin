@@ -129,6 +129,9 @@ export const appRoutesSlice = createSlice({
     loadingRoutes: true
   },
   reducers: {
+    setLoadingRoutes: (state, action) => {
+      state.loadingRoutes = action
+    },
     setAssigningDriver: (state, action) => {
       for(var i = 0; i < state.drivers.length; i++) {
         if(state.drivers[i].id === action.payload.driverID) {
@@ -194,7 +197,9 @@ export const appRoutesSlice = createSlice({
       action.payload.callback()
     })
     builder.addCase(saveRoutes.fulfilled, (state, action) => {
-      state.routes = action.payload.routes
+      // ** Sort routes by last updated
+      const sortedRoutes = action.payload.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+      state.routes = sortedRoutes
       state.orders = action.payload.orders
       state.locations.map(loc => {
         loc.included = false
@@ -269,6 +274,6 @@ export const appRoutesSlice = createSlice({
   }
 })
 
-export const { addLocation, removeLocation, clearSelectedLocations, clearTempResults, setAssigningDriver } = appRoutesSlice.actions
+export const { addLocation, removeLocation, clearSelectedLocations, clearTempResults, setAssigningDriver, setLoadingRoutes } = appRoutesSlice.actions
 
 export default appRoutesSlice.reducer

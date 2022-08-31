@@ -1,3 +1,6 @@
+// ** Next Import
+import Link from 'next/link'
+
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -11,12 +14,9 @@ import IconButton from '@mui/material/IconButton'
 import Reload from 'mdi-material-ui/Reload'
 
 const TableHeader = props => {
+  
   // ** Props
-  const { value, selectedRows, handleFilter, openDialog, refresh } = props
-
-  const handleOpenDialog = () => {
-    openDialog()
-  }
+  const { value, selectedRows, handleFilter, refresh } = props
 
   return (
     <Box
@@ -54,13 +54,15 @@ const TableHeader = props => {
         <TextField
           size='small'
           value={value}
-          placeholder='Search Route'
+          placeholder='Search Order'
           sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
           onChange={e => handleFilter(e.target.value)}
         />
-        <Button sx={{ mb: 2}} variant='contained' onClick={handleOpenDialog}>
-          New Routes Optimization
-        </Button>
+        <Link href='/apps/invoice/add' passHref>
+          <Button sx={{ mb: 2}} variant='contained'>
+            Create Order
+          </Button>
+        </Link>
       </Box>
     </Box>
   )

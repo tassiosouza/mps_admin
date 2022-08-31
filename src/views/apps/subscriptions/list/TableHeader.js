@@ -103,11 +103,14 @@ const TableHeader = props => {
         <MenuItem value='Send'>Send</MenuItem>
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2 , width: '30%', justifyContent:'end'}}>
-        <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main', mr: 2 }}>
-                {loadFileError}
+        
+      </Box>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main', mr: 4, mb: 2 }}>
+          {loadFileError}
         </Typography>
         <Tooltip placement='top' title='Refresh Subscriptions'>
-          <IconButton size='small' onClick={handleClick}>
+          <IconButton size='small' onClick={handleClick} sx={{ mr: 4, mb: 2, maxWidth: '180px'}}>
             <Reload sx={{fontSize: '1.375rem'}}/>
             <input
                 onChange={handleFileUpload}
@@ -119,8 +122,6 @@ const TableHeader = props => {
             />
           </IconButton>
         </Tooltip>
-      </Box>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <TextField
           size='small'
           value={value}
@@ -128,7 +129,6 @@ const TableHeader = props => {
           sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
           onChange={e => handleFilter(e.target.value)}
         />
-
         <Link href='/apps/invoice/add' passHref>
           <Button sx={{ mb: 2}} variant='contained'>
             Create Subscription

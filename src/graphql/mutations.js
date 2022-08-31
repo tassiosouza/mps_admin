@@ -91,7 +91,9 @@ export const createMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }
@@ -118,7 +120,9 @@ export const updateMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }
@@ -145,7 +149,9 @@ export const deleteMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }

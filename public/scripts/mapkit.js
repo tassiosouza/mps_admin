@@ -55,7 +55,7 @@ for(var i = 0; i < orders.length; i++) {
       subtitle: orders[i].customerName,
       color: "#3AB81A",
       glyphColor: "#2F2E41",
-      glyphText: i + "°"
+      glyphText: orders[i].sort + "°"
   });
   
   map.addAnnotation(annot)

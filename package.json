@@ -48,6 +48,7 @@
     "clsx": "1.1.1",
     "date-fns": "2.27.0",
     "draft-js": "0.11.7",
+    "file-saver": "^2.0.5",
     "firebase": "9.7.0",
     "gulp": "^4.0.2",
     "i18next": "21.7.1",
@@ -70,6 +71,7 @@
     "react-dom": "18.1.0",
     "react-draft-wysiwyg": "1.14.7",
     "react-dropzone": "14.2.0",
+    "react-export-excel": "^0.5.3",
     "react-hook-form": "7.3.0",
     "react-hot-toast": "2.1.1",
     "react-i18next": "11.14.3",
@@ -86,6 +88,8 @@
     "recharts": "2.1.6",
     "stylis": "4.0.10",
     "stylis-plugin-rtl": "2.1.1",
+    "xlsx": "^0.18.5",
+    "xlsx-populate": "^1.21.0",
     "yup": "0.32.9"
   },
   "devDependencies": {
@@ -97,5 +101,10 @@
     "eslint-plugin-import": "2.25.4",
     "next-transpile-modules": "9.0.0",
     "prettier": "2.6.2"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
   }
 }

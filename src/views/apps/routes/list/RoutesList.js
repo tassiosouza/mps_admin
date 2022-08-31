@@ -32,7 +32,7 @@ import { RouteStatus } from 'src/models'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchRoutesAndOrders } from 'src/store/apps/routes'
+import { fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
 
 // ** Custom Components Imports
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
@@ -42,6 +42,8 @@ import DeleteRouteDialog from 'src/views/apps/routes/list/DeleteRouteDialog'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
+import { saveAs } from "file-saver"
+import XlsxPopulate from "xlsx-populate"
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -132,8 +134,13 @@ const RoutesList = (props) => {
 
   useEffect(() => {
     // ** Fetch routes and orders from server
-    dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
+    refresh()
   }, [dispatch, dates, statusValue, value])
+
+  const refresh = () => {
+    dispatch(setLoadingRoutes(true))
+    dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
+  }
 
   const handleFilter = val => {
     setValue(val)
@@ -199,7 +206,7 @@ const RoutesList = (props) => {
   const toPascalCase = (text) => {
     text = text.replace('_', ' ')
     return text.replace(/(\w)(\w*)/g,
-        function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+        function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase()})
   }
 
   const getStatusColor = (status) => {
@@ -221,6 +228,142 @@ const RoutesList = (props) => {
     }
   }
 
+  function getSheetData(data, header) {
+    var fields = Object.keys(data[0])
+    var sheetData = data.map(function (row) {
+      return fields.map(function (fieldName) {
+        return row[fieldName] ? row[fieldName] : ""
+      })
+    })
+    sheetData.unshift(header)
+    console.log(JSON.stringify(sheetData))
+    return sheetData
+  }
+
+  const getFixedWidth = (width) => {
+    return (width * 21) / 126
+  }
+
+  async function saveAsExcel(route) {
+    var data = [
+      { name: "John", city: "Seattle" },
+      { name: "Mike", city: "Los Angeles" },
+      { name: "Zach", city: "New York" }
+    ]
+    let header = ["Name", "City"]
+
+    XlsxPopulate.fromBlankAsync().then(async (workbook) => {
+      const sheet = workbook.sheet(0)
+      const routeOrders = getRouteOrders(route.id)
+      routeOrders.sort((a, b) => a.sort - b.sort)
+      const routeDriverName = getDriverName(route.driverID)
+
+      var date = new Date(route.routeDate);
+      const formattedDate = date.toLocaleString('default', { day: 'numeric', month: 'short', year:'numeric' })
+
+      // ** Build Spreadsheet Header ****************************************************
+      // ** Set Sheet Cells Sizes
+      sheet.column("A").width(getFixedWidth(61))
+      sheet.column("B").width(getFixedWidth(25))
+      sheet.column("C").width(getFixedWidth(237))
+      sheet.column("D").width(getFixedWidth(250))
+      sheet.column("E").width(getFixedWidth(100))
+      sheet.column("F").width(getFixedWidth(283))
+      sheet.row("1").height(24)
+      sheet.row("2").height(24)
+      sheet.row("3").height(24)
+      sheet.row("4").height(24)
+      sheet.row("5").height(24)
+
+      // ** Merge Header Cells
+      workbook.sheet(0).range("B1:D1").merged(true)
+      workbook.sheet(0).range("B2:D2").merged(true)
+      workbook.sheet(0).range("B3:D3").merged(true)
+      workbook.sheet(0).range("A4:D4").merged(true)
+
+      // ** Manage Header Cells Colors
+      sheet.range("A1:F1").style({fill:"FFFFFF", border: true, borderColor:"FFFFFF"})
+      sheet.range("A2:F2").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
+      sheet.range("A3:F3").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
+      sheet.range("A4:F4").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
+      sheet.range("A5:F5").style({fill:"7cc465", border: true, borderColor:"bfbfbf"})
+      
+      // ** Build Spreadsheet Header ****************************************************
+
+      // ** Manage Header Cells Values
+      sheet.cell("A2").value(route.id)
+      sheet.cell("B2").value(route.location)
+      sheet.cell("E2").value('ORDERS')
+      sheet.cell("F2").value(formattedDate)
+      
+      sheet.cell("A3").value('DRIVER')
+      sheet.cell("B3").value(routeDriverName)
+      sheet.cell("E3").value(routeOrders.length)
+
+      sheet.cell("A4").value('AMOUNT OF BAGS  >>')
+      sheet.cell("A4").style({horizontalAlignment: 'right'})
+      sheet.cell("E4").value(routeOrders.length)
+      sheet.cell("F4").value('5:10')
+
+      sheet.cell("A5").value('N.')
+      sheet.cell("D5").value('1 ICE PACKS PER BAG')
+      sheet.cell("E5").value('PHONE #')
+      sheet.cell("F5").value('ADDRESS / NOTES')
+
+      const currentRow = 6
+      routeOrders.map(order => {
+        sheet.row(currentRow).height(24)
+
+        sheet.cell("A" + currentRow).value(order.sort + '°')
+        sheet.cell("C" + currentRow).value(" " + order.customerName + " (" + order.number + ") ")
+        sheet.cell("C" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+        sheet.cell("D" + currentRow).value(" " + order.customerName + " (" + order.number + ") ")
+        sheet.cell("D" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+        sheet.cell("E" + currentRow).value(order.phone)
+        sheet.cell("E" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
+        sheet.cell("F" + currentRow).value(" " + order.address)
+        sheet.cell("F" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+
+        workbook.sheet(0).range("A"+currentRow+ ":A" + (currentRow+1)).merged(true)
+        workbook.sheet(0).range("B"+currentRow+ ":B" + (currentRow+1)).merged(true)
+        sheet.cell("A" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:15, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
+        currentRow += 1
+        if(order.mealPlan.length < 10){
+          sheet.cell("C" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+          sheet.cell("D" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+          
+          sheet.cell("C" + currentRow).value(' ' + order.mealPlan + '\r\n')
+          sheet.cell("D" + currentRow).value(' ' + order.mealPlan + '\r\n')
+
+        }
+        else {
+          sheet.cell("C" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:10, fontFamily: 'Helvetica Neue', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
+          sheet.cell("D" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:10, fontFamily: 'Helvetica Neue', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
+        
+          sheet.cell("C" + currentRow).value('\r\n' + order.mealPlan + '\r\n')
+        sheet.cell("D" + currentRow).value('\r\n' + order.mealPlan + '\r\n')
+        }
+
+        if(order.deliveryInstruction.length < 10 && order.mealPlan.length < 10) sheet.row(currentRow).height(24)
+
+        sheet.cell("F" + currentRow).style({fill:"ececec", wrapText:true, border: true, borderColor:"bfbfbf", fontSize:12, fontFamily: 'Times New Roman', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
+
+        
+        if(order.deliveryInstruction != '0')sheet.cell("F" + currentRow).value(" " + order.deliveryInstruction)
+        sheet.range("C" + currentRow + ":F" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf"})
+
+        currentRow += 1
+      })
+
+      sheet.range("A1:F" + 5).style({fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
+      sheet.cell("A4").style({horizontalAlignment: 'right'})
+
+      return workbook.outputAsync().then((res) => {
+        saveAs(res, route.id + " - " + routeDriverName + ".xlsx")
+      })
+    })
+  }
+
   const columns = [
     ...defaultColumns,
     {
@@ -229,7 +372,8 @@ const RoutesList = (props) => {
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
-      renderCell: ({ row }) => (
+      renderCell: ({ row }) => {
+        return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title='Delete Route'>
             <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDeleteConfirm(row)}>
@@ -242,12 +386,12 @@ const RoutesList = (props) => {
             </IconButton>
           </Tooltip>
           <Tooltip title='Export Route'>
-            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => {}}>
-              <DownloadOutline />
+          <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => saveAsExcel(row)}>
+            <DownloadOutline />
             </IconButton>
           </Tooltip>
         </Box>
-      )
+      )}
     }
   ]
 
@@ -356,7 +500,12 @@ const RoutesList = (props) => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} openDialog={handleOpenLocationsDialog} />
+          <TableHeader 
+            value={value} 
+            selectedRows={selectedRows} 
+            handleFilter={handleFilter} 
+            openDialog={handleOpenLocationsDialog}
+            refresh={refresh} />
           {store.loadingRoutes && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight

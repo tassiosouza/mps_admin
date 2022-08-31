@@ -79,7 +79,9 @@ export const onCreateMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }
@@ -103,7 +105,9 @@ export const onUpdateMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }
@@ -127,7 +131,9 @@ export const onDeleteMOrder = /* GraphQL */ `
       phone
       location
       sort
+      avatar
       subscriptionID
+      deliveryKey
       createdAt
       updatedAt
     }

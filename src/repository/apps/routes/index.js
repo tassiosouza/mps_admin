@@ -253,14 +253,14 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
 
   ghRoutes.map(async route => {
     avaiableID = avaiableID + currentIndex
-    var routeID = 'R' + avaiableID
+    var routeID = 'SR' + avaiableID
     
     const deliveries = route.activities.filter(ac => ac.type == 'service')
 
     for(var k = 0; k < deliveries.length; k++) {
       for(var i = 0; i < orders.length; i++) {
         if(deliveries[k].id === orders[i].id) {
-          orders[i].sort = k // ** Assign the sorted position of the order
+          orders[i].sort = k + 1 // ** Assign the sorted position of the order
           orders[i].assignedRouteID = routeID // ** Assing the order route id
           orders[i].eta = deliveries[k].arr_time // ** Assing the order ETA
         }
@@ -285,7 +285,7 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
         driverID: '',
         distance: route.distance,
         duration: route.completion_time,
-        location: '',
+        location: orders[0].location,
         routePlanName: '',
         routeDate: parseFloat(Date.now()),
         points: JSON.stringify(polyline)
@@ -399,7 +399,8 @@ const generateOrders = async (state) => {
       orderDate: parseFloat(Date.now()),
       phone: sub.phone,
       location: sub.location,
-      subscriptionID: sub.id
+      subscriptionID: sub.number,
+      avatar:''
     })
     index += 1
   })
