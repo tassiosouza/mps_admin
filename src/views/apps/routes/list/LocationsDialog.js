@@ -53,7 +53,7 @@ const LocationsDialog = (props) => {
 
   const handleGenerate = () => {
     // ** Form Validation
-    if(driversValue === '' || parseInt(driversValue) == 0 || parseInt(driversValue) > store.drivers.length)
+    if(driversValue === '' || parseInt(driversValue) == 0 || parseInt(driversValue) > /*store.drivers.length*/ 50)
     {
       setError('Invalid number of drivers')
       return

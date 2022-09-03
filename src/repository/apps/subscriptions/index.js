@@ -183,7 +183,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
     return !oldSubscriptionsNumber.includes(subscription.number + subscription.name)
   });
 
-  if(oldSubscriptions.length > 1500) {
+  if(oldSubscriptions.length > -1) {
     for(var i = 0; i < toInclude.length; i++) {
       if(errorMessage != '') break
       const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toInclude[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
@@ -203,7 +203,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
           else {
             failed.push(toInclude[i])
             errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 
-            console.log('error for: ' + urlRequest)
+            console.log('error for: ' + JSON.stringify(toInclude[i]))
           }    
         }).catch(err => {
           // errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 

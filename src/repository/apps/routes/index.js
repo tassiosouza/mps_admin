@@ -300,7 +300,7 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
 const getAvaiableRouteId = async () => {
   const response = await API.graphql(graphqlOperation(listMRoutes))
   const routesID = []
-  response.data.listMRoutes.items.map(route => routesID.push(parseInt(route.id.replace('R',''))))
+  response.data.listMRoutes.items.map(route => routesID.push(parseInt(route.id.replace('SR',''))))
   
   const max = Math.max(...routesID)
   return routesID.length > 0 ? max + 1 : 0
@@ -327,6 +327,16 @@ const getOptimizedFactor = (x, y) => {
 const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
   const services = []
   const vehicles = []
+  const objectives = [
+      {
+        type: "min-max",
+        value: "completion_time"
+      },
+      {
+        type: "min-max",
+        value: "activities"
+      }
+  ]
 
   orders.map(order => {
     services.push({
@@ -355,6 +365,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
   var body = {
     vehicles,
     services,
+    objectives,
     configuration: {
       routing: {
         calc_points: true
