@@ -328,14 +328,10 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
   const services = []
   const vehicles = []
   const objectives = [
-      {
-        type: "min-max",
-        value: "completion_time"
-      },
-      {
-        type: "min-max",
-        value: "activities"
-      }
+    {
+      "type": "min",
+      "value": "completion_time"
+   }
   ]
 
   orders.map(order => {
@@ -346,7 +342,8 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
         location_id: order.id,
         lon: order.longitude,
         lat: order.latitude
-      }
+      },
+      duration: 300
     })
   })
 
