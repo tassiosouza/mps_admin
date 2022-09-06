@@ -87,13 +87,14 @@ if(route != null && route.driverID != '') {
       // ** Add updated driver location annotation
       if(result.data.getDriver.latitude != null) {
         var coordinate = new mapkit.Coordinate(result.data.getDriver.latitude, result.data.getDriver.longitude)
-        var annot = new mapkit.MarkerAnnotation(coordinate, {
-            title: result.data.getDriver.name,
-            subtitle: 'Driver',
-            color: "#FFFFFF",
-            glyphColor: "#2F2E41",
-            glyphText: '0'
-        });
+        var houseOptions = {
+          title: "The White House",
+          subtitle: "1600 Pennsylvania Ave NW",
+          url: { 1: "/images/icons/cartest.png", 2: "/images/icons/cartest.png"},
+          anchorOffset: new DOMPoint(0, -16)
+      };
+      
+        var annot = new mapkit.ImageAnnotation(coordinate, houseOptions);
         map.addAnnotation(annot)
       }
     })

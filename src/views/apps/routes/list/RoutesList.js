@@ -98,8 +98,8 @@ const RoutesList = (props) => {
         {row.status != RouteStatus.PLANNED && row.status != RouteStatus.ASSIGNED && row.status != RouteStatus.DONE && <Player
           autoplay
           loop
-          src={'https://assets6.lottiefiles.com/packages/lf20_tlnwbaep.json'}
-          style={{ height: '40px', width: '40px' }}
+          src={'https://assets6.lottiefiles.com/packages/lf20_buuuwhvb.json'}
+          style={{ height: '25px', width: '25px' }}
         />}
       </Box>
     },
