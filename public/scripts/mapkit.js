@@ -49,7 +49,7 @@ for(var i = 0; i < points.length; i++) {
 // });
 
 // map.addOverlay(pol)
-if(route != null) {
+if(route != null && route.driverID != '') {
   intervalId = window.setInterval(function(){
     console.log('refreshing')
   
@@ -98,17 +98,6 @@ if(route != null) {
       }
     })
   }, 5000)
-} else {
-  console.log('clear')
-  intervalId = null
-  var intervals = [];
-  $(".elements").each(function() {
-      var i = setInterval(function() {
-
-      }, 1000);
-      intervals.push(i);
-  });
-  intervals.forEach(clearInterval);
 }
 
 

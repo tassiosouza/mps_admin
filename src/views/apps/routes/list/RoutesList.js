@@ -44,6 +44,7 @@ import DeleteRouteDialog from 'src/views/apps/routes/list/DeleteRouteDialog'
 import 'react-datepicker/dist/react-datepicker.css'
 import { saveAs } from "file-saver"
 import XlsxPopulate from "xlsx-populate"
+import { Player } from '@lottiefiles/react-lottie-player';
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -91,7 +92,16 @@ const RoutesList = (props) => {
       field: 'driver',
       minWidth: 120,
       headerName: 'Driver',
-      renderCell: ({ row }) => <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
+      renderCell: ({ row }) => 
+      <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
+        <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
+        {row.status != RouteStatus.PLANNED && row.status != RouteStatus.ASSIGNED && row.status != RouteStatus.DONE && <Player
+          autoplay
+          loop
+          src={'https://assets6.lottiefiles.com/packages/lf20_tlnwbaep.json'}
+          style={{ height: '40px', width: '40px' }}
+        />}
+      </Box>
     },
     {
       flex: 0.07,
