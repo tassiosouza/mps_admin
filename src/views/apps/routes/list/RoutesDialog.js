@@ -13,12 +13,34 @@ import Close from 'mdi-material-ui/Close'
 // ** Script Hook Import
 import useScript from 'src/hooks/useScript'
 
+// ** React Imports
+import { useState, useEffect } from 'react'
+
 const DialogFullScreen = (props) => {
 
   const { open, onClose, route, orders } = props
   
+  const [mapRoute, setMapRoute] = useState(null)
+  const [mapOrders, setMapOrders] = useState(null)
+  const [driverID, setDriverID] = useState(null)
+
+  useEffect(() => {
+
+    if(route != null) {
+
+      console.log('entering in use effect')
+    }
+
+  }, [route])
+
+  const getRandomFloat = (min, max, decimals) => {
+    const str = (Math.random() * (max - min) + min).toFixed(decimals);
+  
+    return parseFloat(str);
+  }
+
   const MapKit = props => {
-    useScript('/scripts/mapkit.js');
+    useScript('/scripts/mapkit.js')
   }
 
   const ordersToDisplay = []
@@ -36,6 +58,7 @@ const DialogFullScreen = (props) => {
   const divStyle = {
     width: '100%',
     height: '100%',
+    position:"relative"
   };
 
   return (
@@ -58,7 +81,7 @@ const DialogFullScreen = (props) => {
           id="map"
           style={divStyle}
           route={routeToDisplay ? JSON.stringify(routeToDisplay) : ''}
-          orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''} >
+          orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''}>
             <MapKit/>
           </div>
         </DialogContent>

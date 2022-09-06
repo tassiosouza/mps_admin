@@ -10,6 +10,7 @@ const useScript = (url) => {
     document.body.appendChild(script);
 
     return () => {
+      location.reload()
       document.body.removeChild(script);
     }
   }, [url]);
