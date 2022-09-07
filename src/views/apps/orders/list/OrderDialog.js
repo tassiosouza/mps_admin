@@ -27,10 +27,8 @@ const OrderDialog = (props) => {
   useEffect(() => {
 
     async function fetchData(key) {
-      // You can await here
       const result = await Storage.get(key);
       setImageURL(result)
-      console.log('image got: ' + result)
       setLoadingImage(false)
     }
     if(open) {

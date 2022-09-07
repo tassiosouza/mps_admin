@@ -2,20 +2,20 @@
 import { API, graphqlOperation } from 'aws-amplify'
 import { OrderStatus } from 'src/models'
 import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders, getMRoute } from '../../../graphql/queries'
-import { createMRoute, createMOrder, updateMRoute, updateDriver, deleteMRoute, deleteMOrder } from '../../../graphql/mutations'
+import { createMRoute, createMOrder, updateMRoute, updateDriver, deleteMRoute, deleteMOrder, updateMpsSubscription } from '../../../graphql/mutations'
 
 // ** Axios Party Imports
 import axios from 'axios'
 import { RouteStatus } from 'src/models'
 import { AssignStatus } from 'src/models'
+import { SubscriptionStatus } from 'src/models'
+import { Api } from 'mdi-material-ui'
 
-export const getLocations = async (params, getState)  => {
-  const state = getState()
-  const selectedLocations = state.routes.selectedLocations
+export const getLocations = async (params)  => {
   var locations = []
   const filter = {
     status: {
-      eq: 'Actived'
+      eq: SubscriptionStatus.ACTIVED
     }
   }
 
@@ -32,15 +32,14 @@ export const getLocations = async (params, getState)  => {
       registeredLocation.deliveries += 1
     }
     else {
-      var selectedLocation = selectedLocations.find(loc => loc.name === locationName)
       locations.push({
         name: locationName,
         deliveries: 1,
-        included: selectedLocation != null
+        included: false
       })
     }
   })
-
+  
   const filtered = locations.filter(loc => loc.name.toLowerCase().includes(params.q.toLowerCase()))
   return {locations: filtered, subscriptions: response.data.listMpsSubscriptions.items} 
 }
@@ -140,6 +139,24 @@ export const deleteRoute = async (route, orders)  => {
     for(var i = 0; i < orders.length; i ++) {
       await API.graphql(graphqlOperation(deleteMOrder, {input: {id:orders[i].id}}))
     }
+
+    // ** Mutate (Set Order Subscription to Active) Subscriptions in Amplify the where linked to the route
+    for(var i = 0; i < orders.length; i ++) {
+      const filter = {
+        number: {
+          eq: orders[i].subscriptionID
+        },
+      }
+      const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {filter: filter}))
+      var subList = []
+      if(response.data) {
+        subList = response.data.listMpsSubscriptions.items
+      }
+      console.log('sublist: ' + JSON.stringify(subList))
+      for (var k = 0; k < subList.length; k++) {
+        await API.graphql(graphqlOperation(updateMpsSubscription, {input: {id:subList[k].id, status: SubscriptionStatus.ACTIVED}}))
+      }
+    }
   }
 
   return routeResult
@@ -225,6 +242,9 @@ export const getGraphHopperRoutes = async (params, getState )  => {
       break
     }
   }
+
+  // Send only orders assigned to a route to be saved
+  orders = orders.filter(order => order.assignedRouteID != '')
 
   return { routes: finalRoutes, solution: finalSolution, orders }
 }
@@ -434,7 +454,7 @@ export const fetchOrders = async () => {
   return orders
 }
 
-export const saveRoutesAndOrders = async (routes, orders) => {
+export const saveRoutesAndOrders = async (routes, orders, subscriptionsToUpdate) => {
   // ** Mutate Server Orders
   for(var i = 0; i < orders.length; i++) {
     await API.graphql(graphqlOperation(createMOrder, {
@@ -448,11 +468,21 @@ export const saveRoutesAndOrders = async (routes, orders) => {
     }))
   }
 
+  // ** Mutate Server Subscriptions
+  for(var i = 0; i < subscriptionsToUpdate.length; i++) {
+    await API.graphql(graphqlOperation(updateMpsSubscription, {
+      input: {id: subscriptionsToUpdate[i].id, status:SubscriptionStatus.ASSIGNED}
+    }))
+  }
+
   // ** Query Server Routes
   const fetchedRoutes = await fetchRoutes()
 
   // ** Query Server Orders
   const fetchedOrders = await fetchOrders()
 
-  return {routes: fetchedRoutes, orders: fetchedOrders};
+  // ** Query locations and Subscriptions
+  const {locations, subscriptions} = await getLocations({q:''})
+
+  return {routes: fetchedRoutes, orders: fetchedOrders, locations, subscriptions};
 }

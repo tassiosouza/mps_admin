@@ -51,7 +51,6 @@ for(var i = 0; i < points.length; i++) {
 // map.addOverlay(pol)
 if(route != null && route.driverID != '') {
   intervalId = window.setInterval(function(){
-    console.log('refreshing')
   
     fetch('https://27e6dnolwrdabfwawi2u5pfe4y.appsync-api.us-west-1.amazonaws.com/graphql', {
     method: 'POST',
@@ -77,8 +76,6 @@ if(route != null && route.driverID != '') {
   })
   .then((res) => res.json())
     .then((result) => {
-      console.log(JSON.stringify(result))
-      
       // ** Remove driver location annotation
       if(map.annotations.length > orders.length) {
         map.removeAnnotation(map.annotations[map.annotations.length - 1])

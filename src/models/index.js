@@ -22,6 +22,12 @@ const OrderStatus = {
   "CANCELED": "CANCELED"
 };
 
+const SubscriptionStatus = {
+  "ACTIVED": "ACTIVED",
+  "ASSIGNED": "ASSIGNED",
+  "CANCELED": "CANCELED"
+};
+
 const AssignStatus = {
   "ASSIGNED": "ASSIGNED",
   "ASSIGNING": "ASSIGNING",
@@ -38,5 +44,6 @@ export {
   Todo,
   RouteStatus,
   OrderStatus,
+  SubscriptionStatus,
   AssignStatus
 };

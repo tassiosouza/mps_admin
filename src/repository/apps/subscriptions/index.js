@@ -8,13 +8,14 @@ import Papa from "papaparse";
 import { API, graphqlOperation } from 'aws-amplify'
 import { createMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
 import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
+import { SubscriptionStatus } from '../../../models'
 
 // ** Utils Import
 import { getDateRange } from 'src/@core/utils/get-daterange'
 
 export const getSubscriptions =  async params  => {
   const {status, location, dates, q} = params
-
+  
   const filter = status ? {
     status: {
       eq: status
@@ -73,7 +74,7 @@ export const getSubscriptions =  async params  => {
       )
     }
   })
-
+  
   return filteredData
 }
 
@@ -138,7 +139,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         mealPlan: parsedData[i + 1].name,
         latitude: 0,
         avatar: '',
-        status: 'Actived',
+        status: SubscriptionStatus.ACTIVED,
         longitude: 0,
         deliveryInstruction: parsedData[i + 1].Address
       })
@@ -190,8 +191,6 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
           if(response.data.results.length > 0) {
             const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
-            console.log(locality)
-            console.log(JSON.stringify(response.data.results[0].address_components))
             toInclude[i].address = response.data.results[0].formatted_address
             toInclude[i].latitude = response.data.results[0].geometry.location.lat
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
@@ -220,8 +219,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
             const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toUpdate[i]))
             const version = itemQuery.data.getMpsSubscription._version
             const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
-            console.log(locality)
-            console.log(JSON.stringify(response.data.results[0].address_components))
+
             const versionedSub = {
               id: toUpdate[i].number + toUpdate[i].name,
               number: toUpdate[i].number,
@@ -258,7 +256,6 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
     for(var i = 0; i < toCancel.length; i ++) {
       if(errorMessage != '') break
       try {
-        console.log('removed: ' + JSON.stringify(toCancel[i]))
         const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toCancel[i]))
         const version = itemQuery.data.getMpsSubscription._version
         const versionedSub = {

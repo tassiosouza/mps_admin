@@ -7,7 +7,7 @@ import { getLocations, getDrivers, getGraphHopperRoutes, saveRoutesAndOrders, fe
 
 // ** Fetch Locations from activeds Subscriptions in the Server
 export const fetchLocations = createAsyncThunk('appRoutes/fetchLocations', async (params, { getState })  => {
-  const { locations, subscriptions } = await getLocations(params, getState)
+  const { locations, subscriptions } = await getLocations(params)
   return { locations, subscriptions }
 })
 
@@ -80,10 +80,13 @@ export const saveRoutes = createAsyncThunk('appRoutes/saveRoutes', async (params
   const newRoutes = getState().routes.tempRoutes
   const newOrders = getState().routes.tempOrders
 
-  // ** Save Routes in Amplify
-  const { routes, orders } = await saveRoutesAndOrders(newRoutes, newOrders)
+  const ordersID = newOrders.map(order => order.subscriptionID)
+  const subscriptionsToUpdate = getState().routes.subscriptions.filter(sub => ordersID.includes(sub.number))
 
-  return { routes, orders , callback }
+  // ** Save Routes in Amplify
+  const { routes, orders, locations, subscriptions } = await saveRoutesAndOrders(newRoutes, newOrders, subscriptionsToUpdate)
+
+  return { routes, orders , locations, subscriptions, callback }
 })
 
 // ** Assign Driver to Route
@@ -201,6 +204,8 @@ export const appRoutesSlice = createSlice({
       const sortedRoutes = action.payload.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       state.routes = sortedRoutes
       state.orders = action.payload.orders
+      state.locations = action.payload.locations
+      state.subscriptions = action.payload.subscriptions
       state.locations.map(loc => {
         loc.included = false
       })

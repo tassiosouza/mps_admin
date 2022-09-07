@@ -20,6 +20,12 @@ export enum OrderStatus {
   CANCELED = "CANCELED"
 }
 
+export enum SubscriptionStatus {
+  ACTIVED = "ACTIVED",
+  ASSIGNED = "ASSIGNED",
+  CANCELED = "CANCELED"
+}
+
 export enum AssignStatus {
   ASSIGNED = "ASSIGNED",
   ASSIGNING = "ASSIGNING",
@@ -83,6 +89,9 @@ export declare class MOrder {
   readonly phone?: string | null;
   readonly location?: string | null;
   readonly sort?: number | null;
+  readonly avatar?: string | null;
+  readonly subscriptionID?: string | null;
+  readonly deliveryKey?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MOrder, MOrderMetaData>);
@@ -96,7 +105,7 @@ export declare class MpsSubscription {
   readonly mealPlan?: string | null;
   readonly subscriptionDate?: number | null;
   readonly address?: string | null;
-  readonly status?: string | null;
+  readonly status?: SubscriptionStatus | keyof typeof SubscriptionStatus | null;
   readonly name?: string | null;
   readonly email?: string | null;
   readonly phone?: string | null;

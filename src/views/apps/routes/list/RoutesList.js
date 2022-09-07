@@ -32,7 +32,7 @@ import { RouteStatus } from 'src/models'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
+import { fetchLocations, fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
 
 // ** Custom Components Imports
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
@@ -95,7 +95,7 @@ const RoutesList = (props) => {
       renderCell: ({ row }) => 
       <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
         <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
-        {row.status != RouteStatus.PLANNED && row.status != RouteStatus.ASSIGNED && row.status != RouteStatus.DONE && <Player
+        {row.status == RouteStatus.IN_TRANSIT && <Player
           autoplay
           loop
           src={'https://assets6.lottiefiles.com/packages/lf20_buuuwhvb.json'}
@@ -202,6 +202,7 @@ const RoutesList = (props) => {
   const handleDeleteConfirm = route => {
     if(route) {
       dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
+      dispatch(fetchLocations({q: ''}))
       setOpenDeleteConfirm(false)
     }
     else {
@@ -236,18 +237,6 @@ const RoutesList = (props) => {
       default:
         return '#e03d3a'
     }
-  }
-
-  function getSheetData(data, header) {
-    var fields = Object.keys(data[0])
-    var sheetData = data.map(function (row) {
-      return fields.map(function (fieldName) {
-        return row[fieldName] ? row[fieldName] : ""
-      })
-    })
-    sheetData.unshift(header)
-    console.log(JSON.stringify(sheetData))
-    return sheetData
   }
 
   const getFixedWidth = (width) => {

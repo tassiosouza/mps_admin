@@ -54,6 +54,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+import { SubscriptionStatus } from 'src/models'
 
 // ** Styled component for the link in the dataTable
 const StyledLink = styled('a')(({ theme }) => ({
@@ -129,6 +130,13 @@ const renderClient = row => {
   }
 }
 
+const toPascalCase = (text) => {
+  text = text.replace('_', ' ')
+  
+  return text.replace(/(\w)(\w*)/g,
+      function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase()})
+}
+
 const defaultColumns = [
   {
     flex: 0.1,
@@ -150,11 +158,7 @@ const defaultColumns = [
       const { status } = row
 
       return (
-          <div>
-            {status == 'Actived' ? (<Check/>) : (<Cancel/>
-            )}
-          </div>
-            
+        <Typography variant='body2'>{toPascalCase(row.status)}</Typography> 
       )
     }
   },
@@ -236,7 +240,7 @@ const SubscriptionList = () => {
   const [dates, setDates] = useState([])
   const [value, setValue] = useState('')
   const [pageSize, setPageSize] = useState(10)
-  const [statusValue, setStatusValue] = useState('')
+  const [statusValue, setStatusValue] = useState(null)
   const [locationValue, setLocationValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
   const [selectedRows, setSelectedRows] = useState([])

@@ -33,6 +33,12 @@ enum OrderStatus {
   CANCELED
 }
 
+enum SubscriptionStatus {
+  ACTIVED
+  ASSIGNED
+  CANCELED
+}
+
 enum AssignStatus {
   ASSIGNED
   ASSIGNING
@@ -67,7 +73,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   mealPlan: String
   subscriptionDate: Float
   address: String
-  status: String
+  status: SubscriptionStatus
   name: String
   email: String
   phone: String

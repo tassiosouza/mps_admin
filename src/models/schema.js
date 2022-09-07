@@ -241,6 +241,27 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "avatar": {
+                    "name": "avatar",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "subscriptionID": {
+                    "name": "subscriptionID",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "deliveryKey": {
+                    "name": "deliveryKey",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -331,7 +352,9 @@ export const schema = {
                 "status": {
                     "name": "status",
                     "isArray": false,
-                    "type": "String",
+                    "type": {
+                        "enum": "SubscriptionStatus"
+                    },
                     "isRequired": false,
                     "attributes": []
                 },
@@ -656,6 +679,14 @@ export const schema = {
                 "CANCELED"
             ]
         },
+        "SubscriptionStatus": {
+            "name": "SubscriptionStatus",
+            "values": [
+                "ACTIVED",
+                "ASSIGNED",
+                "CANCELED"
+            ]
+        },
         "AssignStatus": {
             "name": "AssignStatus",
             "values": [
@@ -666,5 +697,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "baa186c0d47d1bed625f2fac12614b52"
+    "version": "5c7613586393076c055c778660c5e0b5"
 };
