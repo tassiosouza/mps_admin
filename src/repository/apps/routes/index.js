@@ -143,7 +143,7 @@ export const deleteRoute = async (route, orders)  => {
     // ** Mutate (Set Order Subscription to Active) Subscriptions in Amplify the where linked to the route
     for(var i = 0; i < orders.length; i ++) {
       const filter = {
-        number: {
+        id: {
           eq: orders[i].subscriptionID
         },
       }
@@ -152,7 +152,6 @@ export const deleteRoute = async (route, orders)  => {
       if(response.data) {
         subList = response.data.listMpsSubscriptions.items
       }
-      console.log('sublist: ' + JSON.stringify(subList))
       for (var k = 0; k < subList.length; k++) {
         await API.graphql(graphqlOperation(updateMpsSubscription, {input: {id:subList[k].id, status: SubscriptionStatus.ACTIVED}}))
       }
@@ -162,7 +161,7 @@ export const deleteRoute = async (route, orders)  => {
   return routeResult
 }
 
-export const getGraphHopperRoutes = async (params, getState )  => {
+export const getGraphHopperRoutes = async (params, getState)  => {
   // ** Create Orders from Active Subscriptions
   const state = getState()
   var orders = await generateOrders(state)
@@ -179,10 +178,10 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     costs: 0,
     totalDistance: 0,
     maxDuration: 0,
-    notAssigneds: 0,
     details: [],
     ordersLeft: [],
-    result: 'success'
+    result: 'success',
+    driversNotAssigned: 0
   }
 
   // ** Create Optimized Routes from new Orders
@@ -209,15 +208,14 @@ export const getGraphHopperRoutes = async (params, getState )  => {
 
       globalRequestAvaiableID = avaiableID
       
-      avaiableDrivers = solution.notAssigneds
+      avaiableDrivers = avaiableDrivers - routes.length
       currentSpliceIndex += ordersInRequest
       finalSolution.costs += solution.costs
       finalSolution.totalDistance += solution.totalDistance
-      finalSolution.maxDuration += solution.maxDuration
-      finalSolution.notAssigneds += solution.notAssigneds
+      finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
       finalSolution.ordersLeft.push(...solution.ordersLeft)
       finalSolution.details.push(...solution.details)
-      finalSolution.notAssigneds = avaiableDrivers
+      finalSolution.driversNotAssigned = avaiableDrivers
 
       if(finalSolution.details.length > 0) {
         finalSolution.result = 'problem'
@@ -427,7 +425,8 @@ const generateOrders = async (state) => {
       orderDate: parseFloat(Date.now()),
       phone: sub.phone,
       location: sub.location,
-      subscriptionID: sub.number,
+      subscriptionID: sub.id,
+      subscriptionNumber: sub.number,
       avatar:''
     })
     index += 1

@@ -132,7 +132,7 @@ const renderClient = row => {
 
 const toPascalCase = (text) => {
   text = text.replace('_', ' ')
-  
+
   return text.replace(/(\w)(\w*)/g,
       function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase()})
 }
@@ -332,8 +332,9 @@ const SubscriptionList = () => {
                     labelId='subscription-status-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    <MenuItem value='Actived'>Actived</MenuItem>
-                    <MenuItem value='Canceled'>Canceled</MenuItem>
+                    <MenuItem value={SubscriptionStatus.ACTIVED}>Actived</MenuItem>
+                    <MenuItem value={SubscriptionStatus.CANCELED}>Canceled</MenuItem>
+                    <MenuItem value={SubscriptionStatus.ASSIGNED}>Assigned</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

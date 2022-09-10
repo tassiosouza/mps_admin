@@ -81,7 +81,7 @@ export const saveRoutes = createAsyncThunk('appRoutes/saveRoutes', async (params
   const newOrders = getState().routes.tempOrders
 
   const ordersID = newOrders.map(order => order.subscriptionID)
-  const subscriptionsToUpdate = getState().routes.subscriptions.filter(sub => ordersID.includes(sub.number))
+  const subscriptionsToUpdate = getState().routes.subscriptions.filter(sub => ordersID.includes(sub.id))
 
   // ** Save Routes in Amplify
   const { routes, orders, locations, subscriptions } = await saveRoutesAndOrders(newRoutes, newOrders, subscriptionsToUpdate)

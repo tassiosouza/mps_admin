@@ -68,6 +68,7 @@ export const getMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt
@@ -99,6 +100,7 @@ export const listMOrders = /* GraphQL */ `
         sort
         avatar
         subscriptionID
+        subscriptionNumber
         deliveryKey
         createdAt
         updatedAt
