@@ -184,11 +184,65 @@ export const getGraphHopperRoutes = async (params, getState)  => {
     driversNotAssigned: 0
   }
 
-  // const clusterBody = getGraphHopperClusterRequestBody(orders)
+  var globalRequestAvaiableID = await getAvaiableRouteId()
 
-  // const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
+  const clusterBody = getGraphHopperClusterRequestBody(orders)
 
-  // console.log('custer response: ' + JSON.stringify(res))
+  const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
+
+  console.log('cluster response: ' + JSON.stringify(res))
+  if(res.data.clusters.length > 0) {
+    const clusters = res.data.clusters
+    for(var i = 0; i < clusters.length; i++) {
+      var splicedOrders = []
+      orders.map(order => {
+        if(clusters[i].ids.includes(order.id)) {
+          splicedOrders.push(order)
+        }
+      })
+      const ghBody = getGraphHopperRORequestBody(splicedOrders, 1, 99999)
+      console.log(JSON.stringify(ghBody))
+
+      try {
+        const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+        
+        // ** Request successfuly completed (Process routes and solution)
+        const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+  
+        globalRequestAvaiableID = avaiableID
+  
+        console.log(JSON.stringify(solution))
+        
+        finalSolution.costs += solution.costs
+        finalSolution.totalDistance += solution.totalDistance
+        finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
+        finalSolution.ordersLeft.push(...solution.ordersLeft)
+        finalSolution.details.push(...solution.details)
+  
+        if(finalSolution.details.length > 0) {
+          finalSolution.result = 'problem'
+        }
+        finalRoutes.push(...routes)
+      }
+      catch(e) { // ** Handle Request Error
+        // ** Server error
+        if(e.status == 500) {
+          const errorMessage = 'GH internal error. Code: ' + e.status
+          console.log(errorMessage)
+          finalSolution.details.push(e.message)
+          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+        }
+        // ** Error in optimization -> No driver left to make the order
+        else {
+          const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
+          finalSolution.details.push(errorMessage)
+          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+        }
+        finalSolution.result = 'error'
+        break
+      }
+    }
+  }
 
   // ** Create Optimized Routes from new Orders
   const MAX_ROUTES_PER_REQUEST = 80
@@ -199,55 +253,55 @@ export const getGraphHopperRoutes = async (params, getState)  => {
     ordersInRequest = (orders.length - rest) / requestCount
   }
 
-  var globalRequestAvaiableID = await getAvaiableRouteId()
+  
 
   for(var i = 0; i < requestCount; i ++) {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
     const ghBody = getGraphHopperRORequestBody(splicedOrders, avaiableDrivers, maxTime)
 
-    try {
-      const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+  //   try {
+  //     const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
       
-      // ** Request successfuly completed (Process routes and solution)
-      const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+  //     // ** Request successfuly completed (Process routes and solution)
+  //     const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
 
-      globalRequestAvaiableID = avaiableID
+  //     globalRequestAvaiableID = avaiableID
 
-      console.log(JSON.stringify(solution))
+  //     console.log(JSON.stringify(solution))
       
-      avaiableDrivers = avaiableDrivers - routes.length
-      currentSpliceIndex += ordersInRequest
-      finalSolution.costs += solution.costs
-      finalSolution.totalDistance += solution.totalDistance
-      finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
-      finalSolution.ordersLeft.push(...solution.ordersLeft)
-      finalSolution.details.push(...solution.details)
-      finalSolution.driversNotAssigned = avaiableDrivers
+  //     avaiableDrivers = avaiableDrivers - routes.length
+  //     currentSpliceIndex += ordersInRequest
+  //     finalSolution.costs += solution.costs
+  //     finalSolution.totalDistance += solution.totalDistance
+  //     finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
+  //     finalSolution.ordersLeft.push(...solution.ordersLeft)
+  //     finalSolution.details.push(...solution.details)
+  //     finalSolution.driversNotAssigned = avaiableDrivers
 
-      if(finalSolution.details.length > 0) {
-        finalSolution.result = 'problem'
-      }
-      finalRoutes.push(...routes)
-    }
-    catch(e) { // ** Handle Request Error
-      // ** Server error
-      if(e.status == 500) {
-        const errorMessage = 'GH internal error. Code: ' + e.status
-        console.log(errorMessage)
-        finalSolution.details.push(e.message)
-        splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-      }
-      // ** Error in optimization -> No driver left to make the order
-      else {
-        const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
-        finalSolution.details.push(errorMessage)
-        splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-      }
-      finalSolution.result = 'error'
-      break
-    }
-  }
+  //     if(finalSolution.details.length > 0) {
+  //       finalSolution.result = 'problem'
+  //     }
+  //     finalRoutes.push(...routes)
+  //   }
+  //   catch(e) { // ** Handle Request Error
+  //     // ** Server error
+  //     if(e.status == 500) {
+  //       const errorMessage = 'GH internal error. Code: ' + e.status
+  //       console.log(errorMessage)
+  //       finalSolution.details.push(e.message)
+  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+  //     }
+  //     // ** Error in optimization -> No driver left to make the order
+  //     else {
+  //       const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
+  //       finalSolution.details.push(errorMessage)
+  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+  //     }
+  //     finalSolution.result = 'error'
+  //     break
+  //   }
+   }
 
   // Send only orders assigned to a route to be saved
   orders = orders.filter(order => order.assignedRouteID != '')
@@ -404,6 +458,7 @@ const getGraphHopperRORequestBody = (orders, maxDrivers, maxTime) => {
 }
 
 const getGraphHopperClusterRequestBody = (orders) => {
+  const factor = (orders.length/22) + 2
   const configuration = {
     "response_type": "json",
     "routing": {
@@ -412,8 +467,8 @@ const getGraphHopperClusterRequestBody = (orders) => {
       "cost_per_meter":1
     },
     "clustering": {
-      "num_clusters":(orders.length/22) + 2, 
-      "max_quantity": 22,
+      "num_clusters": factor, 
+      "max_quantity": orders.length/factor,
       "min_quantity": 5
     }
   }
@@ -435,7 +490,6 @@ const getGraphHopperClusterRequestBody = (orders) => {
     configuration,
     customers,
   }
-  console.log(JSON.stringify(body))
   return body
 }
 
