@@ -184,6 +184,12 @@ export const getGraphHopperRoutes = async (params, getState)  => {
     driversNotAssigned: 0
   }
 
+  // const clusterBody = getGraphHopperClusterRequestBody(orders)
+
+  // const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
+
+  // console.log('custer response: ' + JSON.stringify(res))
+
   // ** Create Optimized Routes from new Orders
   const MAX_ROUTES_PER_REQUEST = 80
   if(orders.length > 80) {
@@ -198,7 +204,7 @@ export const getGraphHopperRoutes = async (params, getState)  => {
   for(var i = 0; i < requestCount; i ++) {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
-    const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers, maxTime)
+    const ghBody = getGraphHopperRORequestBody(splicedOrders, avaiableDrivers, maxTime)
 
     try {
       const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
@@ -207,6 +213,8 @@ export const getGraphHopperRoutes = async (params, getState)  => {
       const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
 
       globalRequestAvaiableID = avaiableID
+
+      console.log(JSON.stringify(solution))
       
       avaiableDrivers = avaiableDrivers - routes.length
       currentSpliceIndex += ordersInRequest
@@ -296,7 +304,7 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
     routes.push(
       {
         id: routeID,
-        cost: 0,
+        cost: ((route.completion_time / 60) / 60) * 20,
         startTime: 0,
         endTime: 0,
         status: RouteStatus.PLANNED,
@@ -342,13 +350,17 @@ const getOptimizedFactor = (x, y) => {
   return y;
 }
 
-const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
+const getGraphHopperRORequestBody = (orders, maxDrivers, maxTime) => {
   const services = []
   const vehicles = []
   const objectives = [
     {
-      "type": "min",
+      "type": "min-max",
       "value": "completion_time"
+   },
+   {
+      "type": "min-max",
+      "value": "activities"
    }
   ]
 
@@ -373,6 +385,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
           lon: -117.2310085, // ** MPS longitude
           lat: 33.1522247 // ** MPS latitude
         },
+        max_jobs:25,
         max_driving_time: maxTime * 60 // ** Receive in minutes and send in seconds
     })
   }
@@ -387,6 +400,42 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
       }
     }
   }
+  return body
+}
+
+const getGraphHopperClusterRequestBody = (orders) => {
+  const configuration = {
+    "response_type": "json",
+    "routing": {
+      "profile": "as_the_crow_flies",
+      "cost_per_second":0,
+      "cost_per_meter":1
+    },
+    "clustering": {
+      "num_clusters":(orders.length/22) + 2, 
+      "max_quantity": 22,
+      "min_quantity": 5
+    }
+  }
+  const customers = []
+
+  orders.map(order => {
+    customers.push({
+      id: order.id,
+      address: {
+        lon: order.longitude,
+        lat: order.latitude,
+        street_hint:'teste'
+      },
+      quantity:1
+    })
+  })
+
+  var body = {
+    configuration,
+    customers,
+  }
+  console.log(JSON.stringify(body))
   return body
 }
 

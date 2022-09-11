@@ -111,13 +111,20 @@ const RoutesList = (props) => {
       renderCell: ({ row }) => <Typography variant='body2'>{getRouteOrders(row.id).length}</Typography>
     },
     {
-      flex: 0.12,
-      minWidth: 90,
-      field: 'issuedDate',
-      headerName: 'Date',
-      renderCell: ({ row }) => <Typography variant='body2'>{
-        new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
-    }
+      flex: 0.07,
+      minWidth: 80,
+      field: 'cost',
+      headerName: 'Cost',
+      renderCell: ({ row }) => <Typography variant='body2'>${parseInt(row.cost)}</Typography>
+    },
+    // {
+    //   flex: 0.12,
+    //   minWidth: 90,
+    //   field: 'issuedDate',
+    //   headerName: 'Date',
+    //   renderCell: ({ row }) => <Typography variant='body2'>{
+    //     new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
+    // }
   ]
   /* eslint-disable */
   const CustomInput = forwardRef((props, ref) => {
