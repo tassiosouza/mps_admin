@@ -81,6 +81,7 @@ export const onCreateMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt
@@ -107,6 +108,7 @@ export const onUpdateMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt
@@ -133,6 +135,7 @@ export const onDeleteMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt

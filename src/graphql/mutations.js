@@ -93,6 +93,7 @@ export const createMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt
@@ -122,6 +123,7 @@ export const updateMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt
@@ -151,6 +153,7 @@ export const deleteMOrder = /* GraphQL */ `
       sort
       avatar
       subscriptionID
+      subscriptionNumber
       deliveryKey
       createdAt
       updatedAt

@@ -143,7 +143,7 @@ export const deleteRoute = async (route, orders)  => {
     // ** Mutate (Set Order Subscription to Active) Subscriptions in Amplify the where linked to the route
     for(var i = 0; i < orders.length; i ++) {
       const filter = {
-        number: {
+        id: {
           eq: orders[i].subscriptionID
         },
       }
@@ -152,7 +152,6 @@ export const deleteRoute = async (route, orders)  => {
       if(response.data) {
         subList = response.data.listMpsSubscriptions.items
       }
-      console.log('sublist: ' + JSON.stringify(subList))
       for (var k = 0; k < subList.length; k++) {
         await API.graphql(graphqlOperation(updateMpsSubscription, {input: {id:subList[k].id, status: SubscriptionStatus.ACTIVED}}))
       }
@@ -162,7 +161,7 @@ export const deleteRoute = async (route, orders)  => {
   return routeResult
 }
 
-export const getGraphHopperRoutes = async (params, getState )  => {
+export const getGraphHopperRoutes = async (params, getState)  => {
   // ** Create Orders from Active Subscriptions
   const state = getState()
   var orders = await generateOrders(state)
@@ -179,10 +178,70 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     costs: 0,
     totalDistance: 0,
     maxDuration: 0,
-    notAssigneds: 0,
     details: [],
     ordersLeft: [],
-    result: 'success'
+    result: 'success',
+    driversNotAssigned: 0
+  }
+
+  var globalRequestAvaiableID = await getAvaiableRouteId()
+
+  const clusterBody = getGraphHopperClusterRequestBody(orders)
+
+  const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
+
+  console.log('cluster response: ' + JSON.stringify(res))
+  if(res.data.clusters.length > 0) {
+    const clusters = res.data.clusters
+    for(var i = 0; i < clusters.length; i++) {
+      var splicedOrders = []
+      orders.map(order => {
+        if(clusters[i].ids.includes(order.id)) {
+          splicedOrders.push(order)
+        }
+      })
+      const ghBody = getGraphHopperRORequestBody(splicedOrders, 1, 99999)
+      console.log(JSON.stringify(ghBody))
+
+      try {
+        const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+        
+        // ** Request successfuly completed (Process routes and solution)
+        const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+  
+        globalRequestAvaiableID = avaiableID
+  
+        console.log(JSON.stringify(solution))
+        
+        finalSolution.costs += solution.costs
+        finalSolution.totalDistance += solution.totalDistance
+        finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
+        finalSolution.ordersLeft.push(...solution.ordersLeft)
+        finalSolution.details.push(...solution.details)
+  
+        if(finalSolution.details.length > 0) {
+          finalSolution.result = 'problem'
+        }
+        finalRoutes.push(...routes)
+      }
+      catch(e) { // ** Handle Request Error
+        // ** Server error
+        if(e.status == 500) {
+          const errorMessage = 'GH internal error. Code: ' + e.status
+          console.log(errorMessage)
+          finalSolution.details.push(e.message)
+          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+        }
+        // ** Error in optimization -> No driver left to make the order
+        else {
+          const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
+          finalSolution.details.push(errorMessage)
+          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+        }
+        finalSolution.result = 'error'
+        break
+      }
+    }
   }
 
   // ** Create Optimized Routes from new Orders
@@ -194,54 +253,55 @@ export const getGraphHopperRoutes = async (params, getState )  => {
     ordersInRequest = (orders.length - rest) / requestCount
   }
 
-  var globalRequestAvaiableID = await getAvaiableRouteId()
+  
 
   for(var i = 0; i < requestCount; i ++) {
     var ordersCopy = [...orders]
     const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
-    const ghBody = getGraphHopperRequestBody(splicedOrders, avaiableDrivers, maxTime)
+    const ghBody = getGraphHopperRORequestBody(splicedOrders, avaiableDrivers, maxTime)
 
-    try {
-      const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+  //   try {
+  //     const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
       
-      // ** Request successfuly completed (Process routes and solution)
-      const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+  //     // ** Request successfuly completed (Process routes and solution)
+  //     const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
 
-      globalRequestAvaiableID = avaiableID
+  //     globalRequestAvaiableID = avaiableID
+
+  //     console.log(JSON.stringify(solution))
       
-      avaiableDrivers = solution.notAssigneds
-      currentSpliceIndex += ordersInRequest
-      finalSolution.costs += solution.costs
-      finalSolution.totalDistance += solution.totalDistance
-      finalSolution.maxDuration += solution.maxDuration
-      finalSolution.notAssigneds += solution.notAssigneds
-      finalSolution.ordersLeft.push(...solution.ordersLeft)
-      finalSolution.details.push(...solution.details)
-      finalSolution.notAssigneds = avaiableDrivers
+  //     avaiableDrivers = avaiableDrivers - routes.length
+  //     currentSpliceIndex += ordersInRequest
+  //     finalSolution.costs += solution.costs
+  //     finalSolution.totalDistance += solution.totalDistance
+  //     finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
+  //     finalSolution.ordersLeft.push(...solution.ordersLeft)
+  //     finalSolution.details.push(...solution.details)
+  //     finalSolution.driversNotAssigned = avaiableDrivers
 
-      if(finalSolution.details.length > 0) {
-        finalSolution.result = 'problem'
-      }
-      finalRoutes.push(...routes)
-    }
-    catch(e) { // ** Handle Request Error
-      // ** Server error
-      if(e.status == 500) {
-        const errorMessage = 'GH internal error. Code: ' + e.status
-        console.log(errorMessage)
-        finalSolution.details.push(e.message)
-        splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-      }
-      // ** Error in optimization -> No driver left to make the order
-      else {
-        const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
-        finalSolution.details.push(errorMessage)
-        splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-      }
-      finalSolution.result = 'error'
-      break
-    }
-  }
+  //     if(finalSolution.details.length > 0) {
+  //       finalSolution.result = 'problem'
+  //     }
+  //     finalRoutes.push(...routes)
+  //   }
+  //   catch(e) { // ** Handle Request Error
+  //     // ** Server error
+  //     if(e.status == 500) {
+  //       const errorMessage = 'GH internal error. Code: ' + e.status
+  //       console.log(errorMessage)
+  //       finalSolution.details.push(e.message)
+  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+  //     }
+  //     // ** Error in optimization -> No driver left to make the order
+  //     else {
+  //       const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
+  //       finalSolution.details.push(errorMessage)
+  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
+  //     }
+  //     finalSolution.result = 'error'
+  //     break
+  //   }
+   }
 
   // Send only orders assigned to a route to be saved
   orders = orders.filter(order => order.assignedRouteID != '')
@@ -298,7 +358,7 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
     routes.push(
       {
         id: routeID,
-        cost: 0,
+        cost: ((route.completion_time / 60) / 60) * 20,
         startTime: 0,
         endTime: 0,
         status: RouteStatus.PLANNED,
@@ -344,13 +404,17 @@ const getOptimizedFactor = (x, y) => {
   return y;
 }
 
-const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
+const getGraphHopperRORequestBody = (orders, maxDrivers, maxTime) => {
   const services = []
   const vehicles = []
   const objectives = [
     {
-      "type": "min",
+      "type": "min-max",
       "value": "completion_time"
+   },
+   {
+      "type": "min-max",
+      "value": "activities"
    }
   ]
 
@@ -375,6 +439,7 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
           lon: -117.2310085, // ** MPS longitude
           lat: 33.1522247 // ** MPS latitude
         },
+        max_jobs:25,
         max_driving_time: maxTime * 60 // ** Receive in minutes and send in seconds
     })
   }
@@ -388,6 +453,42 @@ const getGraphHopperRequestBody = (orders, maxDrivers, maxTime) => {
         calc_points: true
       }
     }
+  }
+  return body
+}
+
+const getGraphHopperClusterRequestBody = (orders) => {
+  const factor = (orders.length/22) + 2
+  const configuration = {
+    "response_type": "json",
+    "routing": {
+      "profile": "as_the_crow_flies",
+      "cost_per_second":0,
+      "cost_per_meter":1
+    },
+    "clustering": {
+      "num_clusters": factor, 
+      "max_quantity": orders.length/factor,
+      "min_quantity": 5
+    }
+  }
+  const customers = []
+
+  orders.map(order => {
+    customers.push({
+      id: order.id,
+      address: {
+        lon: order.longitude,
+        lat: order.latitude,
+        street_hint:'teste'
+      },
+      quantity:1
+    })
+  })
+
+  var body = {
+    configuration,
+    customers,
   }
   return body
 }
@@ -427,7 +528,8 @@ const generateOrders = async (state) => {
       orderDate: parseFloat(Date.now()),
       phone: sub.phone,
       location: sub.location,
-      subscriptionID: sub.number,
+      subscriptionID: sub.id,
+      subscriptionNumber: sub.number,
       avatar:''
     })
     index += 1
