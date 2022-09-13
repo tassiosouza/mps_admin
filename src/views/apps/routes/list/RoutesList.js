@@ -17,10 +17,10 @@ import CardContent from '@mui/material/CardContent'
 import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
+import { styled } from '@mui/material/styles'
 
 // ** Icons Imports
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
-import EyeOutline from 'mdi-material-ui/EyeOutline'
 import DownloadOutline from 'mdi-material-ui/DownloadOutline'
 import CircleMedium from 'mdi-material-ui/CircleMedium'
 
@@ -31,7 +31,7 @@ import DatePicker from 'react-datepicker'
 import { RouteStatus } from 'src/models'
 
 // ** Store & Actions Imports
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { fetchLocations, fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
 
 // ** Custom Components Imports
@@ -49,6 +49,13 @@ import { Player } from '@lottiefiles/react-lottie-player';
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
+// ** Styled component for the link in the dataTable
+const StyledLink = styled('a')(({ theme }) => ({
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+  cursor: 'pointer'
+}))
+
 /* eslint-enable */
 const RoutesList = (props) => {
 
@@ -61,11 +68,10 @@ const RoutesList = (props) => {
   const [statusValue, setStatusValue] = useState('')
   const [locationValue, setLocationValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
-  const [selectedRows, setSelectedRows] = useState([])
+  const [selectedRoutes, setSelectedRoutes] = useState([])
   const [startDateRange, setStartDateRange] = useState(null)
   const [openLocationsDialog, setOpenLocationsDialog] = useState(false)
   const [openRoutesDialog, setOpenRoutesDialog] = useState(false)
-  const [selectedRoute, setSelectedRoute] = useState(null)
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false)
 
   const defaultColumns = [
@@ -74,7 +80,7 @@ const RoutesList = (props) => {
       field: 'id',
       minWidth: 80,
       headerName: 'ID',
-      renderCell: ({ row }) => <Typography variant='body2'>{row.id}</Typography>
+      renderCell: ({ row }) => <StyledLink onClick={() => handleOpenRoutesDialog(row)}>{row.id}</StyledLink>
     },
     {
       flex: 0.15,
@@ -117,14 +123,14 @@ const RoutesList = (props) => {
       headerName: 'Cost',
       renderCell: ({ row }) => <Typography variant='body2'>${parseInt(row.cost)}</Typography>
     },
-    // {
-    //   flex: 0.12,
-    //   minWidth: 90,
-    //   field: 'issuedDate',
-    //   headerName: 'Date',
-    //   renderCell: ({ row }) => <Typography variant='body2'>{
-    //     new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
-    // }
+    {
+      flex: 0.12,
+      minWidth: 90,
+      field: 'issuedDate',
+      headerName: 'Date',
+      renderCell: ({ row }) => <Typography variant='body2'>{
+        new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
+    }
   ]
   /* eslint-disable */
   const CustomInput = forwardRef((props, ref) => {
@@ -170,6 +176,17 @@ const RoutesList = (props) => {
     }
     return 'Unassigned'
   }
+  
+  const getDriversNames = routes => {
+    var result = []
+    routes.map(route => {
+      const drivers = store.drivers.filter(dr => dr.id === route.driverID)
+      if(drivers.length) {
+        result.push(drivers[0].name)
+      }
+    })
+    return result
+  }
 
   const handleStatusValue = e => {
     setStatusValue(e.target.value)
@@ -189,12 +206,12 @@ const RoutesList = (props) => {
   }
 
   const handleOpenRoutesDialog = (route) => {
-    setSelectedRoute(route)
+    setSelectedRoutes([route])
     setOpenRoutesDialog(true)
   }
 
   const handleOpenDeleteConfirm = (route) => {
-    setSelectedRoute(route)
+    setSelectedRoutes([route])
     setOpenDeleteConfirm(true)
   }
 
@@ -246,17 +263,21 @@ const RoutesList = (props) => {
     }
   }
 
+  const handleMultipleAction = action => {
+    switch(action) {
+      case "View": 
+        setOpenRoutesDialog(true)
+      break
+      default:
+      break
+    }
+  }
+
   const getFixedWidth = (width) => {
     return (width * 21) / 126
   }
 
   async function saveAsExcel(route) {
-    var data = [
-      { name: "John", city: "Seattle" },
-      { name: "Mike", city: "Los Angeles" },
-      { name: "Zach", city: "New York" }
-    ]
-    let header = ["Name", "City"]
 
     XlsxPopulate.fromBlankAsync().then(async (workbook) => {
       const sheet = workbook.sheet(0)
@@ -373,8 +394,8 @@ const RoutesList = (props) => {
   const columns = [
     ...defaultColumns,
     {
-      flex: 0.11,
-      minWidth: 130,
+      flex: 0.1,
+      minWidth: 100,
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
@@ -384,11 +405,6 @@ const RoutesList = (props) => {
           <Tooltip title='Delete Route'>
             <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDeleteConfirm(row)}>
               <DeleteOutline />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title='View Route'>
-            <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => handleOpenRoutesDialog(row)}>
-              <EyeOutline />
             </IconButton>
           </Tooltip>
           <Tooltip title='Export Route'>
@@ -508,10 +524,11 @@ const RoutesList = (props) => {
         <Card>
           <TableHeader 
             value={value} 
-            selectedRows={selectedRows} 
+            selectedRoutes={selectedRoutes} 
             handleFilter={handleFilter} 
             openDialog={handleOpenLocationsDialog}
-            refresh={refresh} />
+            refresh={refresh} 
+            handleMultipleAction={handleMultipleAction}/>
           {store.loadingRoutes && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight
@@ -523,7 +540,13 @@ const RoutesList = (props) => {
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
             sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
-            onSelectionModelChange={rows => setSelectedRows(rows)}
+            onSelectionModelChange={(ids) => {
+              const selectedIDs = new Set(ids);
+              const selectedRowData = store.routes.filter((route) =>
+                selectedIDs.has(route.id.toString())
+              )
+              setSelectedRoutes(selectedRowData)
+            }}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Card>
@@ -535,12 +558,13 @@ const RoutesList = (props) => {
       <RoutesDialog 
         open={openRoutesDialog}
         onClose={handleCloseRoutesDialog}
-        route={selectedRoute}
+        routes={selectedRoutes}
         orders={store.orders}
+        drivers={getDriversNames(selectedRoutes)}
       />
       <DeleteRouteDialog 
-        route={selectedRoute}
-        orders={getRouteOrders(selectedRoute ? selectedRoute.id : '')}
+        route={selectedRoutes[0]}
+        orders={getRouteOrders(selectedRoutes[0]?.id)}
         open={openDeleteConfirm}
         onDelete={handleDeleteConfirm}
         onCancel={handleCloseConfirmDialog}>

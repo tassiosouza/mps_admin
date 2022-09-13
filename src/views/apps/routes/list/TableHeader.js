@@ -12,11 +12,17 @@ import Reload from 'mdi-material-ui/Reload'
 
 const TableHeader = props => {
   // ** Props
-  const { value, selectedRows, handleFilter, openDialog, refresh } = props
+  const { value, selectedRoutes, handleFilter, openDialog, refresh, handleMultipleAction } = props
 
   const handleOpenDialog = () => {
     openDialog()
   }
+
+  const handleAction = e => {
+    handleMultipleAction(e.target.value)
+  }
+
+  console.log(JSON.stringify(selectedRoutes))
 
   return (
     <Box
@@ -35,15 +41,17 @@ const TableHeader = props => {
         displayEmpty
         defaultValue=''
         sx={{ mr: 4, mb: 2 }}
-        disabled={selectedRows && selectedRows.length === 0}
+        disabled={selectedRoutes && selectedRoutes.length === 0}
         renderValue={selected => (selected.length === 0 ? 'Actions' : selected)}
+        onChange={handleAction}
       >
         <MenuItem value='' disabled>
           Actions
         </MenuItem>
-        <MenuItem value='Delete'>Delete</MenuItem>
+        <MenuItem value='View'>View</MenuItem>
         <MenuItem value='Edit'>Edit</MenuItem>
-        <MenuItem value='Send'>Send</MenuItem>
+        <MenuItem value='Dowload'>Download</MenuItem>
+        <MenuItem value='Delete'>Delete</MenuItem>
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <Tooltip placement='top' title='Refresh Orders'>

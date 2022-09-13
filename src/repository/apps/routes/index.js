@@ -348,12 +348,9 @@ const getRoutesFromResponse = (response, orders, avaiableID) => {
     }
 
     const polyline = []
-    var indexx = 0
-    route.points.map(point => {
-      if(indexx > 0 && indexx < route.points.length -2)
-      polyline.push(...point.coordinates)
-      indexx += 1
-    })
+    for(var i = 0; i < route.points.length - 1; i++){
+      polyline.push(...route.points[i].coordinates)
+    }
 
     routes.push(
       {

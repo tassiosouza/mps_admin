@@ -13,45 +13,24 @@ import Close from 'mdi-material-ui/Close'
 // ** Script Hook Import
 import useScript from 'src/hooks/useScript'
 
-// ** React Imports
-import { useState, useEffect } from 'react'
-
 const DialogFullScreen = (props) => {
 
-  const { open, onClose, route, orders } = props
-  
-  const [mapRoute, setMapRoute] = useState(null)
-  const [mapOrders, setMapOrders] = useState(null)
-  const [driverID, setDriverID] = useState(null)
+  const { open, onClose, routes, drivers, orders } = props
 
-  useEffect(() => {
-
-    if(route != null) {
-
-      console.log('entering in use effect')
-    }
-
-  }, [route])
-
-  const getRandomFloat = (min, max, decimals) => {
-    const str = (Math.random() * (max - min) + min).toFixed(decimals);
-  
-    return parseFloat(str);
-  }
-
-  const MapKit = props => {
+  const MapKit = () => {
     useScript('/scripts/mapkit.js')
   }
 
   const ordersToDisplay = []
-  const routeToDisplay = null
-  const routeID = 'No route to display'
+  const routesToDisplay = []
 
-  if(route != null) {
-    routeToDisplay = route
-    routeID = route.id
-    ordersToDisplay = orders.filter(order => {
-      return order.assignedRouteID === route.id
+  if(routes != null) {
+    routesToDisplay = routes
+    routesToDisplay.map(route => {
+      var ordersToAdd = orders.filter(order => {
+        return order.assignedRouteID === route.id
+      })
+      ordersToDisplay.push(...ordersToAdd)
     })
   }
 
@@ -66,7 +45,7 @@ const DialogFullScreen = (props) => {
       <Dialog fullScreen onClose aria-labelledby='full-screen-dialog-title' open={open}>
         <DialogTitle id='full-screen-dialog-title'>
           <Typography variant='h6' component='span'>
-            {routeID} - Unassigned
+            Think about it
           </Typography>
           <IconButton
             aria-label='close'
@@ -80,7 +59,7 @@ const DialogFullScreen = (props) => {
           <div 
           id="map"
           style={divStyle}
-          route={routeToDisplay ? JSON.stringify(routeToDisplay) : ''}
+          route={routesToDisplay ? JSON.stringify(routesToDisplay) : ''}
           orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''}>
             <MapKit/>
           </div>
