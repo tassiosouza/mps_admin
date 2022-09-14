@@ -33,11 +33,15 @@ routes = JSON.parse(values[1])
 routes.map(route => colorMap.set(route.id, "#" + ((1<<24)*Math.random() | 0).toString(16)))
 orders = JSON.parse(values[2])
 
-
 orders.sort((a, b) => (a.sort > b.sort) ? 1 : -1)
 
 for(var i = 0; i < routes.length; i++) {
-  points = JSON.parse(routes[i].points)
+
+  const driverID = routes[i].driverID
+  const routeID = routes[i].id
+  const route = routes[i]
+
+  points = JSON.parse(route.points)
   var coordinates = []
   points.map(cord => {
     coordinates.push(new mapkit.Coordinate(cord[1], cord[0]))
@@ -48,60 +52,59 @@ for(var i = 0; i < routes.length; i++) {
       style: new mapkit.Style({
         lineWidth:5,
         strokeOpacity:0.8,
-        strokeColor: colorMap.get(routes[i].id)
+        strokeColor: colorMap.get(routeID)
       })
     });
   map.addOverlay(pol)
-}
 
-
-if(routes[0] != null && routes[0].driverID != '') {
-  intervalId = window.setInterval(function(){
-  
+  if(route != null && route.status == 'IN_TRANSIT') {
+    var intervalID = window.setInterval(function() {
+    
     fetch('https://27e6dnolwrdabfwawi2u5pfe4y.appsync-api.us-west-1.amazonaws.com/graphql', {
     method: 'POST',
     headers: {
       'X-API-KEY': 'da2-xbr7j7wwh5hk5ej6t477nglsra',
       'Accept': 'application/json',
       'Content-Type': 'application/json'
-  },
-    body: JSON.stringify({
-      query: `
-        query MyQuery ($id: ID!) {
-            getDriver(id: $id) {
-              latitude
-              longitude
-              name
+    },
+      body: JSON.stringify({
+        query: `
+          query MyQuery ($id: ID!) {
+              getDriver(id: $id) {
+                latitude
+                longitude
+                name
+              }
             }
-          }
-        `,
-      variables: {
-        id: routes[0].driverID,
-      }
-    }),
-  })
-  .then((res) => res.json())
-    .then((result) => {
-      // ** Remove driver location annotation (+1 means the MPS location added in the end)
-      if(map.annotations.length > orders.length + 1) {
-        map.removeAnnotation(map.annotations[map.annotations.length - 1])
-      }
-  
-      // ** Add updated driver location annotation
-      if(result.data.getDriver.latitude != null) {
-        var coordinate = new mapkit.Coordinate(result.data.getDriver.latitude, result.data.getDriver.longitude)
-      
-        var annot = new mapkit.MarkerAnnotation(coordinate, {
-          title: result.data.getDriver.name,
-          subtitle: routes[0].id + " - " + "Driver",
-          color: colorMap.get(routes[0].id),
-          glyphColor: "#413940",
-          glyphImage: {1:"/images/driver.png"}
-      });
-        map.addAnnotation(annot)
-      }
+          `,
+        variables: {
+          id: driverID,
+        }
+      }),
     })
-  }, 5000)
+    .then((res) => res.json())
+      .then((result) => {
+        // ** Remove driver location annotation (+1 means the MPS location added in the end)
+        if(map.annotations.length > orders.length + 1) {
+          map.removeAnnotation(map.annotations[map.annotations.length - 1])
+        }
+    
+        // ** Add updated driver location annotation
+        if(result?.data?.getDriver?.latitude != null) {
+          var coordinate = new mapkit.Coordinate(result.data.getDriver.latitude, result.data.getDriver.longitude)
+        
+          var annot = new mapkit.MarkerAnnotation(coordinate, {
+            title: result.data.getDriver.name,
+            subtitle: routeID + " - " + "Driver",
+            color: colorMap.get(routeID),
+            glyphColor: "#413940",
+            glyphImage: {1:"/images/driver.png"}
+        });
+          map.addAnnotation(annot)
+        }
+      })
+    }, 5000)
+  }  
 }
 
 document.addEventListener('keydown', (event) => {

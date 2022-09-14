@@ -10,9 +10,14 @@ import IconButton from '@mui/material/IconButton'
 // ** Icons Import
 import Reload from 'mdi-material-ui/Reload'
 
+// ** React Imports
+import { useState } from 'react'
+
 const TableHeader = props => {
   // ** Props
   const { value, selectedRoutes, handleFilter, openDialog, refresh, handleMultipleAction } = props
+
+  const [actionValue, setActionValue] = useState('')
 
   const handleOpenDialog = () => {
     openDialog()
@@ -20,9 +25,8 @@ const TableHeader = props => {
 
   const handleAction = e => {
     handleMultipleAction(e.target.value)
+    setActionValue('')
   }
-
-  console.log(JSON.stringify(selectedRoutes))
 
   return (
     <Box
@@ -40,6 +44,7 @@ const TableHeader = props => {
         size='small'
         displayEmpty
         defaultValue=''
+        value={actionValue}
         sx={{ mr: 4, mb: 2 }}
         disabled={selectedRoutes && selectedRoutes.length === 0}
         renderValue={selected => (selected.length === 0 ? 'Actions' : selected)}

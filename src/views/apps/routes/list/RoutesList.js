@@ -221,6 +221,7 @@ const RoutesList = (props) => {
 
   const handleCloseRoutesDialog = () => {
     setOpenRoutesDialog(false)
+    setSelectedRoutes([])
   }
 
   const handleDeleteConfirm = route => {
@@ -483,7 +484,6 @@ const RoutesList = (props) => {
                     value={locationValue}
                     sx={{ mr: 4, mb: 2 }}
                     label='route Location'
-                    // onChange={handleLocationValue}
                     labelId='route-location-select'
                   >
                     <MenuItem value=''>All</MenuItem>
@@ -537,6 +537,7 @@ const RoutesList = (props) => {
             columns={columns}
             checkboxSelection
             disableSelectionOnClick
+            selectionModel={selectedRoutes.map(route => route.id)}
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
             sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}

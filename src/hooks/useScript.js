@@ -8,10 +8,14 @@ const useScript = (url) => {
     script.async = true;
 
     document.body.appendChild(script);
-
+    function ClearAllIntervals() {
+      for (var i = 1; i < 99999; i++)
+          window.clearInterval(i)
+  }
+  
     return () => {
-      location.reload()
-      document.body.removeChild(script);
+      ClearAllIntervals()
+      document.body.removeChild(script)
     }
   }, [url]);
 };

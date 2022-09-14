@@ -190,7 +190,6 @@ export const getGraphHopperRoutes = async (params, getState)  => {
 
   const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
 
-  console.log('cluster response: ' + JSON.stringify(res))
   if(res.data.clusters.length > 0) {
     const clusters = res.data.clusters
     for(var i = 0; i < clusters.length; i++) {
@@ -201,7 +200,6 @@ export const getGraphHopperRoutes = async (params, getState)  => {
         }
       })
       const ghBody = getGraphHopperRORequestBody(splicedOrders, 1, 99999)
-      console.log(JSON.stringify(ghBody))
 
       try {
         const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
@@ -210,8 +208,6 @@ export const getGraphHopperRoutes = async (params, getState)  => {
         const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
   
         globalRequestAvaiableID = avaiableID
-  
-        console.log(JSON.stringify(solution))
         
         finalSolution.costs += solution.costs
         finalSolution.totalDistance += solution.totalDistance
