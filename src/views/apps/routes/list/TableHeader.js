@@ -55,7 +55,7 @@ const TableHeader = props => {
         </MenuItem>
         <MenuItem value='View'>View</MenuItem>
         <MenuItem value='Edit'>Edit</MenuItem>
-        <MenuItem value='Dowload'>Download</MenuItem>
+        <MenuItem value='Download'>Download</MenuItem>
         <MenuItem value='Delete'>Delete</MenuItem>
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>

@@ -3,7 +3,7 @@ mapkit.init({
   authorizationCallback: function(done) {
       done("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjYzV0s1OFRXQzYifQ.eyJpc3MiOiJDRUJWNjRRNVA5IiwiaWF0IjoxNjYwNzk3MTc0LCJleHAiOjE2OTIzMTY4MDB9.NKXcDBSo-RqfLoza4ZYhIAMoD1t8L_iR17ZM5eeQY2qQW6uOIUh57PohDSaTiwmTosz52te32E02ZzPVZ0T_Rg");
   }
-});
+})
 
 // ** Init variables
 var routes = null
@@ -12,21 +12,21 @@ var points = []
 var driverLocation = []
 var coordinates = []
 var intervalId = null
-var colorMap = new Map();
+var colorMap = new Map()
 
 // ** Create and Set Map Initial View
 var mpsCoordinate = new mapkit.Coordinate(33.1522247, -117.2310085)
-var map = new mapkit.Map("map", { center: mpsCoordinate});
-var span = new mapkit.CoordinateSpan(.8);
-var region = new mapkit.CoordinateRegion(mpsCoordinate, span);
+var map = new mapkit.Map("map", { center: mpsCoordinate})
+var span = new mapkit.CoordinateSpan(.8)
+var region = new mapkit.CoordinateRegion(mpsCoordinate, span)
 map.setRegionAnimated(region)
 
 // ** Retrieve Route and Orders Info
-var nodes=[], values=[];
+var nodes=[], values=[]
 for (var att, i = 0, atts = document.getElementById("map").attributes, n = atts.length; i < n; i++){
-  att = atts[i];
-  nodes.push(att.nodeName);
-  values.push(att.nodeValue);
+  att = atts[i]
+  nodes.push(att.nodeName)
+  values.push(att.nodeValue)
 }
 
 routes = JSON.parse(values[1])
@@ -54,9 +54,10 @@ for(var i = 0; i < routes.length; i++) {
         strokeOpacity:0.8,
         strokeColor: colorMap.get(routeID)
       })
-    });
+    })
   map.addOverlay(pol)
 
+  //** Display driver location for each in transit route */
   if(route != null && route.status == 'IN_TRANSIT') {
     var intervalID = window.setInterval(function() {
     
@@ -88,7 +89,6 @@ for(var i = 0; i < routes.length; i++) {
         if(map.annotations.length > orders.length + 1) {
           map.removeAnnotation(map.annotations[map.annotations.length - 1])
         }
-    
         // ** Add updated driver location annotation
         if(result?.data?.getDriver?.latitude != null) {
           var coordinate = new mapkit.Coordinate(result.data.getDriver.latitude, result.data.getDriver.longitude)
@@ -99,7 +99,7 @@ for(var i = 0; i < routes.length; i++) {
             color: colorMap.get(routeID),
             glyphColor: "#413940",
             glyphImage: {1:"/images/driver.png"}
-        });
+        })
           map.addAnnotation(annot)
         }
       })
@@ -107,6 +107,7 @@ for(var i = 0; i < routes.length; i++) {
   }  
 }
 
+//** Add space keyboard event for toggle titles visibility */
 document.addEventListener('keydown', (event) => {
   var code = event.code;
   var titleVisibility = (map.annotations[0].titleVisibility == mapkit.FeatureVisibility.Hidden) ? mapkit.FeatureVisibility.Visible :
@@ -115,8 +116,9 @@ document.addEventListener('keydown', (event) => {
   if(code === 'Space') {
     map.annotations.map(annot => annot.titleVisibility = titleVisibility)
   }
-}, false);
+}, false)
 
+//** Add orders markers on map based on color ID */
 for(var i = 0; i < orders.length; i++) {
   var coordinate = new mapkit.Coordinate(orders[i].latitude, orders[i].longitude)
   var annot = new mapkit.MarkerAnnotation(coordinate, {
@@ -126,7 +128,6 @@ for(var i = 0; i < orders.length; i++) {
       glyphColor: "#413940",
       glyphText: orders[i].sort + "°"
   });
-  
   map.addAnnotation(annot)
 }
 
@@ -138,5 +139,4 @@ var annot = new mapkit.MarkerAnnotation(mpsCoordinate, {
   glyphColor: "#413940",
   glyphText: "MPS"
 });
-
 map.addAnnotation(annot)
