@@ -29,7 +29,6 @@ import useScript from 'src/hooks/useScript'
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchClusters } from 'src/store/apps/clusters'
-import subscriptions from 'src/store/apps/subscriptions'
 
 /* eslint-enable */
 const ClustersPage = () => {

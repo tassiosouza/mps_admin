@@ -106,6 +106,7 @@ type Cluster @model @auth(rules: [{allow: public}]) {
   subscriptionsCount: Int
   color: String
   children: AWSJSON
+  open: Boolean
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

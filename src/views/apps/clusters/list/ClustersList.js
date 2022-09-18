@@ -23,6 +23,11 @@ import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import Plus from 'mdi-material-ui/Plus'
 import Numeric2BoxMultiple from 'mdi-material-ui/Numeric2BoxMultiple'
 import PencilOutline from 'mdi-material-ui/PencilOutline'
+import CreateClusterDialog from './CreateClusterDialog'
+
+// ** Store & Actions Imports
+import { useDispatch } from 'react-redux'
+import { handleSetOpenCluster } from 'src/store/apps/clusters'
 
 const ClustersList = props => {
 
@@ -30,9 +35,15 @@ const ClustersList = props => {
 
   // ** State
   const [open, setOpen] = useState(true)
+  const [openCreateClusterDialog, setOpenCreateClusterDialog] = useState(false)
+  const [selectedCluster, setSelectedCluster] = useState(null)
 
-  const handleClick = () => {
-    setOpen(!open)
+  // ** Hooks
+  const dispatch = useDispatch()
+
+  // ** Functions
+  const handleClick = (cluster) => {
+    dispatch(handleSetOpenCluster(cluster))
   }
 
   const getSubscriptionsCount = clusterID => {
@@ -48,13 +59,54 @@ const ClustersList = props => {
 
   const handleCreate = (e, cluster) => {
     e.stopPropagation()
+    setSelectedCluster(cluster)
+    setOpenCreateClusterDialog(true)
+  }
+
+  const handleCloseDialog = () => {
+    setOpenCreateClusterDialog(false)
+  }
+
+  const renderChildren = (children, open, deep) => {
+    console.log('rend child in ' + deep +": " + JSON.stringify(children))
+    if(children != null) {
+      return (
+        <Collapse in={open} timeout='auto' unmountOnExit>
+          {children.children.map(child => (
+              <List component='div' disablePadding>
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ pl: deep}} onClick={() => handleClick(child)}>
+                    <ListItemIcon>
+                      <Numeric0BoxOutline />
+                    </ListItemIcon>
+                    <ListItemText primary={child.name} />
+                    <Box sx={{display:'flex', justifyContent:'space-between', width:'6vW'}}>
+                      <Tooltip title='Rename Cluster' placement='top'>
+                        <PencilOutline onClick={e => handleRename(e, child)}/>
+                      </Tooltip>
+                      <Tooltip title='Create Clusters' placement='top'>
+                        <Plus  onClick={e => handleCreate(e, child)}/>
+                      </Tooltip>
+                      {open ? <ChevronUp /> : <ChevronDown />}
+                    </Box>
+                  </ListItemButton>
+                </ListItem>
+                {child.children && renderChildren(child.children, open, deep + 4)}
+              </List>
+          ))}
+           </Collapse>
+      )
+    }
+    else {
+      return <div></div>
+    }
   }
 
   return (
     <Fragment>
       <List component='nav' aria-label='main mailbox'>
         <ListItem disablePadding>
-          <ListItemButton onClick={handleClick}>
+          <ListItemButton onClick={() => handleClick(clusters[0])}>
             <ListItemIcon>
               <Numeric2BoxMultiple />
             </ListItemIcon>
@@ -70,28 +122,15 @@ const ClustersList = props => {
             </Box>
           </ListItemButton>
         </ListItem>
-        <Collapse in={open} timeout='auto' unmountOnExit>
-          <List component='div' disablePadding>
-            <ListItem disablePadding>
-              <ListItemButton sx={{ pl: 8 }}>
-                <ListItemIcon sx={{ mr: 4 }}>
-                  <Numeric0BoxOutline />
-                </ListItemIcon>
-                <ListItemText primary='San Diego North' />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton sx={{ pl: 8 }}>
-                <ListItemIcon sx={{ mr: 4 }}>
-                  <Numeric0BoxOutline />
-                </ListItemIcon>
-                <ListItemText primary='San Diego South' />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Collapse>
+        {renderChildren(clusters[0].children, clusters[0].open, 6)}
       </List>
-      <Divider sx={{ m: 0 }} />
+      <CreateClusterDialog 
+        open={openCreateClusterDialog}
+        onClose={handleCloseDialog}
+        selectedCluster={selectedCluster}
+        parent={clusters[0]}
+      />
+      {/* <Divider sx={{ m: 0 }} />
       <List component='nav' aria-label='secondary mailbox'>
         <ListItem disablePadding>
           <ListItemButton>
@@ -109,7 +148,7 @@ const ClustersList = props => {
             <ListItemText primary='Spam' />
           </ListItemButton>
         </ListItem>
-      </List>
+      </List> */}
     </Fragment>
   )
 }

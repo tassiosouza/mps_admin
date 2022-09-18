@@ -277,6 +277,7 @@ export const onCreateCluster = /* GraphQL */ `
       subscriptionsCount
       color
       children
+      open
       createdAt
       updatedAt
     }
@@ -291,6 +292,7 @@ export const onUpdateCluster = /* GraphQL */ `
       subscriptionsCount
       color
       children
+      open
       createdAt
       updatedAt
     }
@@ -305,6 +307,7 @@ export const onDeleteCluster = /* GraphQL */ `
       subscriptionsCount
       color
       children
+      open
       createdAt
       updatedAt
     }

@@ -220,6 +220,7 @@ export const getCluster = /* GraphQL */ `
       subscriptionsCount
       color
       children
+      open
       createdAt
       updatedAt
     }
@@ -239,6 +240,7 @@ export const listClusters = /* GraphQL */ `
         subscriptionsCount
         color
         children
+        open
         createdAt
         updatedAt
       }
