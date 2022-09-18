@@ -180,6 +180,7 @@ export const createMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusters
       createdAt
       updatedAt
     }
@@ -205,6 +206,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusters
       createdAt
       updatedAt
     }
@@ -230,6 +232,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusters
       createdAt
       updatedAt
     }
@@ -296,6 +299,57 @@ export const deleteDriver = /* GraphQL */ `
       latitude
       longitude
       assignStatus
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createCluster = /* GraphQL */ `
+  mutation CreateCluster(
+    $input: CreateClusterInput!
+    $condition: ModelClusterConditionInput
+  ) {
+    createCluster(input: $input, condition: $condition) {
+      id
+      name
+      parentID
+      subscriptionsCount
+      color
+      children
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateCluster = /* GraphQL */ `
+  mutation UpdateCluster(
+    $input: UpdateClusterInput!
+    $condition: ModelClusterConditionInput
+  ) {
+    updateCluster(input: $input, condition: $condition) {
+      id
+      name
+      parentID
+      subscriptionsCount
+      color
+      children
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteCluster = /* GraphQL */ `
+  mutation DeleteCluster(
+    $input: DeleteClusterInput!
+    $condition: ModelClusterConditionInput
+  ) {
+    deleteCluster(input: $input, condition: $condition) {
+      id
+      name
+      parentID
+      subscriptionsCount
+      color
+      children
       createdAt
       updatedAt
     }

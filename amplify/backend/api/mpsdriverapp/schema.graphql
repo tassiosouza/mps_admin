@@ -82,6 +82,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   longitude: Float
   avatar: String
   location: String
+  clusters: AWSJSON
 }
 
 type Driver @model @auth(rules: [{allow: public}]) {
@@ -96,6 +97,15 @@ type Driver @model @auth(rules: [{allow: public}]) {
   latitude: Float
   longitude: Float
   assignStatus: AssignStatus
+}
+
+type Cluster @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  parentID: String
+  subscriptionsCount: Int
+  color: String
+  children: AWSJSON
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

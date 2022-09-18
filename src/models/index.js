@@ -34,13 +34,14 @@ const AssignStatus = {
   "UNASSIGNED": "UNASSIGNED"
 };
 
-const { MRoute, MOrder, MpsSubscription, Driver, Todo } = initSchema(schema);
+const { MRoute, MOrder, MpsSubscription, Driver, Cluster, Todo } = initSchema(schema);
 
 export {
   MRoute,
   MOrder,
   MpsSubscription,
   Driver,
+  Cluster,
   Todo,
   RouteStatus,
   OrderStatus,

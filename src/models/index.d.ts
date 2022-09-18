@@ -50,6 +50,10 @@ type DriverMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
 
+type ClusterMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
 type TodoMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
@@ -91,6 +95,7 @@ export declare class MOrder {
   readonly sort?: number | null;
   readonly avatar?: string | null;
   readonly subscriptionID?: string | null;
+  readonly subscriptionNumber?: string | null;
   readonly deliveryKey?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
@@ -113,6 +118,7 @@ export declare class MpsSubscription {
   readonly longitude?: number | null;
   readonly avatar?: string | null;
   readonly location?: string | null;
+  readonly clusters?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MpsSubscription, MpsSubscriptionMetaData>);
@@ -135,6 +141,18 @@ export declare class Driver {
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Driver, DriverMetaData>);
   static copyOf(source: Driver, mutator: (draft: MutableModel<Driver, DriverMetaData>) => MutableModel<Driver, DriverMetaData> | void): Driver;
+}
+
+export declare class Cluster {
+  readonly id: string;
+  readonly name: string;
+  readonly parentID?: string | null;
+  readonly subscriptionsCount?: number | null;
+  readonly color?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+  constructor(init: ModelInit<Cluster, ClusterMetaData>);
+  static copyOf(source: Cluster, mutator: (draft: MutableModel<Cluster, ClusterMetaData>) => MutableModel<Cluster, ClusterMetaData> | void): Cluster;
 }
 
 export declare class Todo {
