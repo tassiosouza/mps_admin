@@ -414,10 +414,10 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "clusters": {
-                    "name": "clusters",
+                "clusterId": {
+                    "name": "clusterId",
                     "isArray": false,
-                    "type": "AWSJSON",
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -604,8 +604,8 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "parentID": {
-                    "name": "parentID",
+                "parentId": {
+                    "name": "parentId",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -622,6 +622,20 @@ export const schema = {
                     "name": "color",
                     "isArray": false,
                     "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "open": {
+                    "name": "open",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "level": {
+                    "name": "level",
+                    "isArray": false,
+                    "type": "Int",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -791,5 +805,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "4ab1e15503d5a1c7dcaf031c6004ace7"
+    "version": "e18f092941bc903aab684d2c251042e8"
 };

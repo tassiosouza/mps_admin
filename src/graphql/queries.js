@@ -126,7 +126,7 @@ export const getMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
-      clusters
+      clusterId
       createdAt
       updatedAt
     }
@@ -158,7 +158,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         longitude
         avatar
         location
-        clusters
+        clusterId
         createdAt
         updatedAt
       }
@@ -216,11 +216,11 @@ export const getCluster = /* GraphQL */ `
     getCluster(id: $id) {
       id
       name
-      parentID
+      parentId
       subscriptionsCount
       color
-      children
       open
+      level
       createdAt
       updatedAt
     }
@@ -236,11 +236,11 @@ export const listClusters = /* GraphQL */ `
       items {
         id
         name
-        parentID
+        parentId
         subscriptionsCount
         color
-        children
         open
+        level
         createdAt
         updatedAt
       }

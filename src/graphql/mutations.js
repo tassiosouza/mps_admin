@@ -180,7 +180,7 @@ export const createMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
-      clusters
+      clusterId
       createdAt
       updatedAt
     }
@@ -206,7 +206,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
-      clusters
+      clusterId
       createdAt
       updatedAt
     }
@@ -232,7 +232,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
-      clusters
+      clusterId
       createdAt
       updatedAt
     }
@@ -312,11 +312,11 @@ export const createCluster = /* GraphQL */ `
     createCluster(input: $input, condition: $condition) {
       id
       name
-      parentID
+      parentId
       subscriptionsCount
       color
-      children
       open
+      level
       createdAt
       updatedAt
     }
@@ -330,11 +330,11 @@ export const updateCluster = /* GraphQL */ `
     updateCluster(input: $input, condition: $condition) {
       id
       name
-      parentID
+      parentId
       subscriptionsCount
       color
-      children
       open
+      level
       createdAt
       updatedAt
     }
@@ -348,11 +348,11 @@ export const deleteCluster = /* GraphQL */ `
     deleteCluster(input: $input, condition: $condition) {
       id
       name
-      parentID
+      parentId
       subscriptionsCount
       color
-      children
       open
+      level
       createdAt
       updatedAt
     }

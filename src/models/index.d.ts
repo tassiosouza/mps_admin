@@ -118,7 +118,7 @@ export declare class MpsSubscription {
   readonly longitude?: number | null;
   readonly avatar?: string | null;
   readonly location?: string | null;
-  readonly clusters?: string | null;
+  readonly clusterId?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MpsSubscription, MpsSubscriptionMetaData>);
@@ -146,9 +146,11 @@ export declare class Driver {
 export declare class Cluster {
   readonly id: string;
   readonly name: string;
-  readonly parentID?: string | null;
+  readonly parentId?: string | null;
   readonly subscriptionsCount?: number | null;
   readonly color?: string | null;
+  readonly open?: boolean | null;
+  readonly level?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Cluster, ClusterMetaData>);

@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getClusters, getSubscriptions, updateRootCluster } from 'src/repository/apps/clusters'
+import { getClusters, getSubscriptions, addClusters } from 'src/repository/apps/clusters'
 
 
 // ** Fetch Clusters from Server
@@ -14,60 +14,17 @@ export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async
 })
 
 // ** Create Clusters in the Server
-export const createClusters = createAsyncThunk('appClusters/createClusters', async (params)  => {
-  const { rootCluster } = params
-  await updateRootCluster(rootCluster)
+export const createClusters = createAsyncThunk('appClusters/createClusters', async (params, {getState})  => {
+  const { parentCluster } = params
+  const subscriptions = getState().clusters.subscriptions
+  await addClusters(parentCluster, subscriptions)
+
+
   const clusters = await getClusters(params)
-  const subscriptions = await getSubscriptions()
+  const updatedSubscriptions = await getSubscriptions()
   
-  return { clusters, subscriptions }
+  return { clusters, subscriptions: updatedSubscriptions }
 })
-
-const findAndSetChild = (parent, newChild) => {
-  if(parent.children) {
-    console.log('find: '+ JSON.stringify(parent))
-    var updatedChildren = parent.children.children.map(child => {
-      if(newChild.id === child.id) {
-        child.open = !child.open
-      }
-      else {
-        if(child.children) {
-          child.children.children.map(child => {
-            findAndSetChild(state, child)
-          })
-        }
-      }
-      return child
-    })
-    return { children: updatedChildren }
-  }
-}
-
-const formatClusterChildren = (rootCluster) => {
-  if(rootCluster) {
-    var formated = rootCluster.children.map(child => {
-      console.log('define')
-      Object.defineProperties(child, {
-        open: {
-          value: false,
-          writable: true,
-        },
-      }),
-      Object.defineProperties(child, {
-        children: {
-          value: child.children ? child.children : null,
-          writable: true,
-        },
-      })
-      if(child.children != null) {
-        child.children.children.map(ch => formatClusterChildren(ch.children))
-      }
-      return child
-    })
-    console.log('formated: ' + JSON.stringify(formated))
-    return { children:formated } 
-  }
-}
 
 export const appClusterSlice = createSlice({
   name: 'appClusters',
@@ -83,19 +40,16 @@ export const appClusterSlice = createSlice({
     },
     handleSetOpenCluster: (state, action) => {
       const cluster = action.payload
-      if(state.clusters[0].id === cluster.id) {
-        state.clusters[0] = { ...state.clusters[0], open:!cluster.open}
-      }
-      else {
-        state.clusters[0] = { ...state.clusters[0], children: findAndSetChild(state.clusters[0], cluster)}
+      const foundCluster = state.clusters.filter(cl => cl.id === cluster.id)
+      if(foundCluster) {
+        var index = state.clusters.indexOf(foundCluster[0])
+        state.clusters[index] = {...foundCluster[0], open: !foundCluster[0].open}
       }
     }
   },
   extraReducers: builder => {
     builder.addCase(fetchClusters.fulfilled, (state, action) => {
-      var childObj = JSON.parse(action.payload.clusters[0].children)
-      var children = formatClusterChildren(childObj)
-      state.clusters[0] = {...action.payload.clusters[0], children:children}
+      state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
       state.loading = false
     }),

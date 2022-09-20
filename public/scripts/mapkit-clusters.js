@@ -30,14 +30,14 @@ map.setRegionAnimated(region)
 // ** Plot subscriptions with clusters colors
 for(var i = 0; i < subscriptions.length; i++) {
   var coordinate = new mapkit.Coordinate(subscriptions[i].latitude, subscriptions[i].longitude)
-  var subsClusters = JSON.parse(subscriptions[i].clusters)
-  var lastCluster = subsClusters.clusters[subsClusters.clusters.length - 1]
-  var matchClusters = clusters.filter(cluster => cluster.id === lastCluster)
-  var annot = new mapkit.MarkerAnnotation(coordinate, {
+  var matchClusters = clusters.filter(cluster => cluster.id === subscriptions[i].clusterId)
+  if(matchClusters.length) {
+    var annot = new mapkit.MarkerAnnotation(coordinate, {
       color: matchClusters[0].color,
       glyphColor: '#000',
   });
   map.addAnnotation(annot)
+  }
 }
 
 

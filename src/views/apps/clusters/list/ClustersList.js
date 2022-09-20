@@ -29,14 +29,31 @@ import CreateClusterDialog from './CreateClusterDialog'
 import { useDispatch } from 'react-redux'
 import { handleSetOpenCluster } from 'src/store/apps/clusters'
 
+import { arrayToTree } from "performant-array-to-tree";
+
 const ClustersList = props => {
 
   const { clusters, subscriptions } = props
 
   // ** State
-  const [open, setOpen] = useState(true)
   const [openCreateClusterDialog, setOpenCreateClusterDialog] = useState(false)
   const [selectedCluster, setSelectedCluster] = useState(null)
+  const [clustersState, setClustersState] = useState([])
+
+  useEffect(() => {
+    setClustersState(formatClusters(clusters))
+  },[clusters])
+  
+  const formatClusters = (clusters) => {
+
+    const result = arrayToTree(clusters,
+      { dataField: null }
+    )
+
+    console.log('result: ' + JSON.stringify(result))
+
+    return result
+  }
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -47,10 +64,7 @@ const ClustersList = props => {
   }
 
   const getSubscriptionsCount = clusterID => {
-    return subscriptions.filter(sub => {
-      var clusters = JSON.parse(sub.clusters)
-      return clusters.clusters.includes(clusterID)
-    }).length
+    return subscriptions.filter(sub => sub.clusterId === clusterID).length
   }
 
   const handleRename = (e, cluster) => {
@@ -68,11 +82,10 @@ const ClustersList = props => {
   }
 
   const renderChildren = (children, open, deep) => {
-    console.log('rend child in ' + deep +": " + JSON.stringify(children))
     if(children != null) {
       return (
         <Collapse in={open} timeout='auto' unmountOnExit>
-          {children.children.map(child => (
+          {children.map(child => (
               <List component='div' disablePadding>
                 <ListItem disablePadding>
                   <ListItemButton sx={{ pl: deep}} onClick={() => handleClick(child)}>
@@ -87,11 +100,11 @@ const ClustersList = props => {
                       <Tooltip title='Create Clusters' placement='top'>
                         <Plus  onClick={e => handleCreate(e, child)}/>
                       </Tooltip>
-                      {open ? <ChevronUp /> : <ChevronDown />}
+                      {child.open ? <ChevronUp /> : <ChevronDown />}
                     </Box>
                   </ListItemButton>
                 </ListItem>
-                {child.children && renderChildren(child.children, open, deep + 4)}
+                {child.children && renderChildren(child.children, child.open, deep + 4)}
               </List>
           ))}
            </Collapse>
@@ -104,26 +117,28 @@ const ClustersList = props => {
 
   return (
     <Fragment>
-      <List component='nav' aria-label='main mailbox'>
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => handleClick(clusters[0])}>
-            <ListItemIcon>
-              <Numeric2BoxMultiple />
-            </ListItemIcon>
-            <ListItemText primary={clusters[0].name + " (" +  getSubscriptionsCount(clusters[0].id) + ')'} />
-            <Box sx={{display:'flex', justifyContent:'space-between', width:'6vW'}}>
-              <Tooltip title='Rename Cluster' placement='top'>
-                <PencilOutline onClick={e => handleRename(e, clusters[0])}/>
-              </Tooltip>
-              <Tooltip title='Create Clusters' placement='top'>
-                <Plus  onClick={e => handleCreate(e, clusters[0])}/>
-              </Tooltip>
-              {open ? <ChevronUp /> : <ChevronDown />}
-            </Box>
-          </ListItemButton>
-        </ListItem>
-        {renderChildren(clusters[0].children, clusters[0].open, 6)}
-      </List>
+      {clustersState.length && (
+        <List component='nav' aria-label='main mailbox'>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleClick(clustersState[0])}>
+              <ListItemIcon>
+                <Numeric2BoxMultiple />
+              </ListItemIcon>
+              <ListItemText primary={clustersState[0].name + " (" +  getSubscriptionsCount(clustersState[0].id) + ')'} />
+              <Box sx={{display:'flex', justifyContent:'space-between', width:'6vW'}}>
+                <Tooltip title='Rename Cluster' placement='top'>
+                  <PencilOutline onClick={e => handleRename(e, clustersState[0])}/>
+                </Tooltip>
+                <Tooltip title='Create Clusters' placement='top'>
+                  <Plus  onClick={e => handleCreate(e, clustersState[0])}/>
+                </Tooltip>
+                {clustersState[0].open ? <ChevronUp /> : <ChevronDown />}
+              </Box>
+            </ListItemButton>
+          </ListItem>
+          {renderChildren(clustersState[0].children, clustersState[0].open, 6)}
+        </List>
+      )}
       <CreateClusterDialog 
         open={openCreateClusterDialog}
         onClose={handleCloseDialog}

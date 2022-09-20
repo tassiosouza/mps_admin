@@ -22,77 +22,8 @@ const CreateClusterDialog = (props) => {
   const dispatch = useDispatch()
 
   const handleCreate = () => {
-
-    // ** Check if it is the root call
-    if(selectedCluster == parent) {
-      console.log('igual parent')
-      var children = {
-        children: [
-          {
-            id: "id1",
-            name: "Children 1",
-            parent: parent.id,
-            color: "#000000",
-            open: false,
-            children: null
-          },
-          { 
-            id: "id2",
-            name: "Children 2",
-            parent: parent.id,
-            color: "#000999",
-            open: false,
-            children: null
-          }
-        ]
-      }
-      const parsedChildren = JSON.stringify(children)
-      var parentCopy = { ...parent, children:parsedChildren}
-      dispatch(createClusters({rootCluster: parentCopy}))
-    }
-    else {
-        // ** Find selected child in parent
-        mountChild(parent, selectedCluster.id)
-    }
-
+    dispatch(createClusters({parentCluster: selectedCluster}))
     onClose()
-  }
-
-  const mountChild = (parent, id) => {
-    if(parent.children) {
-      var updatedChildren = parent.children.children.map(child => {
-        if(child.id === id) {
-          console.log('creating in: ' + JSON.stringify(child))
-          var newChildren = {
-            children: [
-              {
-                id: "id3",
-                name: "Children 3",
-                parent: parent.id,
-                color: "#000000",
-                open: false,
-                children: null
-              },
-              { 
-                id: "id4",
-                name: "Children 4",
-                parent: parent.id,
-                color: "#000999",
-                open: false,
-                children: null
-              }
-            ]
-          }
-          return {...child, children:newChildren}
-        }
-        else {
-          return child
-        }
-      })
-    }
-    console.log(JSON.stringify(updatedChildren))
-    var parentCopy = {...parent, children:updatedChildren}
-    dispatch(createClusters({rootCluster: parentCopy}))
   }
 
   return (
