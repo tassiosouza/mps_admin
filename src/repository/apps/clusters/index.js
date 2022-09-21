@@ -55,43 +55,41 @@ export const addClusters =  async (parentCluster, subscriptions)  => {
   const subscriptionsToUpdate = subscriptions.filter(sub => sub.clusterId === parentCluster.id)
 
   const index = new Supercluster({
-    radius: 40/parentCluster.level,
+    radius: 40,
     maxZoom: 8,
   });
   var points = generateRandomPlaces(subscriptionsToUpdate)
   index.load(points);
-  const results = index.getClusters([-180, -90, 180, 90], 4);
+  const results = index.getClusters([-180, -90, 180, 90], 3 + parentCluster.level);
   
   await updateSubscriptions(results, index, parentCluster)
-
-  return data
 }
 
 const updateSubscriptions = async (clusters, index, parentCluster) => {
-  console.log('clusters count: ' + clusters.length)
-  console.log('clusters: ' + JSON.stringify(clusters))
   for(var i = 0; i < clusters.length; i++) {
-    const response2 = await API.graphql(graphqlOperation(createCluster, {
-      input: {
-        name:"#" + ((1<<24)*Math.random() | 0).toString(16),
-        parentId:parentCluster.id,
-        color: "#" + ((1<<24)*Math.random() | 0).toString(16),
-        level: parentCluster.level + 1,
-        open: false
-      }
-    }))
-
-    const cluster2 = response2.data.createCluster
-    console.log('Cluster created: ' + JSON.stringify(cluster2))
+    // ** Create amplify Cluster for each generated cluster
     const subs = index.getLeaves(clusters[i].id, 1000,0)
-    for(var k = 0; k < subs.length; k ++) {
-      var res = await API.graphql(graphqlOperation(updateMpsSubscription, {
+    if(subs.length) {
+      const response = await API.graphql(graphqlOperation(createCluster, {
         input: {
-          id: subs[k].properties.id,
-          clusterId: cluster2.id
+          name: 'Child Cluster #' + i,
+          parentId:parentCluster.id,
+          color: "#" + ((1<<24)*Math.random() | 0).toString(16),
+          level: parentCluster.level + 1,
+          open: false,
+          subscriptionsCount: subs.length
         }
       }))
-      console.log('updated: ' + JSON.stringify(res))
+      const amplifyCluster = response.data.createCluster
+      
+      for(var k = 0; k < subs.length; k ++) {
+        await API.graphql(graphqlOperation(updateMpsSubscription, {
+          input: {
+            id: subs[k].properties.id,
+            clusterId: amplifyCluster.id
+          }
+        }))
+      }
     }
   }
 }

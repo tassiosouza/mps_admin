@@ -21,9 +21,9 @@ clusters = JSON.parse(values[1])
 subscriptions = JSON.parse(values[2])
 
 // ** Create and Set Map Initial View
-var mpsCoordinate = new mapkit.Coordinate(33.1522247, -117.2310085)
+var mpsCoordinate = new mapkit.Coordinate(33.5523247, -117.5310085)
 var map = new mapkit.Map("map", { center: mpsCoordinate})
-var span = new mapkit.CoordinateSpan(.8)
+var span = new mapkit.CoordinateSpan(2.1)
 var region = new mapkit.CoordinateRegion(mpsCoordinate, span)
 map.setRegionAnimated(region)
 
@@ -32,13 +32,29 @@ for(var i = 0; i < subscriptions.length; i++) {
   var coordinate = new mapkit.Coordinate(subscriptions[i].latitude, subscriptions[i].longitude)
   var matchClusters = clusters.filter(cluster => cluster.id === subscriptions[i].clusterId)
   if(matchClusters.length) {
-    var annot = new mapkit.MarkerAnnotation(coordinate, {
+    var annotation = new mapkit.MarkerAnnotation(coordinate, {
+      title: subscriptions[i].number,
       color: matchClusters[0].color,
       glyphColor: '#000',
-  });
-  map.addAnnotation(annot)
+      titleVisibility: mapkit.FeatureVisibility.Hidden
+    });
+    annotation.addEventListener("select", (event) => {
+      event.target._listeners.select[0].thisObject.titleVisibility = mapkit.FeatureVisibility.Visible
+    }, annotation)
+    map.addAnnotation(annotation)
   }
 }
+
+//** Add space keyboard event for toggle titles visibility */
+document.addEventListener('keydown', (event) => {
+  var code = event.code;
+  var titleVisibility = (map.annotations[0].titleVisibility == mapkit.FeatureVisibility.Hidden) ? mapkit.FeatureVisibility.Visible :
+  mapkit.FeatureVisibility.Hidden
+
+  if(code === 'Space') {
+    map.annotations.map(annot => annot.titleVisibility = titleVisibility)
+  }
+}, false)
 
 
 

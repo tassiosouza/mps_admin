@@ -30,6 +30,9 @@ import useScript from 'src/hooks/useScript'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchClusters } from 'src/store/apps/clusters'
 
+// ** Thrid Party Imports
+import { Player, Controls } from '@lottiefiles/react-lottie-player';
+
 /* eslint-enable */
 const ClustersPage = () => {
 
@@ -55,9 +58,8 @@ const ClustersPage = () => {
   const divStyle = {
     display: 'flex',
     justifyContent: 'center',
-    width: '100vW',
-    height: '60vH',
-    margin: '0px !important'
+    width: '55vW',
+    height: '75vH',
   }
   
   return (
@@ -67,28 +69,40 @@ const ClustersPage = () => {
           <CardHeader title='Clusters' />
           {store.loading && <LinearProgress sx={{ height:'2px' }} />}
           <CardContent>
-            {!store.loading &&
-             <ClustersList 
-              clusters={store.clusters}
-              subscriptions={store.subscriptions} />}
+            {!store.loading ?
+              (
+                <ClustersList 
+                  clusters={store.clusters}
+                  subscriptions={store.subscriptions}
+                />
+              ) :
+              (
+                <Typography>Clustering in progress...</Typography>
+              )
+            }
           </CardContent>
         </Card>
       </Grid>
       <Grid item xs={7}>
-        <Card>
-          <CardHeader title='Map' />
-          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
-          <CardContent sx={{padding:'0px'}}>
-          {!store.loading && <div 
+          {!store.loading ? 
+            <div 
               id="map"
               style={divStyle}
               clusters={JSON.stringify(store.clusters)}
               subscriptions={JSON.stringify(store.subscriptions)}
               >
                 <MapKit/>
-            </div>}
-          </CardContent>
-        </Card>
+            </div> :
+            (
+            <Player
+              autoplay
+              loop
+              src={"https://lottie.host/6eb020bd-6373-4d44-8ed2-cf91e4608541/W9w8TNzZz8.json"}
+              style={{ height: '550px', width: '850px'}}
+              >
+            </Player>
+            )
+          }
       </Grid>
     </Grid>
   )

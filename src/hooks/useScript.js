@@ -5,8 +5,6 @@ const useScript = (url) => {
     const script = document.createElement('script');
     const mapElement = document.getElementById('map');
 
-    console.log(mapElement.children.length)
-
     script.src = url;
     script.async = true;
 
@@ -17,7 +15,7 @@ const useScript = (url) => {
     function ClearAllIntervals() {
       for (var i = 1; i < 99999; i++)
           window.clearInterval(i)
-  }
+    }
   
     return () => {
       ClearAllIntervals()

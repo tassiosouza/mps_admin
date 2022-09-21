@@ -32,7 +32,6 @@ export const appClusterSlice = createSlice({
     clusters: [],
     subscriptions: [],
     loading: true,
-    creatingClusters: false
   },
   reducers: {
     handleLoadingClusters: (state, action) => {
@@ -52,11 +51,15 @@ export const appClusterSlice = createSlice({
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
       state.loading = false
+
+      // ** Update root cluster total count
+      const rootCluster = state.clusters.filter(cluster => cluster.level === 1)
+      rootCluster[0].subscriptionsCount = state.subscriptions.length
     }),
     builder.addCase(createClusters.fulfilled, (state, action) => {
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
-      state.creatingClusters = false
+      state.loading = false
     })
   }
 })

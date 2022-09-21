@@ -11,25 +11,92 @@ import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import Tooltip from '@mui/material/Tooltip'
 import Box from '@mui/material/Box'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import IconButton from '@mui/material/IconButton'
+import Grid from '@mui/material/Grid'
 
 // ** Icons Imports
 import ChevronUp from 'mdi-material-ui/ChevronUp'
 import SendClock from 'mdi-material-ui/SendClock'
 import Numeric0BoxOutline from 'mdi-material-ui/Numeric0BoxOutline'
 import ChevronDown from 'mdi-material-ui/ChevronDown'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
+import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import ClockOutline from 'mdi-material-ui/ClockOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import Plus from 'mdi-material-ui/Plus'
+import Numeric1BoxMultiple from 'mdi-material-ui/Numeric1BoxMultiple'
 import Numeric2BoxMultiple from 'mdi-material-ui/Numeric2BoxMultiple'
+import Numeric3BoxMultiple from 'mdi-material-ui/Numeric3BoxMultiple'
+import Numeric4BoxMultiple from 'mdi-material-ui/Numeric4BoxMultiple'
+import Numeric5BoxMultiple from 'mdi-material-ui/Numeric5BoxMultiple'
+import Numeric6BoxMultiple from 'mdi-material-ui/Numeric6BoxMultiple'
+import Numeric7BoxMultiple from 'mdi-material-ui/Numeric7BoxMultiple'
+import Numeric8BoxMultiple from 'mdi-material-ui/Numeric8BoxMultiple'
+import Numeric9BoxMultiple from 'mdi-material-ui/Numeric9BoxMultiple'
+import Numeric9PlusBoxMultiple from 'mdi-material-ui/Numeric9PlusBoxMultiple'
 import PencilOutline from 'mdi-material-ui/PencilOutline'
 import CreateClusterDialog from './CreateClusterDialog'
+import DotsVertical from 'mdi-material-ui/DotsVertical'
+import Check from 'mdi-material-ui/Check'
+import CallSplit from 'mdi-material-ui/CallSplit'
+import CircleMedium from 'mdi-material-ui/CircleMedium'
+
 
 // ** Store & Actions Imports
 import { useDispatch } from 'react-redux'
 import { handleSetOpenCluster } from 'src/store/apps/clusters'
+import { createClusters, handleLoadingClusters } from 'src/store/apps/clusters'
 
 import { arrayToTree } from "performant-array-to-tree";
+
+const ClusterActions = (props) => {
+
+  const {cluster, handleClusterSplit} = props
+
+  const [anchorEl, setAnchorEl] = useState(null)
+
+  const handleClick = event => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null)
+  }
+  
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {!cluster.children.length && <CircleMedium sx={{color:cluster.color}}/>}
+      <Box sx={{contentVisibility: cluster.children.length ? 'visible' : 'hidden', alignSelf:'end'}}>{cluster.open ? <ChevronUp /> : <ChevronDown />}</Box>
+      <div>
+        <IconButton size='small' component='a' sx={{ textDecoration: 'none' }} onClick={handleClick}>
+          <DotsVertical/>
+        </IconButton>
+        <Menu keepMounted id='simple-menu' anchorEl={anchorEl} onClose={handleCloseMenu} open={Boolean(anchorEl)}>
+            <MenuItem onClick={e => handleClusterSplit(e)} disabled={cluster.children.length}>
+              <ListItemIcon sx={{mr: 0}}>
+                <CallSplit fontSize='small' />
+              </ListItemIcon>
+              <ListItemText primary='Split' />
+            </MenuItem>
+            <MenuItem onClick={() => {}} disabled={cluster.level == 1}>
+              <ListItemIcon sx={{mr: 0}}>
+                <PencilOutline fontSize='small' />
+              </ListItemIcon>
+              <ListItemText primary='Edit' />
+            </MenuItem>
+            <MenuItem onClick={() => {}} disabled={cluster.level == 1}>
+              <ListItemIcon sx={{mr: 0}}>
+                <DeleteOutline fontSize='small' />
+              </ListItemIcon>
+              <ListItemText primary='Delete' />
+            </MenuItem>
+        </Menu>
+      </div>
+    </Box>
+  )
+}
 
 const ClustersList = props => {
 
@@ -44,14 +111,11 @@ const ClustersList = props => {
     setClustersState(formatClusters(clusters))
   },[clusters])
   
+  // ** Convert the clusters flat array with parent ids into nested list
   const formatClusters = (clusters) => {
-
     const result = arrayToTree(clusters,
       { dataField: null }
     )
-
-    console.log('result: ' + JSON.stringify(result))
-
     return result
   }
 
@@ -63,108 +127,87 @@ const ClustersList = props => {
     dispatch(handleSetOpenCluster(cluster))
   }
 
-  const getSubscriptionsCount = clusterID => {
-    return subscriptions.filter(sub => sub.clusterId === clusterID).length
-  }
-
   const handleRename = (e, cluster) => {
     e.stopPropagation()
   }
 
   const handleCreate = (e, cluster) => {
     e.stopPropagation()
-    setSelectedCluster(cluster)
-    setOpenCreateClusterDialog(true)
+    dispatch(handleLoadingClusters(true))
+    dispatch(createClusters({parentCluster: cluster, q:''}))
   }
 
   const handleCloseDialog = () => {
     setOpenCreateClusterDialog(false)
   }
 
-  const renderChildren = (children, open, deep) => {
-    if(children != null) {
+  const NumericIcon = (count) => {
+    console.log('count: ' + count)
+    switch(count) {
+      case 0:
+        return <Numeric0BoxOutline/>
+      case 1:
+        return <Numeric1BoxMultiple/>
+      case 2:
+        return <Numeric2BoxMultiple/>
+      case 3:
+        return <Numeric3BoxMultiple/>
+      case 4:
+        return <Numeric4BoxMultiple/>
+      case 5:
+        return <Numeric5BoxMultiple/>
+      case 6:
+        return <Numeric6BoxMultiple/>
+      case 7:
+        return <Numeric7BoxMultiple/>
+      case 8:
+        return <Numeric8BoxMultiple/>
+      case 9:
+        return <Numeric9BoxMultiple/>
+      default:
+        <Numeric9BoxMultiple/>
+      break
+    }
+  }
+
+  const ClusterNestedList = (clusters, open, deep) => {
+    if(clusters != null) {
       return (
         <Collapse in={open} timeout='auto' unmountOnExit>
-          {children.map(child => (
+          {clusters.map(cluster => (
               <List component='div' disablePadding>
                 <ListItem disablePadding>
-                  <ListItemButton sx={{ pl: deep}} onClick={() => handleClick(child)}>
+                  <ListItemButton sx={{ pl: deep}} onClick={() => handleClick(cluster)}>
                     <ListItemIcon>
-                      <Numeric0BoxOutline />
+                      {NumericIcon(cluster.children.length)}
                     </ListItemIcon>
-                    <ListItemText primary={child.name} />
-                    <Box sx={{display:'flex', justifyContent:'space-between', width:'6vW'}}>
-                      <Tooltip title='Rename Cluster' placement='top'>
-                        <PencilOutline onClick={e => handleRename(e, child)}/>
-                      </Tooltip>
-                      <Tooltip title='Create Clusters' placement='top'>
-                        <Plus  onClick={e => handleCreate(e, child)}/>
-                      </Tooltip>
-                      {child.open ? <ChevronUp /> : <ChevronDown />}
+                    <ListItemText primary={cluster.name + " (" +  cluster.subscriptionsCount + ')'}/>
+                    <Box sx={{display:'flex', justifyContent:'space-between', width:'4vW'}}>
+                      <ClusterActions
+                        cluster={cluster}
+                        handleClusterSplit={e => handleCreate(e, cluster)}
+                      />
                     </Box>
                   </ListItemButton>
                 </ListItem>
-                {child.children && renderChildren(child.children, child.open, deep + 4)}
+                {cluster.children && ClusterNestedList(cluster.children, cluster.open, deep + 4)}
               </List>
           ))}
-           </Collapse>
+        </Collapse>
       )
-    }
-    else {
-      return <div></div>
     }
   }
 
   return (
-    <Fragment>
-      {clustersState.length && (
-        <List component='nav' aria-label='main mailbox'>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleClick(clustersState[0])}>
-              <ListItemIcon>
-                <Numeric2BoxMultiple />
-              </ListItemIcon>
-              <ListItemText primary={clustersState[0].name + " (" +  getSubscriptionsCount(clustersState[0].id) + ')'} />
-              <Box sx={{display:'flex', justifyContent:'space-between', width:'6vW'}}>
-                <Tooltip title='Rename Cluster' placement='top'>
-                  <PencilOutline onClick={e => handleRename(e, clustersState[0])}/>
-                </Tooltip>
-                <Tooltip title='Create Clusters' placement='top'>
-                  <Plus  onClick={e => handleCreate(e, clustersState[0])}/>
-                </Tooltip>
-                {clustersState[0].open ? <ChevronUp /> : <ChevronDown />}
-              </Box>
-            </ListItemButton>
-          </ListItem>
-          {renderChildren(clustersState[0].children, clustersState[0].open, 6)}
-        </List>
-      )}
+    <Grid>
+      {clustersState.length && (ClusterNestedList(clustersState, true, 0))}
       <CreateClusterDialog 
         open={openCreateClusterDialog}
         onClose={handleCloseDialog}
         selectedCluster={selectedCluster}
         parent={clusters[0]}
       />
-      {/* <Divider sx={{ m: 0 }} />
-      <List component='nav' aria-label='secondary mailbox'>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <ClockOutline />
-            </ListItemIcon>
-            <ListItemText primary='Snoozed' />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <AlertCircleOutline />
-            </ListItemIcon>
-            <ListItemText primary='Spam' />
-          </ListItemButton>
-        </ListItem>
-      </List> */}
-    </Fragment>
+    </Grid>
   )
 }
 
