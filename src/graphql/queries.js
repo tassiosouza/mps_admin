@@ -224,6 +224,8 @@ export const getCluster = /* GraphQL */ `
       open
       level
       editing
+      path
+      paymentRule
       createdAt
       updatedAt
     }
@@ -245,6 +247,8 @@ export const listClusters = /* GraphQL */ `
         open
         level
         editing
+        path
+        paymentRule
         createdAt
         updatedAt
       }

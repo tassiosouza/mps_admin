@@ -321,6 +321,8 @@ export const createCluster = /* GraphQL */ `
       open
       level
       editing
+      path
+      paymentRule
       createdAt
       updatedAt
     }
@@ -340,6 +342,8 @@ export const updateCluster = /* GraphQL */ `
       open
       level
       editing
+      path
+      paymentRule
       createdAt
       updatedAt
     }
@@ -359,6 +363,8 @@ export const deleteCluster = /* GraphQL */ `
       open
       level
       editing
+      path
+      paymentRule
       createdAt
       updatedAt
     }

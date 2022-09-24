@@ -39,12 +39,22 @@ export const appClusterSlice = createSlice({
   initialState: {
     editingMode: false,
     clusters: [],
+    selectedClusters:[],
     subscriptions: [],
     loading: true,
   },
   reducers: {
     handleLoadingClusters: (state, action) => {
       state.loading = action.payload
+    },
+    handleSelectCluster: (state, action) => {
+      const clusters = state.selectedClusters
+      if (!clusters.includes(action.payload)) {
+        clusters.push(action.payload)
+      } else {
+        clusters.splice(clusters.indexOf(action.payload), 1)
+      }
+      state.selectedClusters = clusters
     },
     handleSetOpenCluster: (state, action) => {
       const cluster = action.payload
@@ -53,6 +63,18 @@ export const appClusterSlice = createSlice({
         var index = state.clusters.indexOf(foundCluster[0])
         state.clusters[index] = {...foundCluster[0], open: !foundCluster[0].open}
       }
+    },
+    handleSelectAllClusters: (state, action) => {
+      const selectAllClusters = []
+      if (action.payload && state.clusters !== null) {
+        selectAllClusters.length = 0
+
+        // @ts-ignore
+        state.clusters.forEach(cluster => selectAllClusters.push(cluster.id))
+      } else {
+        selectAllClusters.length = 0
+      }
+      state.selectedClusters = selectAllClusters
     }
   },
   extraReducers: builder => {
@@ -92,6 +114,6 @@ export const appClusterSlice = createSlice({
   }
 })
 
-export const { handleLoadingClusters, handleSetOpenCluster } = appClusterSlice.actions
+export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters, handleSelectCluster } = appClusterSlice.actions
 
 export default appClusterSlice.reducer

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -9,31 +9,58 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import Box from '@mui/material/Box'
-import Tooltip from '@mui/material/Tooltip'
-import IconButton from '@mui/material/IconButton'
-import Link from '@mui/material/Link'
-
-// * Icons
-import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
-import CloseCircleOutline from 'mdi-material-ui/CloseCircleOutline'
+import TablePagination from '@mui/material/TablePagination'
 
 const columns = [
-  { id: 'location', label: 'Location', minWidth: 70 },
-  { id: 'deliveries', label: 'Deliveries', minWidth: 20 },
-  { id: 'action', label: 'Action', minWidth: 10, align:'right'}
+  { id: 'name', label: 'Name', minWidth: 170 },
+  { id: 'code', label: 'ISO\u00a0Code', minWidth: 100 },
+  {
+    id: 'population',
+    label: 'Population',
+    minWidth: 170,
+    align: 'right',
+    format: value => value.toLocaleString('en-US')
+  },
+  {
+    id: 'size',
+    label: 'Size\u00a0(km\u00b2)',
+    minWidth: 170,
+    align: 'right',
+    format: value => value.toLocaleString('en-US')
+  },
+  {
+    id: 'density',
+    label: 'Density',
+    minWidth: 170,
+    align: 'right',
+    format: value => value.toFixed(2)
+  }
 ]
 function createData(name, code, population, size) {
   const density = population / size
 
-  return { location:name, deliveries:population, }
+  return { name, code, population, size, density }
 }
 
-const TableStickyHeader = (props) => {
+const rows = [
+  createData('India', 'IN', 1324171354, 3287263),
+  createData('China', 'CN', 1403500365, 9596961),
+  createData('Italy', 'IT', 60483973, 301340),
+  createData('United States', 'US', 327167434, 9833520),
+  createData('Canada', 'CA', 37602103, 9984670),
+  createData('Australia', 'AU', 25475400, 7692024),
+  createData('Germany', 'DE', 83019200, 357578),
+  createData('Ireland', 'IE', 4857000, 70273),
+  createData('Mexico', 'MX', 126577691, 1972550),
+  createData('Japan', 'JP', 126317000, 377973),
+  createData('France', 'FR', 67022000, 640679),
+  createData('United Kingdom', 'GB', 67545757, 242495),
+  createData('Russia', 'RU', 146793744, 17098246),
+  createData('Nigeria', 'NG', 200962417, 923768),
+  createData('Brazil', 'BR', 210147125, 8515767)
+]
 
-  // ** Props
-  const { locations } = props
- 
+const TableStickyHeader = () => {
   // ** States
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -49,7 +76,7 @@ const TableStickyHeader = (props) => {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 350 }} >
+      <TableContainer sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
@@ -61,30 +88,15 @@ const TableStickyHeader = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {locations.map(row => {
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => {
               return (
-                <TableRow hover tabIndex={-1} key={row.code}>
+                <TableRow hover role='checkbox' tabIndex={-1} key={row.code}>
                   {columns.map(column => {
-                    return column.id != 'action' ? (
+                    const value = row[column.id]
+
+                    return (
                       <TableCell key={column.id} align={column.align}>
-                        {column.id === 'location' ? row.name : row.deliveries}
-                      </TableCell>
-                    ) : (
-                      <TableCell key={column.id} align='right'>
-                        <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-                          <Tooltip title='Add Location'>
-                            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => {}}>
-                              <PlusCircleOutline />
-                            </IconButton>
-                          </Tooltip>
-                          {/* <Tooltip title='Remove Location'>
-                            <Box>
-                              <IconButton size='small' onClick={() => {}}>
-                                <CloseCircleOutline />
-                              </IconButton>
-                            </Box>
-                          </Tooltip> */}
-                        </Box>
+                        {column.format && typeof value === 'number' ? column.format(value) : value}
                       </TableCell>
                     )
                   })}
@@ -94,6 +106,15 @@ const TableStickyHeader = (props) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 100]}
+        component='div'
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </Paper>
   )
 }
