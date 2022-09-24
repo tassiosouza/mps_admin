@@ -142,7 +142,6 @@ const ClustersList = props => {
   }
 
   const NumericIcon = (count) => {
-    console.log('count: ' + count)
     switch(count) {
       case 0:
         return <Numeric0BoxOutline/>

@@ -83,6 +83,7 @@
     "react-popper": "2.2.5",
     "react-redux": "8.0.1",
     "react-to-pdf": "0.0.14",
+    "react-uuid": "^1.0.3",
     "react-verification-code-input": "^1.2.9",
     "react-widgets": "^5.8.4",
     "reactjs-popup": "^2.0.5",

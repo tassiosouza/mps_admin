@@ -127,6 +127,7 @@ export const getMpsSubscription = /* GraphQL */ `
       avatar
       location
       clusterId
+      editing
       createdAt
       updatedAt
     }
@@ -159,6 +160,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         avatar
         location
         clusterId
+        editing
         createdAt
         updatedAt
       }
@@ -221,6 +223,7 @@ export const getCluster = /* GraphQL */ `
       color
       open
       level
+      editing
       createdAt
       updatedAt
     }
@@ -241,6 +244,7 @@ export const listClusters = /* GraphQL */ `
         color
         open
         level
+        editing
         createdAt
         updatedAt
       }

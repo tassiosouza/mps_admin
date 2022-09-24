@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getClusters, getSubscriptions, addClusters } from 'src/repository/apps/clusters'
+import { getClusters, getSubscriptions, addClusters, saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
 
 
 // ** Fetch Clusters from Server
@@ -13,22 +13,31 @@ export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async
   return { clusters, subscriptions }
 })
 
-// ** Create Clusters in the Server
+// ** Create Clusters and Modify subscriptions locally
 export const createClusters = createAsyncThunk('appClusters/createClusters', async (params, {getState})  => {
   const { parentCluster } = params
   const subscriptions = getState().clusters.subscriptions
-  await addClusters(parentCluster, subscriptions)
+  const {newClusters, updatedSubscriptions} = await addClusters(parentCluster, subscriptions)
 
+  return {clusters: newClusters, subscriptions: updatedSubscriptions}
+})
 
-  const clusters = await getClusters(params)
-  const updatedSubscriptions = await getSubscriptions()
-  
-  return { clusters, subscriptions: updatedSubscriptions }
+// ** Create Clusters in the Server
+export const saveClustering = createAsyncThunk('appClusters/saveClustering', async (params, {getState})  => {
+  const subs = getState().clusters.subscriptions
+  const clus = getState().clusters.clusters
+  await saveClustersAndSubscriptions(subs, clus)
+
+  const clusters = await getClusters({q:''})
+  const subscriptions = await getSubscriptions()
+
+  return {clusters, subscriptions}
 })
 
 export const appClusterSlice = createSlice({
   name: 'appClusters',
   initialState: {
+    editingMode: false,
     clusters: [],
     subscriptions: [],
     loading: true,
@@ -57,9 +66,28 @@ export const appClusterSlice = createSlice({
       rootCluster[0].subscriptionsCount = state.subscriptions.length
     }),
     builder.addCase(createClusters.fulfilled, (state, action) => {
+      // ** Update Subscriptions
+      const updatedSubscriptions = action.payload.subscriptions
+      var updatedSubscriptionsIds = updatedSubscriptions.map(s => s.id)
+      state.subscriptions = state.subscriptions.map(sub => {
+        if(updatedSubscriptionsIds.includes(sub.id)) {
+          var updated = updatedSubscriptions.find(s => s.id === sub.id)
+          return updated
+        }
+        return sub
+      })
+
+      // ** Update clusters and screen states
+      state.clusters = [...state.clusters, ...action.payload.clusters]
+      state.loading = false
+      state.editingMode = true
+    }),
+    builder.addCase(saveClustering.fulfilled, (state, action) => {
+      // ** Update clusters and subscriptions states
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
       state.loading = false
+      state.editingMode = false
     })
   }
 })

@@ -181,6 +181,7 @@ export const createMpsSubscription = /* GraphQL */ `
       avatar
       location
       clusterId
+      editing
       createdAt
       updatedAt
     }
@@ -207,6 +208,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       avatar
       location
       clusterId
+      editing
       createdAt
       updatedAt
     }
@@ -233,6 +235,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       avatar
       location
       clusterId
+      editing
       createdAt
       updatedAt
     }
@@ -317,6 +320,7 @@ export const createCluster = /* GraphQL */ `
       color
       open
       level
+      editing
       createdAt
       updatedAt
     }
@@ -335,6 +339,7 @@ export const updateCluster = /* GraphQL */ `
       color
       open
       level
+      editing
       createdAt
       updatedAt
     }
@@ -353,6 +358,7 @@ export const deleteCluster = /* GraphQL */ `
       color
       open
       level
+      editing
       createdAt
       updatedAt
     }

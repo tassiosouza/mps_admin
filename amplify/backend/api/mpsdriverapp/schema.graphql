@@ -83,6 +83,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   avatar: String
   location: String
   clusterId: String
+  editing: Boolean
 }
 
 type Driver @model @auth(rules: [{allow: public}]) {
@@ -107,6 +108,7 @@ type Cluster @model @auth(rules: [{allow: public}]) {
   color: String
   open: Boolean
   level: Int
+  editing: Boolean
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

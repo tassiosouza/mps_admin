@@ -3,9 +3,10 @@ import { API, graphqlOperation } from 'aws-amplify'
 import { createCluster, updateMpsSubscription } from '../../../graphql/mutations'
 import { listClusters, listMpsSubscriptions } from '../../../graphql/queries'
 
-// ** Axios Party Imports
-import axios from 'axios'
+// ** Third Party Imports
 import Supercluster from 'supercluster';
+import uuid from 'react-uuid';
+import axios from 'axios'
 
 // ** Fetch Clusters from Amplify
 export const getClusters =  async params  => {
@@ -31,7 +32,27 @@ export const getSubscriptions =  async()  => {
   return data
 }
 
-const generateRandomPlaces = (subscriptions) => {
+// ** Save ALL editing clusters and subscriptions in Amplify
+export const saveClustersAndSubscriptions =  async(subscriptions, clusters)  => {
+  // ** Update editing subscriptions
+  for(var i = 0; i < subscriptions.length; i++) {
+    if(subscriptions[i].editing) {
+      await API.graphql(graphqlOperation(updateMpsSubscription, {
+        input: {id: subscriptions[i].id, clusterId: subscriptions[i].clusterId, editing: false}
+      }))
+    }
+  }
+  // ** Save editing clusters
+  for(var i = 0; i < clusters.length; i++) {
+    if(clusters[i].editing) {
+      await API.graphql(graphqlOperation(createCluster, {
+        input: {...clusters[i], editing: false}
+      }))
+    }
+  }
+}
+
+const getPointsFromSubscriptions = (subscriptions) => {
   var points = []
   for (var i = 0; i < subscriptions.length; i++) {
     points.push({
@@ -54,44 +75,52 @@ export const addClusters =  async (parentCluster, subscriptions)  => {
   // ** Retreive subscriptions to update
   const subscriptionsToUpdate = subscriptions.filter(sub => sub.clusterId === parentCluster.id)
 
-  const index = new Supercluster({
-    radius: 40,
-    maxZoom: 8,
-  });
-  var points = generateRandomPlaces(subscriptionsToUpdate)
-  index.load(points);
-  const results = index.getClusters([-180, -90, 180, 90], 3 + parentCluster.level);
+  // const index = new Supercluster({
+  //   radius: 40,
+  //   maxZoom: 8,
+  // });
+  // var points = getPointsFromSubscriptions(subscriptionsToUpdate)
+  // index.load(points);
+  // const superClusterResult = index.getClusters([-180, -90, 180, 90], 3 + parentCluster.level);
+
+  const ghBody = getGraphHopperClusterRequestBody(subscriptionsToUpdate)
+  const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
   
-  await updateSubscriptions(results, index, parentCluster)
+  const {newClusters, updatedSubscriptions} = updateSubscriptions(res, parentCluster, subscriptions)
+
+  return {newClusters, updatedSubscriptions}
 }
 
-const updateSubscriptions = async (clusters, index, parentCluster) => {
-  for(var i = 0; i < clusters.length; i++) {
+const updateSubscriptions = (res, parentCluster, subscriptions) => {
+  var newClusters = []
+  var updatedSubscriptions = []
+  for(var i = 0; i < res.data.clusters.length; i++) {
+    const currentCluster = res.data.clusters[i]
     // ** Create amplify Cluster for each generated cluster
-    const subs = index.getLeaves(clusters[i].id, 1000,0)
-    if(subs.length) {
-      const response = await API.graphql(graphqlOperation(createCluster, {
-        input: {
-          name: 'Child Cluster #' + i,
-          parentId:parentCluster.id,
-          color: "#" + ((1<<24)*Math.random() | 0).toString(16),
-          level: parentCluster.level + 1,
-          open: false,
-          subscriptionsCount: subs.length
+    const subsIds = currentCluster.ids
+    if(subsIds.length) {
+      const cluster = {
+        id: uuid(),
+        name: 'Child Cluster #' + i,
+        parentId:parentCluster.id,
+        color: "#" + ((1<<24)*Math.random() | 0).toString(16),
+        level: parentCluster.level + 1,
+        open: false,
+        subscriptionsCount: subsIds.length,
+        editing: true
+      }
+      newClusters.push(cluster)
+
+      for(var k = 0; k < subsIds.length; k ++) {
+        var sub = subscriptions.find(sub => sub.id === subsIds[k])
+        if(sub) {
+          updatedSubscriptions.push({...sub, editing:true, clusterId:cluster.id})
         }
-      }))
-      const amplifyCluster = response.data.createCluster
-      
-      for(var k = 0; k < subs.length; k ++) {
-        await API.graphql(graphqlOperation(updateMpsSubscription, {
-          input: {
-            id: subs[k].properties.id,
-            clusterId: amplifyCluster.id
-          }
-        }))
       }
     }
   }
+
+  return {newClusters, updatedSubscriptions}
 }
 
 const getGraphHopperClusterRequestBody = (subscriptions) => {
@@ -105,8 +134,8 @@ const getGraphHopperClusterRequestBody = (subscriptions) => {
     },
     "clustering": {
       "num_clusters": factor, 
-      "max_quantity": subscriptions.length/factor,
-      "min_quantity": 1
+      "max_quantity": subscriptions.length,
+      "min_quantity": 80
     }
   }
   const customers = []

@@ -11,7 +11,7 @@ import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
-import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 import FormControl from '@mui/material/FormControl'
@@ -20,11 +20,15 @@ import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
 
+// ** Icons Imports
+import ChevronUp from 'mdi-material-ui/ChevronUp'
+
 // ** Custom Components Imports
 import ClustersList from 'src/views/apps/clusters/list/ClustersList'
 
 // ** Script Hook Import
 import useScript from 'src/hooks/useScript'
+import { handleLoadingClusters, saveClustering } from 'src/store/apps/clusters'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -61,12 +65,22 @@ const ClustersPage = () => {
     width: '55vW',
     height: '75vH',
   }
+
+  const handleSave = () => {
+    dispatch(handleLoadingClusters(true))
+    dispatch(saveClustering({}))
+  }
   
   return (
     <Grid container spacing={6}>
       <Grid item xs={5}>
         <Card>
-          <CardHeader title='Clusters' />
+          <CardHeader 
+            title='Clusters'
+            action={
+              <Button sx={{mr:'16px'}} variant='text' disabled={store.loading} onClick={() => handleSave()}>{store.loading ? 'Saving...' : 'Save'}</Button>
+            }
+          />
           {store.loading && <LinearProgress sx={{ height:'2px' }} />}
           <CardContent>
             {!store.loading ?
@@ -77,7 +91,7 @@ const ClustersPage = () => {
                 />
               ) :
               (
-                <Typography>Clustering in progress...</Typography>
+                <Typography>Loading Clusters...</Typography>
               )
             }
           </CardContent>

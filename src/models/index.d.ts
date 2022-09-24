@@ -119,6 +119,7 @@ export declare class MpsSubscription {
   readonly avatar?: string | null;
   readonly location?: string | null;
   readonly clusterId?: string | null;
+  readonly editing?: boolean | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MpsSubscription, MpsSubscriptionMetaData>);
@@ -151,6 +152,7 @@ export declare class Cluster {
   readonly color?: string | null;
   readonly open?: boolean | null;
   readonly level?: number | null;
+  readonly editing?: boolean | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Cluster, ClusterMetaData>);

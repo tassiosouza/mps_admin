@@ -421,6 +421,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "editing": {
+                    "name": "editing",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -639,6 +646,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "editing": {
+                    "name": "editing",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -805,5 +819,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "e18f092941bc903aab684d2c251042e8"
+    "version": "c28dbf57d3b2374e98535b246639cfc4"
 };
