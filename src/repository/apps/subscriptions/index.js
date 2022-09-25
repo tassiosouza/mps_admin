@@ -143,7 +143,8 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         longitude: 0,
         deliveryInstruction: parsedData[i + 1].Address,
         clusterId: 'root',
-        editing: false
+        editing: false,
+        color: '#363636'
       })
     }
   }

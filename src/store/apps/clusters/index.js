@@ -14,16 +14,16 @@ export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async
 })
 
 // ** Create Clusters and Modify subscriptions locally
-export const createClusters = createAsyncThunk('appClusters/createClusters', async (params, {getState})  => {
-  const { parentCluster } = params
+export const createCluster = createAsyncThunk('appClusters/createClusters', async (params, {getState})  => {
+  const { cluster } = params
   const subscriptions = getState().clusters.subscriptions
-  const {newClusters, updatedSubscriptions} = await addClusters(parentCluster, subscriptions)
+  const {newCluster, updatedSubscriptions} = await addClusterLocally(cluster, subscriptions)
 
-  return {clusters: newClusters, subscriptions: updatedSubscriptions}
+  return {clusters: newCluster, subscriptions: updatedSubscriptions}
 })
 
 // ** Create Clusters in the Server
-export const saveClustering = createAsyncThunk('appClusters/saveClustering', async (params, {getState})  => {
+export const saveCluster = createAsyncThunk('appClusters/saveCluster', async (params, {getState})  => {
   const subs = getState().clusters.subscriptions
   const clus = getState().clusters.clusters
   await saveClustersAndSubscriptions(subs, clus)
@@ -37,13 +37,16 @@ export const saveClustering = createAsyncThunk('appClusters/saveClustering', asy
 export const appClusterSlice = createSlice({
   name: 'appClusters',
   initialState: {
-    editingMode: false,
     clusters: [],
     selectedClusters:[],
     subscriptions: [],
     loading: true,
   },
   reducers: {
+    handleCleanSelection: (state, action) => {
+      state.clusters = state.clusters.filter(cluster => cluster.new === false)
+      state.selectedClusters = action.payload
+    },
     handleLoadingClusters: (state, action) => {
       state.loading = action.payload
     },
@@ -58,11 +61,8 @@ export const appClusterSlice = createSlice({
     },
     handleSetOpenCluster: (state, action) => {
       const cluster = action.payload
-      const foundCluster = state.clusters.filter(cl => cl.id === cluster.id)
-      if(foundCluster) {
-        var index = state.clusters.indexOf(foundCluster[0])
-        state.clusters[index] = {...foundCluster[0], open: !foundCluster[0].open}
-      }
+      state.selectedClusters = [cluster]
+      state.clusters = [...state.clusters, cluster]
     },
     handleSelectAllClusters: (state, action) => {
       const selectAllClusters = []
@@ -82,12 +82,8 @@ export const appClusterSlice = createSlice({
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
       state.loading = false
-
-      // ** Update root cluster total count
-      const rootCluster = state.clusters.filter(cluster => cluster.level === 1)
-      rootCluster[0].subscriptionsCount = state.subscriptions.length
     }),
-    builder.addCase(createClusters.fulfilled, (state, action) => {
+    builder.addCase(createCluster.fulfilled, (state, action) => {
       // ** Update Subscriptions
       const updatedSubscriptions = action.payload.subscriptions
       var updatedSubscriptionsIds = updatedSubscriptions.map(s => s.id)
@@ -100,20 +96,18 @@ export const appClusterSlice = createSlice({
       })
 
       // ** Update clusters and screen states
-      state.clusters = [...state.clusters, ...action.payload.clusters]
+      state.clusters = [...state.clusters, action.payload.cluster]
       state.loading = false
-      state.editingMode = true
     }),
-    builder.addCase(saveClustering.fulfilled, (state, action) => {
+    builder.addCase(saveCluster.fulfilled, (state, action) => {
       // ** Update clusters and subscriptions states
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
       state.loading = false
-      state.editingMode = false
     })
   }
 })
 
-export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters, handleSelectCluster } = appClusterSlice.actions
+export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters, handleSelectCluster, handleCleanSelection } = appClusterSlice.actions
 
 export default appClusterSlice.reducer

@@ -428,6 +428,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "color": {
+                    "name": "color",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -653,6 +660,22 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "path": {
+                    "name": "path",
+                    "isArray": false,
+                    "type": "AWSJSON",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "paymentRule": {
+                    "name": "paymentRule",
+                    "isArray": false,
+                    "type": {
+                        "enum": "PaymentRules"
+                    },
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -816,8 +839,16 @@ export const schema = {
                 "ASSIGNING",
                 "UNASSIGNED"
             ]
+        },
+        "PaymentRules": {
+            "name": "PaymentRules",
+            "values": [
+                "PERHOUR20",
+                "PERHOUR25",
+                "PERBAG07"
+            ]
         }
     },
     "nonModels": {},
-    "version": "c28dbf57d3b2374e98535b246639cfc4"
+    "version": "09a028ee4cea410d6c1c58ad9be421dc"
 };

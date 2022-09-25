@@ -32,6 +32,12 @@ export enum AssignStatus {
   UNASSIGNED = "UNASSIGNED"
 }
 
+export enum PaymentRules {
+  PERHOUR20 = "PERHOUR20",
+  PERHOUR25 = "PERHOUR25",
+  PERBAG07 = "PERBAG07"
+}
+
 
 
 type MRouteMetaData = {
@@ -120,6 +126,7 @@ export declare class MpsSubscription {
   readonly location?: string | null;
   readonly clusterId?: string | null;
   readonly editing?: boolean | null;
+  readonly color?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<MpsSubscription, MpsSubscriptionMetaData>);
@@ -153,6 +160,8 @@ export declare class Cluster {
   readonly open?: boolean | null;
   readonly level?: number | null;
   readonly editing?: boolean | null;
+  readonly path?: string | null;
+  readonly paymentRule?: PaymentRules | keyof typeof PaymentRules | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Cluster, ClusterMetaData>);

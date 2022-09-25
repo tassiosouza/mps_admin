@@ -161,6 +161,7 @@ export const onCreateMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }
@@ -185,6 +186,7 @@ export const onUpdateMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }
@@ -209,6 +211,7 @@ export const onDeleteMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }

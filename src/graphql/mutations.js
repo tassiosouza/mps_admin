@@ -182,6 +182,7 @@ export const createMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }
@@ -209,6 +210,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }
@@ -236,6 +238,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }

@@ -444,7 +444,7 @@ const OrderList = () => {
             disableSelectionOnClick
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
-            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
+            sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
             onSelectionModelChange={rows => setSelectedRows(rows)}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />

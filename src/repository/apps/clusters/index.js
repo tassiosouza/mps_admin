@@ -4,8 +4,6 @@ import { createCluster, updateMpsSubscription } from '../../../graphql/mutations
 import { listClusters, listMpsSubscriptions } from '../../../graphql/queries'
 
 // ** Third Party Imports
-import Supercluster from 'supercluster';
-import uuid from 'react-uuid';
 import axios from 'axios'
 
 // ** Fetch Clusters from Amplify
@@ -52,109 +50,19 @@ export const saveClustersAndSubscriptions =  async(subscriptions, clusters)  => 
   }
 }
 
-const getPointsFromSubscriptions = (subscriptions) => {
-  var points = []
-  for (var i = 0; i < subscriptions.length; i++) {
-    points.push({
-      type: "Feature",
-      properties: {
-        index: i,
-        id:subscriptions[i].id
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [subscriptions[i].latitude, subscriptions[i].longitude]
-      }
-    })
-  }
-  return points
-}
-
 // ** Update root cluster in Amplify
-export const addClusters =  async (parentCluster, subscriptions)  => {
-  // ** Retreive subscriptions to update
-  const subscriptionsToUpdate = subscriptions.filter(sub => sub.clusterId === parentCluster.id)
-
-  // const index = new Supercluster({
-  //   radius: 40,
-  //   maxZoom: 8,
-  // });
-  // var points = getPointsFromSubscriptions(subscriptionsToUpdate)
-  // index.load(points);
-  // const superClusterResult = index.getClusters([-180, -90, 180, 90], 3 + parentCluster.level);
-
-  const ghBody = getGraphHopperClusterRequestBody(subscriptionsToUpdate)
-  const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+export const addClusterLocally =  async (cluster, subscriptions)  => {
+  // ** Retreive subscriptions to update based on inside clusters
+  const subscriptionsToUpdate = subscriptions
   
-  const {newClusters, updatedSubscriptions} = updateSubscriptions(res, parentCluster, subscriptions)
+  const updatedSubscriptions = updateSubscriptions(cluster, subscriptionsToUpdate)
 
-  return {newClusters, updatedSubscriptions}
+  return updatedSubscriptions
 }
 
-const updateSubscriptions = (res, parentCluster, subscriptions) => {
-  var newClusters = []
-  var updatedSubscriptions = []
-  for(var i = 0; i < res.data.clusters.length; i++) {
-    const currentCluster = res.data.clusters[i]
-    // ** Create amplify Cluster for each generated cluster
-    const subsIds = currentCluster.ids
-    if(subsIds.length) {
-      const cluster = {
-        id: uuid(),
-        name: 'Child Cluster #' + i,
-        parentId:parentCluster.id,
-        color: "#" + ((1<<24)*Math.random() | 0).toString(16),
-        level: parentCluster.level + 1,
-        open: false,
-        subscriptionsCount: subsIds.length,
-        editing: true
-      }
-      newClusters.push(cluster)
-
-      for(var k = 0; k < subsIds.length; k ++) {
-        var sub = subscriptions.find(sub => sub.id === subsIds[k])
-        if(sub) {
-          updatedSubscriptions.push({...sub, editing:true, clusterId:cluster.id})
-        }
-      }
-    }
-  }
-
-  return {newClusters, updatedSubscriptions}
-}
-
-const getGraphHopperClusterRequestBody = (subscriptions) => {
-  const factor = 2
-  const configuration = {
-    "response_type": "json",
-    "routing": {
-      "profile": "as_the_crow_flies",
-      "cost_per_second":0,
-      "cost_per_meter":1
-    },
-    "clustering": {
-      "num_clusters": factor, 
-      "max_quantity": subscriptions.length,
-      "min_quantity": 80
-    }
-  }
-  const customers = []
-
-  subscriptions.map(sub => {
-    customers.push({
-      id: sub.id,
-      address: {
-        lon: sub.longitude,
-        lat: sub.latitude,
-        street_hint:'teste'
-      },
-      quantity:1
-    })
+const updateSubscriptions = (cluster, subscriptions) => {
+  var updatedSubscriptions = subscriptions.map(sub => {
+      return {...sub, editing:true, clusterId:cluster.id, color:cluster.color}
   })
-
-  var body = {
-    configuration,
-    customers,
-  }
-  return body
+  return updatedSubscriptions
 }

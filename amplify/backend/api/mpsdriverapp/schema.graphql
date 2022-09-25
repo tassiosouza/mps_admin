@@ -90,6 +90,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   location: String
   clusterId: String
   editing: Boolean
+  color: String
 }
 
 type Driver @model @auth(rules: [{allow: public}]) {

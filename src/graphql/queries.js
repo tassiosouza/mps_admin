@@ -128,6 +128,7 @@ export const getMpsSubscription = /* GraphQL */ `
       location
       clusterId
       editing
+      color
       createdAt
       updatedAt
     }
@@ -161,6 +162,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         location
         clusterId
         editing
+        color
         createdAt
         updatedAt
       }
