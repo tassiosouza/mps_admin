@@ -14,7 +14,7 @@ import { handleLoadingClusters, saveClustering } from 'src/store/apps/clusters'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchClusters } from 'src/store/apps/clusters'
+import { fetchClusters, updateCluster } from 'src/store/apps/clusters'
 
 // ** Thrid Party Imports
 import { Player } from '@lottiefiles/react-lottie-player';
@@ -36,13 +36,6 @@ const ClustersPage = () => {
 
   // ** State
   const [value, setValue] = useState('')
-
-  // Define refs for Polygon instance and listeners
-  const polygonRef = useRef(null);
-
-  const onEdit2 = (object) => {
-    console.log(JSON.stringify(object))
-  }
 
   useEffect(() => {
     dispatch(
@@ -68,9 +61,37 @@ const ClustersPage = () => {
 
   const [map, setMap] = useState(null)
 
-  const onLoad = useCallback(function callback(map) {
-    setMap(map)
-  }, [])
+  const handleMouseUp = (event, index, polygon) => {
+    const latLng = {lat:event.latLng.lat(), lng:event.latLng.lng()}
+    var vertexIndex
+    if(event.hasOwnProperty('vertex')) {
+      vertexIndex = event.vertex
+      
+      var pathToUpdate = store.clusters[index].path.map((ll, index) => {
+        if(index === vertexIndex) {
+          return latLng
+        }
+        return ll
+      })
+      var clusterToUpdate = {...store.clusters[index], path: pathToUpdate}
+      dispatch(updateCluster({cluster: clusterToUpdate}))
+    }
+    else if(event.hasOwnProperty('edge')) {
+      vertexIndex = event.edge + 1
+      var pathToUpdate = [...store.clusters[index].path]
+      pathToUpdate.splice(vertexIndex, 0, latLng)
+      var clusterToUpdate = {...store.clusters[index], path: pathToUpdate}
+      dispatch(updateCluster({cluster: clusterToUpdate}))
+    }
+  }
+
+  const onMouseDown = (event) => {
+    console.log('down: ' + JSON.stringify(event))
+  }
+
+  const onLoad = polygon => {
+    console.log("polygon: ", polygon);
+  }
 
   const onUnmount = useCallback(function callback(map) {
     setMap(null)
@@ -109,12 +130,12 @@ const ClustersPage = () => {
                 ))}
                 {store.clusters.map((cluster, index) => (
                   <Polygon
+                    onLoad={onLoad}
                     key={index}
                     editable
-                    draggable
                     path={cluster.path}
-                    onMouseUp={onEdit2}
-                    onDragEnd={onEdit2}
+                    onMouseUp={e => handleMouseUp(e, index)}
+                    onMouseDown={e => onMouseDown(e)}
                     onUnmount={onUnmount}
                     options={{
                       strokeColor:cluster.color,

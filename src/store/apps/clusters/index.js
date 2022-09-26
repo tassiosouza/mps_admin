@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Repository Imports
-import { getClusters, getSubscriptions, addClusters, saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
+import { getClusters, getSubscriptions, addClusterLocally, updateClusterLocally,  saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
 
 
 // ** Fetch Clusters from Server
@@ -32,6 +32,15 @@ export const saveCluster = createAsyncThunk('appClusters/saveCluster', async (pa
   const subscriptions = await getSubscriptions()
 
   return {clusters, subscriptions}
+})
+
+// ** Update Cluster and subscriptions locally
+export const updateCluster = createAsyncThunk('appClusters/updateCluster', async (params, {getState})  => {
+  const { cluster } = params
+  const subscriptions = getState().clusters.subscriptions
+  const updatedSubscriptions = await updateClusterLocally(cluster, subscriptions)
+
+  return {updatedCluster: {...cluster, subscriptionsCount: updatedSubscriptions.length}, updatedSubscriptions}
 })
 
 export const appClusterSlice = createSlice({
@@ -103,6 +112,26 @@ export const appClusterSlice = createSlice({
       // ** Update clusters and subscriptions states
       state.clusters = action.payload.clusters
       state.subscriptions = action.payload.subscriptions
+      state.loading = false
+    }),
+    builder.addCase(updateCluster.fulfilled, (state, action) => {
+      // ** Update clusters list with updated cluster
+      var updatedCluster = action.payload.updatedCluster
+      var oldCluster = state.clusters.find(cluster => cluster.id === updatedCluster.id)
+      var clusterIndex = state.clusters.indexOf(oldCluster)
+      state.clusters[clusterIndex] = updatedCluster
+      
+      // ** Update Subscriptions
+      const updatedSubscriptions = action.payload.updatedSubscriptions
+      var updatedSubscriptionsIds = updatedSubscriptions.map(s => s.id)
+      state.subscriptions = state.subscriptions.map(sub => {
+        if(updatedSubscriptionsIds.includes(sub.id)) {
+          var updated = updatedSubscriptions.find(s => s.id === sub.id)
+          return updated
+        }
+        return sub
+      })
+
       state.loading = false
     })
   }
