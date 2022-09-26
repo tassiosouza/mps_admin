@@ -11,6 +11,7 @@ import permissions from 'src/store/apps/permissions'
 import subscriptions from 'src/store/apps/subscriptions'
 import routes from 'src/store/apps/routes'
 import orders from 'src/store/apps/orders'
+import clusters from 'src/store/apps/clusters'
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     orders,
     subscriptions,
     routes,
+    clusters,
     calendar,
     permissions
   },

@@ -255,6 +255,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "subscriptionNumber": {
+                    "name": "subscriptionNumber",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "deliveryKey": {
                     "name": "deliveryKey",
                     "isArray": false,
@@ -402,6 +409,27 @@ export const schema = {
                 },
                 "location": {
                     "name": "location",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "clusterId": {
+                    "name": "clusterId",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "editing": {
+                    "name": "editing",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "color": {
+                    "name": "color",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -573,6 +601,123 @@ export const schema = {
                 }
             ]
         },
+        "Cluster": {
+            "name": "Cluster",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "name": {
+                    "name": "name",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "parentId": {
+                    "name": "parentId",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "subscriptionsCount": {
+                    "name": "subscriptionsCount",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "color": {
+                    "name": "color",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "open": {
+                    "name": "open",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "level": {
+                    "name": "level",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "editing": {
+                    "name": "editing",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "path": {
+                    "name": "path",
+                    "isArray": false,
+                    "type": "AWSJSON",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "paymentRule": {
+                    "name": "paymentRule",
+                    "isArray": false,
+                    "type": {
+                        "enum": "PaymentRules"
+                    },
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isReadOnly": true
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isReadOnly": true
+                }
+            },
+            "syncable": true,
+            "pluralName": "Clusters",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "allow": "public",
+                                "operations": [
+                                    "create",
+                                    "update",
+                                    "delete",
+                                    "read"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
         "Todo": {
             "name": "Todo",
             "fields": {
@@ -694,8 +839,16 @@ export const schema = {
                 "ASSIGNING",
                 "UNASSIGNED"
             ]
+        },
+        "PaymentRules": {
+            "name": "PaymentRules",
+            "values": [
+                "PERHOUR20",
+                "PERHOUR25",
+                "PERBAG07"
+            ]
         }
     },
     "nonModels": {},
-    "version": "5c7613586393076c055c778660c5e0b5"
+    "version": "09a028ee4cea410d6c1c58ad9be421dc"
 };

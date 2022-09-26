@@ -159,6 +159,9 @@ export const onCreateMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusterId
+      editing
+      color
       createdAt
       updatedAt
     }
@@ -181,6 +184,9 @@ export const onUpdateMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusterId
+      editing
+      color
       createdAt
       updatedAt
     }
@@ -203,6 +209,9 @@ export const onDeleteMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusterId
+      editing
+      color
       createdAt
       updatedAt
     }
@@ -260,6 +269,60 @@ export const onDeleteDriver = /* GraphQL */ `
       latitude
       longitude
       assignStatus
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateCluster = /* GraphQL */ `
+  subscription OnCreateCluster {
+    onCreateCluster {
+      id
+      name
+      parentId
+      subscriptionsCount
+      color
+      open
+      level
+      editing
+      path
+      paymentRule
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateCluster = /* GraphQL */ `
+  subscription OnUpdateCluster {
+    onUpdateCluster {
+      id
+      name
+      parentId
+      subscriptionsCount
+      color
+      open
+      level
+      editing
+      path
+      paymentRule
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteCluster = /* GraphQL */ `
+  subscription OnDeleteCluster {
+    onDeleteCluster {
+      id
+      name
+      parentId
+      subscriptionsCount
+      color
+      open
+      level
+      editing
+      path
+      paymentRule
       createdAt
       updatedAt
     }

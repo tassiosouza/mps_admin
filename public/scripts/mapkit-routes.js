@@ -107,17 +107,6 @@ for(var i = 0; i < routes.length; i++) {
   }  
 }
 
-//** Add space keyboard event for toggle titles visibility */
-document.addEventListener('keydown', (event) => {
-  var code = event.code;
-  var titleVisibility = (map.annotations[0].titleVisibility == mapkit.FeatureVisibility.Hidden) ? mapkit.FeatureVisibility.Visible :
-  mapkit.FeatureVisibility.Hidden
-
-  if(code === 'Space') {
-    map.annotations.map(annot => annot.titleVisibility = titleVisibility)
-  }
-}, false)
-
 //** Add orders markers on map based on color ID */
 for(var i = 0; i < orders.length; i++) {
   var coordinate = new mapkit.Coordinate(orders[i].latitude, orders[i].longitude)

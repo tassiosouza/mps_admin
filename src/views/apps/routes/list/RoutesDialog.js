@@ -18,7 +18,7 @@ const DialogFullScreen = (props) => {
   const { open, onClose, routes, drivers, orders } = props
 
   const MapKit = () => {
-    useScript('/scripts/mapkit.js')
+    useScript('/scripts/mapkit-routes.js')
   }
 
   const ordersToDisplay = []

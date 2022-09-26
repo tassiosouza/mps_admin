@@ -126,6 +126,9 @@ export const getMpsSubscription = /* GraphQL */ `
       longitude
       avatar
       location
+      clusterId
+      editing
+      color
       createdAt
       updatedAt
     }
@@ -157,6 +160,9 @@ export const listMpsSubscriptions = /* GraphQL */ `
         longitude
         avatar
         location
+        clusterId
+        editing
+        color
         createdAt
         updatedAt
       }
@@ -202,6 +208,49 @@ export const listDrivers = /* GraphQL */ `
         latitude
         longitude
         assignStatus
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const getCluster = /* GraphQL */ `
+  query GetCluster($id: ID!) {
+    getCluster(id: $id) {
+      id
+      name
+      parentId
+      subscriptionsCount
+      color
+      open
+      level
+      editing
+      path
+      paymentRule
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listClusters = /* GraphQL */ `
+  query ListClusters(
+    $filter: ModelClusterFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listClusters(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        parentId
+        subscriptionsCount
+        color
+        open
+        level
+        editing
+        path
+        paymentRule
         createdAt
         updatedAt
       }

@@ -32,7 +32,7 @@ const Sidebar = props => {
           height: '100%',
           zIndex: 'drawer',
           position: 'absolute',
-          transition: 'all .25s ease-in-out',
+          transition: 'all .40s ease-in-out',
           backgroundColor: 'background.paper',
           ...(show ? { opacity: 1 } : { opacity: 0 }),
           ...(direction === 'right'

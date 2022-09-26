@@ -22,6 +22,7 @@ import CheckboxMarkedCircleOutline from 'mdi-material-ui/CheckboxMarkedCircleOut
 import CarTractionControl from 'mdi-material-ui/CarTractionControl'
 import NewspaperVariantMultiple from 'mdi-material-ui/NewspaperVariantMultiple'
 import PackageVariant from 'mdi-material-ui/PackageVariant'
+import MapMarkerMultiple from 'mdi-material-ui/MapMarkerMultiple'
 
 
 const navigation = () => {
@@ -63,6 +64,11 @@ const navigation = () => {
       title: 'Subscriptions',
       icon: NewspaperVariantMultiple,
       path: '/apps/subscriptions/list'
+    },
+    {
+      title: 'Clusters',
+      icon: MapMarkerMultiple,
+      path: '/apps/clusters/list'
     },
     {
       title: 'Email',

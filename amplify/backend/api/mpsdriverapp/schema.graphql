@@ -45,6 +45,12 @@ enum AssignStatus {
   UNASSIGNED
 }
 
+enum PaymentRules {
+  PERHOUR20
+  PERHOUR25
+  PERBAG07
+}
+
 type MOrder @model @auth(rules: [{allow: public}]) {
   id: ID!
   number: String
@@ -82,6 +88,9 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   longitude: Float
   avatar: String
   location: String
+  clusterId: String
+  editing: Boolean
+  color: String
 }
 
 type Driver @model @auth(rules: [{allow: public}]) {
@@ -96,6 +105,19 @@ type Driver @model @auth(rules: [{allow: public}]) {
   latitude: Float
   longitude: Float
   assignStatus: AssignStatus
+}
+
+type Cluster @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  parentId: String
+  subscriptionsCount: Int
+  color: String
+  open: Boolean
+  level: Int
+  editing: Boolean
+  path: AWSJSON
+  paymentRule: PaymentRules
 }
 
 type Todo @model @auth(rules: [{allow: public}]) {

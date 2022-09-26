@@ -34,16 +34,24 @@ const AssignStatus = {
   "UNASSIGNED": "UNASSIGNED"
 };
 
-const { MRoute, MOrder, MpsSubscription, Driver, Todo } = initSchema(schema);
+const PaymentRules = {
+  "PERHOUR20": "PERHOUR20",
+  "PERHOUR25": "PERHOUR25",
+  "PERBAG07": "PERBAG07"
+};
+
+const { MRoute, MOrder, MpsSubscription, Driver, Cluster, Todo } = initSchema(schema);
 
 export {
   MRoute,
   MOrder,
   MpsSubscription,
   Driver,
+  Cluster,
   Todo,
   RouteStatus,
   OrderStatus,
   SubscriptionStatus,
-  AssignStatus
+  AssignStatus,
+  PaymentRules
 };

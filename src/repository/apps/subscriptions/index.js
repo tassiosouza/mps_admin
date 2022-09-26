@@ -141,7 +141,10 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         avatar: '',
         status: SubscriptionStatus.ACTIVED,
         longitude: 0,
-        deliveryInstruction: parsedData[i + 1].Address
+        deliveryInstruction: parsedData[i + 1].Address,
+        clusterId: 'root',
+        editing: false,
+        color: '#363636'
       })
     }
   }
