@@ -49,6 +49,7 @@ export const appClusterSlice = createSlice({
     clusters: [],
     selectedClusters:[],
     subscriptions: [],
+    editingCluster:null,
     loading: true,
   },
   reducers: {

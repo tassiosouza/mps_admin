@@ -37,6 +37,13 @@ const ClustersPage = () => {
   // ** State
   const [value, setValue] = useState('')
 
+  const initialPath = [
+    { lat: 33.3047610128895, lng: -117.38569404687499},
+    { lat: 33.17023062920513, lng: -117.4320085 },
+    { lat: 33.168072587211924, lng: -117.20816206445312 },
+    { lat: 33.31394248217619, lng: -117.2694606484375 }
+  ]
+
   useEffect(() => {
     dispatch(
       fetchClusters({
@@ -59,44 +66,47 @@ const ClustersPage = () => {
     googleMapsApiKey: "AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo"
   })
 
-  const [map, setMap] = useState(null)
+  // Store Polygon path in state
+  const [path, setPath] = useState(initialPath);
 
-  const handleMouseUp = (event, index, polygon) => {
-    const latLng = {lat:event.latLng.lat(), lng:event.latLng.lng()}
-    var vertexIndex
-    if(event.hasOwnProperty('vertex')) {
-      vertexIndex = event.vertex
-      
-      var pathToUpdate = store.clusters[index].path.map((ll, index) => {
-        if(index === vertexIndex) {
-          return latLng
-        }
-        return ll
-      })
-      var clusterToUpdate = {...store.clusters[index], path: pathToUpdate}
-      dispatch(updateCluster({cluster: clusterToUpdate}))
+  // Define refs for Polygon instance and listeners
+  const polygonRef = useRef(null);
+  const listenersRef = useRef([]);
+
+  // Call setPath with new edited path
+  const onEdit = useCallback(() => {
+    if (polygonRef.current) {
+      const nextPath = polygonRef.current
+        .getPath()
+        .getArray()
+        .map(latLng => {
+          return { lat: latLng.lat(), lng: latLng.lng() };
+        });
+      setPath(nextPath);
+      console.log("new path", nextPath);
     }
-    else if(event.hasOwnProperty('edge')) {
-      vertexIndex = event.edge + 1
-      var pathToUpdate = [...store.clusters[index].path]
-      pathToUpdate.splice(vertexIndex, 0, latLng)
-      var clusterToUpdate = {...store.clusters[index], path: pathToUpdate}
-      dispatch(updateCluster({cluster: clusterToUpdate}))
-    }
-  }
+  }, [setPath]);
 
-  const onMouseDown = (event) => {
-    console.log('down: ' + JSON.stringify(event))
-  }
+  // Bind refs to current Polygon and listeners
+  const onLoad = useCallback(
+    polygon => {
+      polygonRef.current = polygon;
+      const path = polygon.getPath();
+      listenersRef.current.push(
+        path.addListener("set_at", onEdit),
+        path.addListener("insert_at", onEdit),
+        path.addListener("remove_at", onEdit)
+      );
+    },
+    [onEdit]
+  );
 
-  const onLoad = polygon => {
-    console.log("polygon: ", polygon);
-  }
+  // Clean up refs
+  const onUnmount = useCallback(() => {
+    listenersRef.current.forEach(lis => lis.remove());
+    polygonRef.current = null;
+  }, []);
 
-  const onUnmount = useCallback(function callback(map) {
-    setMap(null)
-  }, [])
-  
   return (
     <Grid container spacing={6}>
       <Grid item xs={5}>
@@ -145,6 +155,20 @@ const ClustersPage = () => {
                     }}
                 />
                 ))}
+                {store.editingCluster && (
+                  <Polygon
+                    // Make the Polygon editable / draggable
+                    editable
+                    draggable
+                    path={path}
+                    // Event used when manipulating and adding points
+                    onMouseUp={onEdit}
+                    // Event used when dragging the whole Polygon
+                    onDragEnd={onEdit}
+                    onLoad={onLoad}
+                    onUnmount={onUnmount}
+                  />
+                )}
                 </GoogleMap>
             ) : <></>
               }</div> :
