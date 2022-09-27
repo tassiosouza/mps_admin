@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** MUI Imports
 import Divider from '@mui/material/Divider'
@@ -8,6 +8,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
+import LinearProgress from '@mui/material/LinearProgress'
 
 // ** Icons Import
 import PencilOutline from 'mdi-material-ui/PencilOutline'
@@ -21,17 +22,49 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import Sidebar from 'src/@core/components/sidebar'
 import ClustersTabs from './ClustersTabs'
 
+// ** Store & Actions Imports
+import { saveCluster, handleSavingClusters, handleCleanSelection } from 'src/store/apps/clusters'
+
+const ScrollWrapper = ({ children }) => {
+  return <PerfectScrollbar options={{ wheelPropagation: false }}>{children}</PerfectScrollbar>
+}
+
 const ClusterDetails = props => {
+
+  const [clusterName, setClusterName] = useState('')
 
   // ** Props
   const {
     store,
+    dispatch,
     open,
     handleClose,
   } = props
 
-  const ScrollWrapper = ({ children }) => {
-    return <PerfectScrollbar options={{ wheelPropagation: false }}>{children}</PerfectScrollbar>
+  const handleSaveCluster = () => {
+    if(clusterName.length > 0) {
+      dispatch(handleSavingClusters(true))
+      dispatch(saveCluster({name: clusterName, callback: onSaveCallback}))
+    }
+    else {
+      alert('Empty cluster name')
+    }
+  }
+
+  const onSaveCallback = () => {
+    closeDetails(false)
+  }
+
+  const handleChangeClusterName = e => {
+    setClusterName(e.target.value)
+  }
+
+  const closeDetails = fromInterface => {
+    if(fromInterface) {
+      dispatch(handleCleanSelection([]))
+    }
+    setClusterName('')
+    handleClose()
   }
 
   return (
@@ -50,12 +83,12 @@ const ClusterDetails = props => {
     >
     {store.selectedClusters.length &&
       (<Fragment>
-        <Box sx={{ height: 'calc(100% - 7.75rem)', backgroundColor: 'background.paper' }}>
+        <Box sx={{ height: '90%', backgroundColor: 'background.paper' }}>
           <ScrollWrapper>
-            <Box sx={{ p:5 }}>
+            <Box sx={{ p:3, pl:5, pr:5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                <IconButton onClick={() => handleClose()} sx={{width:50, height:50}}>
+                <IconButton onClick={() => closeDetails(true)} sx={{width:50, height:50}}>
                   <ChevronLeft/>
                 </IconButton>
                   {store.selectedClusters[0].editing ? (
@@ -66,6 +99,8 @@ const ClusterDetails = props => {
                       e.target.value = '';
                       e.target.value = val;
                     }}
+                    value={clusterName}
+                    onChange={e => handleChangeClusterName(e)}
                     variant='standard'
                     size='small'
                     placeholder='Cluster Name'
@@ -78,8 +113,8 @@ const ClusterDetails = props => {
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt:1 }}>
                   {store.selectedClusters[0].editing ? (
-                     <Button sx={{height:'fit-content' }} color='primary' startIcon={<ContentSave/>}>
-                      Save
+                     <Button sx={{height:'fit-content' }} onClick={() => handleSaveCluster()} color='primary' startIcon={<ContentSave/>}>
+                      {store.saving ? 'Saving' : 'Save'}
                     </Button>
                   ) : (
                     <Button sx={{height:'fit-content' }} color='primary' startIcon={<PencilOutline/>}>
@@ -90,8 +125,9 @@ const ClusterDetails = props => {
               </Box>
             </Box>
             <Divider sx={{ m: 0 }} />
+            {store.saving && <LinearProgress sx={{ height:'2px' }} />}
             <Box sx={{ pl: 5, pt:5 }}>
-              <ClustersTabs></ClustersTabs>
+              <ClustersTabs store={store}></ClustersTabs>
             </Box>
           </ScrollWrapper>
         </Box>

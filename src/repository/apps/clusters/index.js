@@ -1,6 +1,6 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createCluster, updateMpsSubscription } from '../../../graphql/mutations'
+import { createCluster, updateMpsSubscription, updateCluster } from '../../../graphql/mutations'
 import { listClusters, listMpsSubscriptions } from '../../../graphql/queries'
 
 // ** Fetch Clusters from Amplify
@@ -28,57 +28,62 @@ export const getSubscriptions =  async()  => {
 }
 
 // ** Save ALL editing clusters and subscriptions in Amplify
-export const saveClustersAndSubscriptions =  async(subscriptions, clusters)  => {
+export const saveClustersAndSubscriptions =  async(subscriptions, cluster)  => {
+
+  const subscriptionsCount = subscriptions.filter(sub => sub.clusterId === cluster.id).length
+
   // ** Update editing subscriptions
   for(var i = 0; i < subscriptions.length; i++) {
     if(subscriptions[i].editing) {
       await API.graphql(graphqlOperation(updateMpsSubscription, {
-        input: {id: subscriptions[i].id, clusterId: subscriptions[i].clusterId, editing: false}
+        input: {id: subscriptions[i].id, clusterId:subscriptions[i].clusterId, color: subscriptions[i].color, editing: false}
       }))
     }
   }
   // ** Save editing clusters
-  for(var i = 0; i < clusters.length; i++) {
-    if(clusters[i].editing) {
+  if(cluster.editing && cluster.new) {
+    if(cluster.new) {
       await API.graphql(graphqlOperation(createCluster, {
-        input: {...clusters[i], editing: false}
+        input: {
+          id: cluster.id, 
+          name: cluster.name,
+          editing:false,
+          path: JSON.stringify(cluster.path),
+          color: cluster.color,
+          subscriptionsCount: subscriptionsCount}
+      }))
+    } else {
+      await API.graphql(graphqlOperation(updateCluster, {
+        input: {...cluster, editing: false}
       }))
     }
   }
 }
 
-// ** Update root cluster in Amplify
-export const addClusterLocally =  async (cluster, subscriptions)  => {
-  // ** Retreive subscriptions to update based on inside clusters
-  const subscriptionsToUpdate = subscriptions
-  
-  const updatedSubscriptions = updateSubscriptions(cluster, subscriptionsToUpdate)
-
-  return updatedSubscriptions
-}
-
 const updateSubscriptions = (cluster, subscriptions) => {
+  const polygon = []
+  for(var i = 0; i< cluster.path.length; i++) {
+    polygon.push([cluster.path[i].lng, cluster.path[i].lat])
+  }
   var updatedSubscriptions = subscriptions.map(sub => {
-      return {...sub, editing:true, clusterId:cluster.id, color:cluster.color}
+      var point = [sub.longitude, sub.latitude]
+      if(pointInPolygon(polygon, point)) {
+        if(sub.clusterId === '') {
+          return {...sub, editing:true, clusterId:cluster.id, color:cluster.color}
+        }
+      }
+      else if(sub.clusterId === cluster.id) {
+        return {...sub, editing:false, clusterId:'', color:'#363636'}
+      }
+      return sub
   })
   return updatedSubscriptions
 }
 
 // ** Update cluster and subscriptions locally
 export const updateClusterLocally =  async (cluster, subscriptions)  => {
-  // ** Retreive subscriptions to update based on inside clusters
-  const polygon = []
-  for(var i = 0; i< cluster.path.length; i++) {
-    polygon.push([cluster.path[i].lng, cluster.path[i].lat])
-  }
-
-  const subscriptionsToUpdate = subscriptions.filter(sub => {
-    var point = [sub.longitude, sub.latitude]
-    return pointInPolygon(polygon, point)
-  })
-  
-  const updatedSubscriptions = updateSubscriptions(cluster, subscriptionsToUpdate)
-
+  // ** Update subscriptions based on inside clusters
+  const updatedSubscriptions = updateSubscriptions(cluster, subscriptions)
   return updatedSubscriptions
 }
 

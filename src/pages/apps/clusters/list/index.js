@@ -44,6 +44,10 @@ const ClustersPage = () => {
     { lat: 33.31394248217619, lng: -117.2694606484375 }
   ]
 
+  // ** Hooks
+  const dispatch = useDispatch()
+  const store = useSelector(state => state.clusters)
+
   useEffect(() => {
     dispatch(
       fetchClusters({
@@ -51,15 +55,6 @@ const ClustersPage = () => {
       })
     )
   }, [dispatch, value])
-
-  // ** Hooks
-  const dispatch = useDispatch()
-  const store = useSelector(state => state.clusters)
-
-  const handleSave = () => {
-    dispatch(handleLoadingClusters(true))
-    dispatch(saveClustering({}))
-  }
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -82,8 +77,8 @@ const ClustersPage = () => {
         .map(latLng => {
           return { lat: latLng.lat(), lng: latLng.lng() };
         });
-      setPath(nextPath);
-      console.log("new path", nextPath);
+      dispatch(updateCluster({nextPath}))
+      setPath(nextPath)
     }
   }, [setPath]);
 
@@ -105,6 +100,7 @@ const ClustersPage = () => {
   const onUnmount = useCallback(() => {
     listenersRef.current.forEach(lis => lis.remove());
     polygonRef.current = null;
+    setPath(initialPath)
   }, []);
 
   return (
@@ -127,6 +123,7 @@ const ClustersPage = () => {
                 {store.subscriptions.map((subscription, index) => (
                   <Marker
                     key={index}
+                    clickable={false}
                     icon={{
                       path: google.maps.SymbolPath.CIRCLE,
                       fillColor: subscription.color,
@@ -142,10 +139,7 @@ const ClustersPage = () => {
                   <Polygon
                     onLoad={onLoad}
                     key={index}
-                    editable
-                    path={cluster.path}
-                    onMouseUp={e => handleMouseUp(e, index)}
-                    onMouseDown={e => onMouseDown(e)}
+                    path={JSON.parse(cluster.path)}
                     onUnmount={onUnmount}
                     options={{
                       strokeColor:cluster.color,
@@ -167,6 +161,12 @@ const ClustersPage = () => {
                     onDragEnd={onEdit}
                     onLoad={onLoad}
                     onUnmount={onUnmount}
+                    options={{
+                      strokeColor:store.editingCluster.color,
+                      fillColor:store.editingCluster.color,
+                      strokeOpacity:"0.5",
+                      strokeWeight:'2'
+                    }}
                   />
                 )}
                 </GoogleMap>

@@ -33,22 +33,15 @@ import Typography from '@mui/material/Typography'
 
 // ** Store & Actions Imports
 import { useDispatch } from 'react-redux'
-import { handleSelectAllClusters, handleSelectCluster, handleCleanSelection, handleSetOpenCluster } from 'src/store/apps/clusters'
+import { handleSelectAllClusters, handleSelectCluster, handleCleanSelection, handleAddCluster } from 'src/store/apps/clusters'
 
 // ** Clusters App Component Imports
 import ClusterDetails from './ClusterDetails'
 
-const initialPath = [
-  { lat: 33.3047610128895, lng: -117.38569404687499},
-  { lat: 33.17023062920513, lng: -117.4320085 },
-  { lat: 33.168072587211924, lng: -117.20816206445312 },
-  { lat: 33.31394248217619, lng: -117.2694606484375 }
-]
-
 const ClustersList = props => {
 
   const { store } = props
-  const [mailDetailsOpen, setMailDetailsOpen] = useState(false)
+  const [clusterDetailOpen, setClusterDetailsOpen] = useState(false)
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -78,25 +71,24 @@ const ClustersList = props => {
       id: uuid(),
       name: 'Cluster Name',
       editing: true,
-      path: initialPath,
+      path: store.currentPath,
       color: "#" + ((1<<24)*Math.random() | 0).toString(16),
       new:true
     }
-    dispatch(handleSetOpenCluster(newCluster))
-    setMailDetailsOpen(true)
+    dispatch(handleAddCluster(newCluster))
+    setClusterDetailsOpen(true)
   }
 
   const handleCloseClusterDetails = () => {
-    dispatch(handleCleanSelection([]))
-    setMailDetailsOpen(false)
+    setClusterDetailsOpen(false)
   }
 
   return (
     <Card>
       <CardHeader sx={{pl:7}}title='Clusters'/>
       {store.loading && <LinearProgress sx={{ height:'2px' }} />}
-      <CardContent sx={{pl:0, pr:0}}>
-      <Box sx={{px: { xs: 2.5, sm: 5 }, backgroundColor:'background.paper' }}>
+      <CardContent sx={{p:0}}>
+      <Box sx={{px: { xs: 2.5, sm: 5}, backgroundColor:'background.paper' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {store && store.clusters && store.clusters ? (
@@ -141,7 +133,15 @@ const ClustersList = props => {
             </Box>
           </Box>
       <Divider sx={{ mb: 0, mt:5 }} />
-      <Box sx={{ p: 0, position: 'relative', overflowX: 'hidden', height: 'calc(100% - 7rem)' }}>
+      <Box sx={{ p: 0,
+            maxHeight: '56vh',
+            display: 'flex',
+            overflowY: 'auto',
+            flexGrow: 1,
+            flexDirection: 'column',
+            ['@media (min-width:1900px)']: { // eslint-disable-line no-useless-computed-key
+              maxHeight: '61.5vH'
+            } }}>
           <ScrollWrapper>
             {store && store.clusters && store.clusters.length ? (
               <List sx={{ p: 0 }}>
@@ -165,7 +165,7 @@ const ClustersList = props => {
                       }}>
                       <ClusterItem
                         onClick={() => {
-                          setMailDetailsOpen(true)
+                          setClusterDetailsOpen(true)
                         }}
                         sx={{ py: 2.75, p:3, backgroundColor: 'background.paper' }}
                       >
@@ -210,7 +210,7 @@ const ClustersList = props => {
                           className='mail-info-right'
                           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', direction:'column' }}>
                           <Box sx={{ display: { xs: 'flex', sm: 'flex', flexDirection:'column', alignItems:'center' } }}>
-                            397
+                            {cluster.subscriptionsCount}
                             <Typography
                               variant='caption'
                               sx={{
@@ -244,7 +244,8 @@ const ClustersList = props => {
       </CardContent>
       <ClusterDetails
         store={store}
-        open={mailDetailsOpen}
+        dispatch={dispatch}
+        open={clusterDetailOpen}
         handleClose={handleCloseClusterDetails} />
     </Card>
   )
