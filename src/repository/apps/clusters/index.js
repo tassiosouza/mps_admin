@@ -54,7 +54,13 @@ export const saveClustersAndSubscriptions =  async(subscriptions, cluster)  => {
       }))
     } else {
       await API.graphql(graphqlOperation(updateCluster, {
-        input: {...cluster, editing: false}
+        input: {
+          id: cluster.id, 
+          name: cluster.name,
+          editing:false,
+          path: JSON.stringify(cluster.path),
+          color: cluster.color,
+          subscriptionsCount: subscriptionsCount}
       }))
     }
   }

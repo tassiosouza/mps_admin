@@ -106,7 +106,6 @@ export const loadSubscriptions = async (params, getState)  => {
       })
       parsedData = csv?.data;
     });
-  
   // ** Process subscriptions (retreive lat and lng)
   subscriptions = await syncSubscriptions(parsedData, oldSubscriptions, params.callback)
   return subscriptions

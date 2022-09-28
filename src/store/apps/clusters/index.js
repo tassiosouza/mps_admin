@@ -1,10 +1,8 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { TruckDelivery } from 'mdi-material-ui'
 
 // ** Repository Imports
-import { getClusters, getSubscriptions, addClusterLocally, updateClusterLocally,  saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
-
+import { getClusters, getSubscriptions, updateClusterLocally,  saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
 
 // ** Fetch Clusters from Server
 export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async (params)  => {
@@ -65,6 +63,11 @@ export const appClusterSlice = createSlice({
     handleSavingClusters: (state, action) => {
       state.saving = action.payload
     },
+    handleHover: (state, action) => {
+      const clusterHover = action.payload.cluster
+      const index = state.clusters.indexOf(state.clusters.find(cl => cl.id === clusterHover.id))
+      state.clusters[index].hover = action.payload.hover
+    },
     handleSelectCluster: (state, action) => {
       const clusters = state.selectedClusters
       if (!clusters.includes(action.payload)) {
@@ -94,7 +97,9 @@ export const appClusterSlice = createSlice({
   },
   extraReducers: builder => {
     builder.addCase(fetchClusters.fulfilled, (state, action) => {
-      state.clusters = action.payload.clusters
+      state.clusters = action.payload.clusters.map(cl => {
+        return {...cl, hover:false}
+      })
       state.subscriptions = action.payload.subscriptions
       state.loading = false
     }),
@@ -137,6 +142,6 @@ export const appClusterSlice = createSlice({
 })
 
 export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters,
-  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster } = appClusterSlice.actions
+  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover } = appClusterSlice.actions
 
 export default appClusterSlice.reducer

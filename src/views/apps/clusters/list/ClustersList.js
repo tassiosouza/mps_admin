@@ -33,7 +33,7 @@ import Typography from '@mui/material/Typography'
 
 // ** Store & Actions Imports
 import { useDispatch } from 'react-redux'
-import { handleSelectAllClusters, handleSelectCluster, handleCleanSelection, handleAddCluster } from 'src/store/apps/clusters'
+import { handleSelectAllClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover } from 'src/store/apps/clusters'
 
 // ** Clusters App Component Imports
 import ClusterDetails from './ClusterDetails'
@@ -164,6 +164,8 @@ const ClustersList = props => {
                         }
                       }}>
                       <ClusterItem
+                        onMouseEnter={() => dispatch(handleHover({cluster,hover:true}))}
+                        onMouseLeave={() => dispatch(handleHover({cluster,hover:false}))}
                         onClick={() => {
                           setClusterDetailsOpen(true)
                         }}
@@ -234,7 +236,7 @@ const ClustersList = props => {
                 })}
               </List>
             ) : (
-              <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <AlertCircleOutline fontSize='small' sx={{ mr: 2 }} />
                 <Typography>No Clusters Found</Typography>
               </Box>
