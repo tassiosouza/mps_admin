@@ -1,5 +1,6 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { Satellite } from 'mdi-material-ui'
 
 // ** Repository Imports
 import { getClusters, getSubscriptions, updateClusterLocally,  saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
@@ -31,14 +32,58 @@ export const updateCluster = createAsyncThunk('appClusters/updateCluster', async
   const cluster = {...getState().clusters.editingCluster, path: nextPath}
   const subscriptions = getState().clusters.subscriptions
   const updatedSubscriptions = await updateClusterLocally(cluster, subscriptions)
-  cluster = {...getState().clusters.editingCluster, path: nextPath}
 
   return {updatedCluster: cluster, updatedSubscriptions}
 })
 
+const getLastSelectedCenter = (selectedClusters) => {
+  const cluster = selectedClusters[selectedClusters.length - 1]
+  return polygonCenter(cluster.path)
+}
+
+const polygonCenter = (path) => {
+  var vertices
+  if(path) {
+    vertices = path
+  }
+  else {
+    vertices = [
+      { lat: 33.3047610128895, lng: -117.38569404687499},
+      { lat: 33.17023062920513, lng: -117.4320085 },
+      { lat: 33.168072587211924, lng: -117.20816206445312 },
+      { lat: 33.31394248217619, lng: -117.2694606484375 }
+    ]
+  }
+  
+  // put all latitudes and longitudes in arrays
+  const longitudes = vertices.map(ver => ver.lng);
+  const latitudes = vertices.map(ver => ver.lat);
+
+  // sort the arrays low to high
+  latitudes.sort();
+  longitudes.sort();
+
+  // get the min and max of each
+  const lowX = latitudes[0];
+  const highX = latitudes[latitudes.length - 1];
+  const lowy = longitudes[0];
+  const highy = longitudes[latitudes.length - 1];
+
+  // center of the polygon is the starting point plus the midpoint
+  const centerX = lowX + ((highX - lowX) / 2);
+  const centerY = lowy + ((highy - lowy) / 2);
+
+  return {lat: centerX, lng:centerY};
+}
+
 export const appClusterSlice = createSlice({
   name: 'appClusters',
   initialState: {
+    currentZoom: 8.52,
+    currentCenter: {
+      lat: 33.3523247,
+      lng:  -117.5310085
+    },
     clusters: [],
     selectedClusters:[],
     subscriptions: [],
@@ -56,6 +101,11 @@ export const appClusterSlice = createSlice({
         return sub
       })
       state.editingCluster = null
+      state.currentZoom = 8.53
+      state.currentCenter = {
+        lat: 33.3523247,
+        lng:  -117.5310085
+      }
     },
     handleLoadingClusters: (state, action) => {
       state.loading = action.payload
@@ -76,15 +126,40 @@ export const appClusterSlice = createSlice({
       } else {
         clusters.splice(clusters.indexOf(foundCluster), 1)
       }
+
+      // ** Update Selected Clusters and Zoom/Focus Control
       state.selectedClusters = clusters
+      state.currentZoom = state.selectedClusters.length ? 11 : 8.52
+      state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
+        lat: 33.3523247,
+        lng:  -117.5310085
+      }
     },
     handleAddCluster: (state, action) => {
       const cluster = action.payload
       state.selectedClusters = [cluster]
       state.editingCluster = cluster
+
+      // ** Update Selected Clusters and Zoom/Focus Control
+      state.currentZoom = state.selectedClusters.length ? 11 : 8.52
+      state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
+        lat: 33.3523247,
+        lng:  -117.5310085
+      }
     },
     handleOpenCluster: (state, action) => {
       state.selectedClusters = [action.payload]
+
+      // ** Update Selected Clusters and Zoom/Focus Control
+      state.currentZoom = state.selectedClusters.length ? 11 : 8.52
+      state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
+        lat: 33.3523247,
+        lng:  -117.5310085
+      }
+    },
+    editCluster: (state, action) => {
+      state.editingCluster = {...action.payload, editing:true}
+      state.selectedClusters = [state.editingCluster]
     },
     handleSelectAllClusters: (state, action) => {
       const selectAllClusters = []
@@ -97,19 +172,28 @@ export const appClusterSlice = createSlice({
         selectAllClusters.length = 0
       }
       state.selectedClusters = selectAllClusters
+
+      // ** Update Selected Clusters and Zoom/Focus Control
+      state.currentZoom = state.selectedClusters.length ? 11 : 8.52
+      state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
+        lat: 33.3523247,
+        lng:  -117.5310085
+      }
     }
   },
   extraReducers: builder => {
     builder.addCase(fetchClusters.fulfilled, (state, action) => {
       state.clusters = action.payload.clusters.map(cl => {
-        return {...cl, hover:false}
+        return {...cl, hover:false, path: JSON.parse(cl.path)}
       })
       state.subscriptions = action.payload.subscriptions
       state.loading = false
     }),
     builder.addCase(saveCluster.fulfilled, (state, action) => {
       // ** Update clusters and subscriptions states
-      state.clusters = action.payload.clusters
+      state.clusters = action.payload.clusters.map(cl => {
+        return {...cl, hover:false, path: JSON.parse(cl.path)}
+      })
       state.subscriptions = action.payload.subscriptions
       state.editingCluster = null
       state.saving = false
@@ -123,10 +207,7 @@ export const appClusterSlice = createSlice({
         state.editingCluster = action.payload.updatedCluster
       } else {
         // ** Update clusters list with updated cluster
-        var updatedCluster = action.payload.updatedCluster
-        var oldCluster = state.clusters.find(cluster => cluster.id === updatedCluster.id)
-        var clusterIndex = state.clusters.indexOf(oldCluster)
-        state.clusters[clusterIndex] = updatedCluster
+        state.editingCluster = action.payload.updatedCluster
       }
       
       // ** Update Subscriptions
@@ -146,6 +227,6 @@ export const appClusterSlice = createSlice({
 })
 
 export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters,
-  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover, handleOpenCluster } = appClusterSlice.actions
+  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover, handleOpenCluster, editCluster } = appClusterSlice.actions
 
 export default appClusterSlice.reducer

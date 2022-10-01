@@ -32,11 +32,6 @@ const containerStyle = {
   borderRadius:'8px'
 };
 
-const center = {
-  lat: 33.3523247,
-  lng:  -117.5310085
-};
-
 /* eslint-enable */
 const ClustersPage = () => {
 
@@ -63,6 +58,16 @@ const ClustersPage = () => {
       })
     )
   }, [dispatch, value])
+
+  useEffect(() => {
+    if(store.editingCluster != null) {
+      if(store.editingCluster.path) {
+        setPath(store.editingCluster.path)
+      } else {
+        setPath(initialPath)
+      }
+    }
+  }, [store])
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -142,40 +147,18 @@ const ClustersPage = () => {
   };
 
   MapControl.propTypes = {
-    // https://developers.google.com/maps/documentation/javascript/controls?hl=uk#ControlPositioning
     position: PropTypes.number.isRequired,
     children: PropTypes.node.isRequired,
     zIndex: PropTypes.number,
   };
 
-  const getLastSelectedCenter = () => {
-    const cluster = store.selectedClusters[store.selectedClusters.length - 1]
-    return polygonCenter(cluster.path)
-  }
-
-  const polygonCenter = (path) => {
-    const vertices = JSON.parse(path)
+  const isClusterEditing = (id) => {
+    if(store.editingCluster) {
+      return store.editingCluster.id === id
+    }
     
-    // put all latitudes and longitudes in arrays
-    const longitudes = vertices.map(ver => ver.lng);
-    const latitudes = vertices.map(ver => ver.lat);
-
-    // sort the arrays low to high
-    latitudes.sort();
-    longitudes.sort();
-
-    // get the min and max of each
-    const lowX = latitudes[0];
-    const highX = latitudes[latitudes.length - 1];
-    const lowy = longitudes[0];
-    const highy = longitudes[latitudes.length - 1];
-
-    // center of the polygon is the starting point plus the midpoint
-    const centerX = lowX + ((highX - lowX) / 2);
-    const centerY = lowy + ((highy - lowy) / 2);
-
-    return {lat: centerX, lng:centerY};
-}
+    return false
+  }
 
   return (
     <Grid container spacing={6}>
@@ -190,8 +173,8 @@ const ClustersPage = () => {
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={containerStyle}
-                  center={store.selectedClusters.length ? getLastSelectedCenter() : center}
-                  zoom={store.selectedClusters.length ? 11 : 8.52}
+                  center={store.currentCenter}
+                  zoom={store.currentZoom}
                   onUnmount={onUnmount}
                 >
                 <MapControl position={window.google.maps.ControlPosition.TOP_LEFT}>
@@ -208,6 +191,7 @@ const ClustersPage = () => {
                 </MapControl>
                 {showClustering && showSubscriptions && (
                   <MarkerClusterer 
+                    clickable={false}
                     options={options}>
                     {(clusterer) =>
                     <>
@@ -249,10 +233,11 @@ const ClustersPage = () => {
                   ))}
                 {store.clusters.map((cluster, index) => (
                   <Polygon
+                    visible={!isClusterEditing(cluster.id)}
                     clickable={false}
                     onLoad={onLoad}
                     key={index}
-                    path={JSON.parse(cluster.path)}
+                    path={cluster.path}
                     onUnmount={onUnmount}
                     options={{
                       strokeColor:cluster.hover ? cluster.color : '#363636',
@@ -264,13 +249,10 @@ const ClustersPage = () => {
                 ))}
                 {store.editingCluster && (
                   <Polygon
-                    // Make the Polygon editable / draggable
                     editable
                     draggable
                     path={path}
-                    // Event used when manipulating and adding points
                     onMouseUp={onEdit}
-                    // Event used when dragging the whole Polygon
                     onDragEnd={onEdit}
                     onLoad={onLoad}
                     onUnmount={onUnmount}

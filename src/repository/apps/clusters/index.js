@@ -41,7 +41,7 @@ export const saveClustersAndSubscriptions =  async(subscriptions, cluster)  => {
     }
   }
   // ** Save editing clusters
-  if(cluster.editing && cluster.new) {
+  if(cluster.editing) {
     if(cluster.new) {
       await API.graphql(graphqlOperation(createCluster, {
         input: {
@@ -53,6 +53,7 @@ export const saveClustersAndSubscriptions =  async(subscriptions, cluster)  => {
           subscriptionsCount: subscriptionsCount}
       }))
     } else {
+      console.log('cluster has now ' + cluster.path.length + ' vertexs' )
       await API.graphql(graphqlOperation(updateCluster, {
         input: {
           id: cluster.id, 
@@ -79,7 +80,7 @@ const updateSubscriptions = (cluster, subscriptions) => {
         }
       }
       else if(sub.clusterId === cluster.id) {
-        return {...sub, editing:false, clusterId:'', color:'#363636'}
+        return {...sub, editing:true, clusterId:'', color:'#363636'}
       }
       return sub
   })

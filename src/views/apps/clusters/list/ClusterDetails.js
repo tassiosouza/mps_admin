@@ -23,7 +23,7 @@ import Sidebar from 'src/@core/components/sidebar'
 import ClustersTabs from './ClustersTabs'
 
 // ** Store & Actions Imports
-import { saveCluster, handleSavingClusters, handleCleanSelection } from 'src/store/apps/clusters'
+import { saveCluster, handleSavingClusters, handleCleanSelection, editCluster } from 'src/store/apps/clusters'
 
 const ScrollWrapper = ({ children }) => {
   return <PerfectScrollbar options={{ wheelPropagation: false }}>{children}</PerfectScrollbar>
@@ -32,7 +32,6 @@ const ScrollWrapper = ({ children }) => {
 const ClusterDetails = props => {
 
   const [clusterName, setClusterName] = useState('')
-  const [selectedCluster, setSelectedCluster] = useState('')
 
   // ** Props
   const {
@@ -42,10 +41,6 @@ const ClusterDetails = props => {
     handleClose,
   } = props
 
-  useEffect(() => {
-    console.log(JSON.stringify(store.selectedCluster))
-  }, [store])
-
   const handleSaveCluster = () => {
     if(clusterName.length > 0) {
       dispatch(handleSavingClusters(true))
@@ -54,6 +49,11 @@ const ClusterDetails = props => {
     else {
       alert('Empty cluster name')
     }
+  }
+
+  const handleEditCluster = () => {
+    setClusterName(store.selectedClusters[0].name)
+    dispatch(editCluster(store.selectedClusters[0]))
   }
 
   const onSaveCallback = () => {
@@ -71,8 +71,6 @@ const ClusterDetails = props => {
     setClusterName('')
     handleClose()
   }
-
-  console.log('selecteds: ' + JSON.stringify(store.selectedClusters))
 
   return (
     <Sidebar
@@ -124,7 +122,7 @@ const ClusterDetails = props => {
                       {store.saving ? 'Saving' : 'Save'}
                     </Button>
                   ) : (
-                    <Button sx={{height:'fit-content' }} color='primary' startIcon={<PencilOutline/>}>
+                    <Button sx={{height:'fit-content' }} onClick={() => handleEditCluster()}color='primary' startIcon={<PencilOutline/>}>
                       Edit
                     </Button>
                   )}

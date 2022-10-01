@@ -116,7 +116,7 @@ const ClustersList = props => {
               {store && store.clusters.length && store.selectedClusters && store.selectedClusters.length ? (
                 <Fragment>
                   <IconButton >
-                    <DeleteOutline />
+                    <DeleteOutline/>
                   </IconButton>
                   <IconButton>
                     <DownloadOutline/>
