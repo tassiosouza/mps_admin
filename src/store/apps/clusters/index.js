@@ -70,10 +70,11 @@ export const appClusterSlice = createSlice({
     },
     handleSelectCluster: (state, action) => {
       const clusters = state.selectedClusters
-      if (!clusters.includes(action.payload)) {
+      const foundCluster = clusters.find(cl => cl.id === action.payload.id)
+      if (foundCluster == null) {
         clusters.push(action.payload)
       } else {
-        clusters.splice(clusters.indexOf(action.payload), 1)
+        clusters.splice(clusters.indexOf(foundCluster), 1)
       }
       state.selectedClusters = clusters
     },
@@ -82,13 +83,16 @@ export const appClusterSlice = createSlice({
       state.selectedClusters = [cluster]
       state.editingCluster = cluster
     },
+    handleOpenCluster: (state, action) => {
+      state.selectedClusters = [action.payload]
+    },
     handleSelectAllClusters: (state, action) => {
       const selectAllClusters = []
       if (action.payload && state.clusters !== null) {
         selectAllClusters.length = 0
 
         // @ts-ignore
-        state.clusters.forEach(cluster => selectAllClusters.push(cluster.id))
+        state.clusters.forEach(cluster => selectAllClusters.push(cluster))
       } else {
         selectAllClusters.length = 0
       }
@@ -142,6 +146,6 @@ export const appClusterSlice = createSlice({
 })
 
 export const { handleLoadingClusters, handleSetOpenCluster, handleSelectAllClusters,
-  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover } = appClusterSlice.actions
+  handleSavingClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover, handleOpenCluster } = appClusterSlice.actions
 
 export default appClusterSlice.reducer

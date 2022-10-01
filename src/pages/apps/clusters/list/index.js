@@ -148,6 +148,35 @@ const ClustersPage = () => {
     zIndex: PropTypes.number,
   };
 
+  const getLastSelectedCenter = () => {
+    const cluster = store.selectedClusters[store.selectedClusters.length - 1]
+    return polygonCenter(cluster.path)
+  }
+
+  const polygonCenter = (path) => {
+    const vertices = JSON.parse(path)
+    
+    // put all latitudes and longitudes in arrays
+    const longitudes = vertices.map(ver => ver.lng);
+    const latitudes = vertices.map(ver => ver.lat);
+
+    // sort the arrays low to high
+    latitudes.sort();
+    longitudes.sort();
+
+    // get the min and max of each
+    const lowX = latitudes[0];
+    const highX = latitudes[latitudes.length - 1];
+    const lowy = longitudes[0];
+    const highy = longitudes[latitudes.length - 1];
+
+    // center of the polygon is the starting point plus the midpoint
+    const centerX = lowX + ((highX - lowX) / 2);
+    const centerY = lowy + ((highy - lowy) / 2);
+
+    return {lat: centerX, lng:centerY};
+}
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={5}>
@@ -161,8 +190,8 @@ const ClustersPage = () => {
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={containerStyle}
-                  center={center}
-                  zoom={8.52}
+                  center={store.selectedClusters.length ? getLastSelectedCenter() : center}
+                  zoom={store.selectedClusters.length ? 11 : 8.52}
                   onUnmount={onUnmount}
                 >
                 <MapControl position={window.google.maps.ControlPosition.TOP_LEFT}>
@@ -209,7 +238,7 @@ const ClustersPage = () => {
                       clickable={false}
                       icon={{
                         path: google.maps.SymbolPath.CIRCLE,
-                        fillColor: subscription.color,
+                        fillColor: '#363636',
                         fillOpacity: 0.5,
                         scale: 3,
                         strokeColor: subscription.color,
@@ -225,11 +254,9 @@ const ClustersPage = () => {
                     key={index}
                     path={JSON.parse(cluster.path)}
                     onUnmount={onUnmount}
-                    onMouseOver={() => dispatch(handleHover({cluster,hover:true}))}
-                    onMouseOut={() => dispatch(handleHover({cluster,hover:false}))}
                     options={{
                       strokeColor:cluster.hover ? cluster.color : '#363636',
-                      fillColor:cluster.hover ? cluster.color : '#363636',
+                      fillColor: store.selectedClusters.includes(cluster) ? cluster.color : '#363636',
                       strokeOpacity:cluster.hover ? '0.5' : '0.8',
                       strokeWeight:cluster.hover ? '2' : '1'
                     }}

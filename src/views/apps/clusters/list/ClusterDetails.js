@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Divider from '@mui/material/Divider'
@@ -32,6 +32,7 @@ const ScrollWrapper = ({ children }) => {
 const ClusterDetails = props => {
 
   const [clusterName, setClusterName] = useState('')
+  const [selectedCluster, setSelectedCluster] = useState('')
 
   // ** Props
   const {
@@ -40,6 +41,10 @@ const ClusterDetails = props => {
     open,
     handleClose,
   } = props
+
+  useEffect(() => {
+    console.log(JSON.stringify(store.selectedCluster))
+  }, [store])
 
   const handleSaveCluster = () => {
     if(clusterName.length > 0) {
@@ -66,6 +71,8 @@ const ClusterDetails = props => {
     setClusterName('')
     handleClose()
   }
+
+  console.log('selecteds: ' + JSON.stringify(store.selectedClusters))
 
   return (
     <Sidebar

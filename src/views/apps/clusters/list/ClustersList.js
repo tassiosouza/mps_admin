@@ -33,7 +33,7 @@ import Typography from '@mui/material/Typography'
 
 // ** Store & Actions Imports
 import { useDispatch } from 'react-redux'
-import { handleSelectAllClusters, handleSelectCluster, handleCleanSelection, handleAddCluster, handleHover } from 'src/store/apps/clusters'
+import { handleSelectAllClusters, handleSelectCluster, handleAddCluster, handleOpenCluster } from 'src/store/apps/clusters'
 
 // ** Clusters App Component Imports
 import ClusterDetails from './ClusterDetails'
@@ -76,6 +76,11 @@ const ClustersList = props => {
       new:true
     }
     dispatch(handleAddCluster(newCluster))
+    setClusterDetailsOpen(true)
+  }
+
+  const selectCluster = (cluster) => {
+    dispatch(handleOpenCluster(cluster))
     setClusterDetailsOpen(true)
   }
 
@@ -164,18 +169,16 @@ const ClustersList = props => {
                         }
                       }}>
                       <ClusterItem
-                        onMouseEnter={() => dispatch(handleHover({cluster,hover:true}))}
-                        onMouseLeave={() => dispatch(handleHover({cluster,hover:false}))}
                         onClick={() => {
-                          setClusterDetailsOpen(true)
+                          selectCluster(cluster)
                         }}
                         sx={{ py: 2.75, p:3, backgroundColor: 'background.paper' }}
                       >
                         <Box sx={{ mr: 4, display: 'flex', overflow: 'hidden', alignItems: 'center' }}>
                           <Checkbox
                             onClick={e => e.stopPropagation()}
-                            onChange={() => dispatch(handleSelectCluster(cluster.id))}
-                            checked={store.selectedClusters.includes(cluster.id) || false}/>
+                            onChange={() => dispatch(handleSelectCluster(cluster))}
+                            checked={store.selectedClusters.includes(cluster) || false}/>
                           <Box sx={{
                               display: 'flex',
                               overflow: 'hidden',
@@ -199,12 +202,12 @@ const ClustersList = props => {
                           sx={{ display: 'none', alignItems: 'center', justifyContent: 'flex-end' }}>
                           <Tooltip placement='top' title='Edit'>
                             <IconButton>
-                              <PencilOutline />
+                              <DeleteOutline />
                             </IconButton>
                           </Tooltip>
                           <Tooltip placement='top' title='Delete'>
                             <IconButton>
-                              <DeleteOutline />
+                              <DownloadOutline />
                             </IconButton>
                           </Tooltip>
                         </Box>
