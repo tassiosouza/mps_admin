@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { Satellite } from 'mdi-material-ui'
 
 // ** Repository Imports
-import { getClusters, getSubscriptions, updateClusterLocally,  saveClustersAndSubscriptions } from 'src/repository/apps/clusters'
+import { getClusters, getSubscriptions, updateClusterLocally,  saveClustersAndSubscriptions, deleteRemoteClusters } from 'src/repository/apps/clusters'
 
 // ** Fetch Clusters from Server
 export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async (params)  => {
@@ -40,6 +40,27 @@ const getLastSelectedCenter = (selectedClusters) => {
   const cluster = selectedClusters[selectedClusters.length - 1]
   return polygonCenter(cluster.path)
 }
+
+// ** Delete Clusters in Amplify
+export const deleteClusters = createAsyncThunk('appClusters/deleteClusters', async (params, {getState}) => {
+  const { clustersToDelete, callback } = params 
+
+  const subscriptionsToUpdate = getState().clusters.subscriptions.filter(sub => {
+    for(var i = 0; i < clustersToDelete.length; i++){
+      if(clustersToDelete[i].id === sub.clusterId) {
+        return true
+      }
+    }
+    return false 
+  })
+  console.log('not even: ' + subscriptionsToUpdate.length)
+  await deleteRemoteClusters(clustersToDelete, subscriptionsToUpdate)
+
+  const clusters = await getClusters({q:''})
+  const subscriptions = await getSubscriptions()
+
+  return {clusters, subscriptions, callback }
+})
 
 const polygonCenter = (path) => {
   var vertices
@@ -222,6 +243,16 @@ export const appClusterSlice = createSlice({
       })
 
       state.loading = false
+    }),
+    builder.addCase(deleteClusters.fulfilled, (state, action) => {
+      // ** Update clusters and subscriptions states
+      state.clusters = action.payload.clusters.map(cl => {
+        return {...cl, hover:false, path: JSON.parse(cl.path)}
+      })
+      state.subscriptions = action.payload.subscriptions
+
+      // ** Call delete callback
+      action.payload.callback()
     })
   }
 })

@@ -37,11 +37,14 @@ import { handleSelectAllClusters, handleSelectCluster, handleAddCluster, handleO
 
 // ** Clusters App Component Imports
 import ClusterDetails from './ClusterDetails'
+import DeleteDialog from './DeleteDialog'
 
 const ClustersList = props => {
 
   const { store } = props
-  const [clusterDetailOpen, setClusterDetailsOpen] = useState(false)
+  const [ clusterDetailOpen, setClusterDetailsOpen ] = useState(false)
+  const [ clustersToDelete, setClustersToDelete ] = useState([])
+  const [ deleteConfirmationOpen, setDeleteConfirmationOpen ] = useState(false)
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -88,6 +91,12 @@ const ClustersList = props => {
     setClusterDetailsOpen(false)
   }
 
+  const handleDeleteClusters = (e, clusters) => {
+    e.stopPropagation()
+    setClustersToDelete(clusters)
+    setDeleteConfirmationOpen(true)
+  }
+
   return (
     <Card>
       <CardHeader sx={{pl:7}}title='Clusters'/>
@@ -116,7 +125,7 @@ const ClustersList = props => {
               {store && store.clusters.length && store.selectedClusters && store.selectedClusters.length ? (
                 <Fragment>
                   <IconButton >
-                    <DeleteOutline/>
+                    <DeleteOutline onClick={e => handleDeleteClusters(e, store.selectedClusters)}/>
                   </IconButton>
                   <IconButton>
                     <DownloadOutline/>
@@ -202,7 +211,7 @@ const ClustersList = props => {
                           sx={{ display: 'none', alignItems: 'center', justifyContent: 'flex-end' }}>
                           <Tooltip placement='top' title='Edit'>
                             <IconButton>
-                              <DeleteOutline />
+                              <DeleteOutline onClick={e => handleDeleteClusters(e, [cluster])}/>
                             </IconButton>
                           </Tooltip>
                           <Tooltip placement='top' title='Delete'>
@@ -252,6 +261,12 @@ const ClustersList = props => {
         dispatch={dispatch}
         open={clusterDetailOpen}
         handleClose={handleCloseClusterDetails} />
+      <DeleteDialog
+        clusters={clustersToDelete}
+        open={deleteConfirmationOpen}
+        onDelete={()=> setDeleteConfirmationOpen(false)}
+        onCancel={()=> setDeleteConfirmationOpen(false)}
+        dispatch={dispatch} />
     </Card>
   )
 }

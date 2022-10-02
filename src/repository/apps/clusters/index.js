@@ -1,6 +1,6 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createCluster, updateMpsSubscription, updateCluster } from '../../../graphql/mutations'
+import { createCluster, updateMpsSubscription, updateCluster, deleteCluster } from '../../../graphql/mutations'
 import { listClusters, listMpsSubscriptions } from '../../../graphql/queries'
 
 // ** Fetch Clusters from Amplify
@@ -25,6 +25,22 @@ export const getSubscriptions =  async()  => {
   }))
   const data = response.data.listMpsSubscriptions.items
   return data
+}
+
+// ** Delete Clusters from Amplify
+export const deleteRemoteClusters = async(clusters, subscriptions) => {
+
+  for(var i = 0; i < subscriptions.length; i ++) {
+    await API.graphql(graphqlOperation(updateMpsSubscription, {
+      input: {id: subscriptions[i].id, clusterId: '', color: '#363636'}
+    }))
+  }
+
+  for(var i = 0; i < clusters.length; i ++) {
+    await API.graphql(graphqlOperation(deleteCluster, {
+      input: {id: clusters[i].id}
+    }))
+  }
 }
 
 // ** Save ALL editing clusters and subscriptions in Amplify
