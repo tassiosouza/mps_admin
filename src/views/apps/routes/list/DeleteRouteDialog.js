@@ -12,19 +12,25 @@ import Box from '@mui/material/Box'
 import LinearProgress from '@mui/material/LinearProgress'
 
 // ** Repository Imports
-import { deleteRoute } from 'src/repository/apps/routes';
+import { deleteRoutes } from 'src/repository/apps/routes';
 
 const DialogConfirmation = (props) => {
 
-  const { open, onDelete, onCancel, route, orders } = props
+  const { open, onDelete, onCancel, routes, orders } = props
 
   const [deleting, setDeleting] = useState(false)
 
-  const routeID = route ? route.id : ''
-
   const handleDelete = async () => {
+    const ordersToDelete = orders.filter(order => {
+      for(var i = 0; i < routes.length; i++) {
+        if(order.assignedRouteID === routes[i].id) {
+          return true
+        }
+      }
+      return false
+    })
     setDeleting(true)
-    const deletedRoute = await deleteRoute(route, orders)
+    const deletedRoute = await deleteRoutes(routes, ordersToDelete)
     setDeleting(false)
     onDelete(deletedRoute)
   }
@@ -44,8 +50,9 @@ const DialogConfirmation = (props) => {
       <DialogTitle id='alert-dialog-title'>Delete Route</DialogTitle>
       <DialogContent>
         <DialogContentText id='alert-dialog-description'>
-          This operation will delete the route <Box fontWeight='600' display='inline'> {routeID} </Box> and all the orders assigned to it. If the route has any assigned driver,
-          it will be automatically unassigned. Are you sure you want to delete ? 
+          This operation will delete the {routes.length > 1 ? 'routes' : 'route'} {routes.map((route, index) => <Box fontWeight='600' display='inline'> 
+          {route.id}{index != routes.length -1 && ', '}</Box>)} and all the orders assigned to {routes.length > 1 ? 'them' : 'it'}.
+           If the route has any assigned driver, it will be automatically unassigned. Are you sure you want to delete ? 
         </DialogContentText>
       </DialogContent>
       <DialogActions className='dialog-actions-dense'>

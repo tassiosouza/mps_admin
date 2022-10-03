@@ -125,15 +125,17 @@ export const unassignAmplifyDriver = async (routeID, driverID)  => {
   }
 }
 
-export const deleteRoute = async (route, orders)  => {
-  // ** Mutate (Delete) Route in Amplify
-  const response = await API.graphql(graphqlOperation(deleteMRoute, {input: {id:route.id}}))
-  const routeResult = response.data.deleteMRoute ? response.data.deleteMRoute : null
+export const deleteRoutes = async (routes, orders)  => {
+  const routeResult = false
+  for(var j = 0; j < routes.length; j++) {
+    // ** Mutate (Delete) Route in Amplify
+  const response = await API.graphql(graphqlOperation(deleteMRoute, {input: {id:routes[j].id}}))
+  routeResult = response.data.deleteMRoute ? response.data.deleteMRoute : null
 
   if(routeResult) {
     // ** Mutate (Unassign) Driver in Amplify if route is already assigned
     if(routeResult.driverID != '') {
-      await API.graphql(graphqlOperation(updateDriver, {input: {id:route.driverID, assignStatus: AssignStatus.UNASSIGNED}}))
+      await API.graphql(graphqlOperation(updateDriver, {input: {id:routes[j].driverID, assignStatus: AssignStatus.UNASSIGNED}}))
     }
 
     // ** Mutate (Delete) Orders in Amplify the where linked to the route
@@ -158,7 +160,8 @@ export const deleteRoute = async (route, orders)  => {
       }
     }
   }
-
+}
+  
   return routeResult
 }
 

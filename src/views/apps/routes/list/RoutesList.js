@@ -273,6 +273,9 @@ const RoutesList = (props) => {
         saveAsExcel(selectedRoutes)
         setSelectedRoutes([])
       break
+      case "Delete":
+        setOpenDeleteConfirm(true)
+      break
       default:
       break
     }
@@ -574,8 +577,8 @@ const RoutesList = (props) => {
         drivers={getDriversNames(selectedRoutes)}
       />
       <DeleteRouteDialog 
-        route={selectedRoutes[0]}
-        orders={getRouteOrders(selectedRoutes[0]?.id)}
+        routes={selectedRoutes}
+        orders={store.orders}
         open={openDeleteConfirm}
         onDelete={handleDeleteConfirm}
         onCancel={handleCloseConfirmDialog}>
