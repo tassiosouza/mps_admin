@@ -53,7 +53,6 @@ export const deleteClusters = createAsyncThunk('appClusters/deleteClusters', asy
     }
     return false 
   })
-  console.log('not even: ' + subscriptionsToUpdate.length)
   await deleteRemoteClusters(clustersToDelete, subscriptionsToUpdate)
 
   const clusters = await getClusters({q:''})
@@ -61,6 +60,27 @@ export const deleteClusters = createAsyncThunk('appClusters/deleteClusters', asy
 
   return {clusters, subscriptions, callback }
 })
+
+// ** Set Subscriptions Assignments
+export const setSubscriptionsAssignment = createAsyncThunk('appClusters/setSubscriptionsAssignment', async (params) => {
+  const { subscriptionsToUpdate, cluster } = params
+  const updatedSubscriptions = subscriptionsToUpdate.map(sub => {
+    var subscription = {...sub}
+    if(subscription.clusterId === '') {
+      subscription.clusterId = cluster.id
+      subscription.color = cluster.color
+    }
+    else {
+      subscription.clusterId = ''
+      subscription.color = '#363636'
+    }
+    subscription.editing = true
+    return subscription
+  })
+
+  return {subscriptions: updatedSubscriptions}
+})
+
 
 const polygonCenter = (path) => {
   var vertices
@@ -253,6 +273,18 @@ export const appClusterSlice = createSlice({
 
       // ** Call delete callback
       action.payload.callback()
+    }),
+    builder.addCase(setSubscriptionsAssignment.fulfilled, (state, action) => {
+      // ** Update subscriptions states
+      const updatedSubscriptions = action.payload.subscriptions
+      var updatedSubscriptionsIds = updatedSubscriptions.map(s => s.id)
+      state.subscriptions = state.subscriptions.map(sub => {
+        if(updatedSubscriptionsIds.includes(sub.id)) {
+          var updated = updatedSubscriptions.find(s => s.id === sub.id)
+          return updated
+        }
+        return sub
+      })
     })
   }
 })

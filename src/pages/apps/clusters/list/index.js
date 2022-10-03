@@ -218,23 +218,24 @@ const ClustersPage = () => {
                 {store.subscriptions.map((subscription, index) => (
                     <Marker
                       visible={!showClustering && showSubscriptions}
+                      onClick={() => console.log(subscription.number)}
                       key={index}
-                      clickable={false}
                       icon={{
                         path: google.maps.SymbolPath.CIRCLE,
                         fillColor: '#363636',
                         fillOpacity: 0.5,
                         scale: 3,
+                        marginTop:3,
                         strokeColor: subscription.color,
                         strokeWeight: 1,
-                      }}
+                      }}     
                       position={{ lat: subscription.latitude, lng: subscription.longitude }}
                     />  
                   ))}
                 {store.clusters.map((cluster, index) => (
                   <Polygon
                     visible={!isClusterEditing(cluster.id)}
-                    clickable={false}
+                    clickable={true}
                     onLoad={onLoad}
                     key={index}
                     path={cluster.path}

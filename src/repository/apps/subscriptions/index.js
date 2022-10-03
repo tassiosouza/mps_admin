@@ -130,7 +130,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
         id: parsedData[i].number + parsedData[i].name,
         number: parsedData[i].number,
         subscriptionDate: Date.now(),
-        address: parsedData[i].Address,
+        address: parsedData[i].address,
         location: '',
         email: parsedData[i].email,
         phone: parsedData[i].phone,

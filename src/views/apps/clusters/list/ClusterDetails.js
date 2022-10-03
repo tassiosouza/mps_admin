@@ -132,7 +132,7 @@ const ClusterDetails = props => {
             <Divider sx={{ m: 0 }} />
             {store.saving && <LinearProgress sx={{ height:'2px' }} />}
             <Box sx={{ pl: 5, pt:5 }}>
-              <ClustersTabs store={store}></ClustersTabs>
+              <ClustersTabs store={store} dispatch={dispatch}></ClustersTabs>
             </Box>
           </ScrollWrapper>
         </Box>
