@@ -43,23 +43,31 @@ const ClustersTabs = (props) => {
 
   // ** State
   const [value, setValue] = useState('1')
+  const [filter, setFilter] = useState('1')
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
+    setFilter('')
   }
 
   const getAttachedSubscriptions = () => {
-    return store.subscriptions.filter(sub => sub.clusterId === store.selectedClusters[0].id)
+    return store.subscriptions.filter(sub => sub.clusterId === store.selectedClusters[0].id && 
+      (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) || sub.number.toLowerCase().includes(filter.toLocaleLowerCase())))
   }
 
   const getDetachedSubscriptions = () => {
-    return store.subscriptions.filter(sub => sub.clusterId === '')
+    return store.subscriptions.filter(sub => sub.clusterId === '' && 
+    (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) || sub.number.toLowerCase().includes(filter.toLocaleLowerCase())))
   }
 
   const handleAssignment = subscriptions => {
     // ** If subscription is assigned = unassign
     // ** If subscription is unassigned = assign
     dispatch(setSubscriptionsAssignment({subscriptionsToUpdate: subscriptions, cluster: store.selectedClusters[0]}))
+  }
+
+  const handleFilter = (value) => {
+    setFilter(value)
   }
 
   const defaultColumns = [
@@ -89,7 +97,7 @@ const ClustersTabs = (props) => {
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title={row.clusterId != '' ? 'Detach' : 'Attach'}>
-            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => {handleAssignment([row])}}>
+            <IconButton disabled={!store.selectedClusters[0].editing} size='small' sx={{ mr: 0.5 }} onClick={() => {handleAssignment([row])}}>
               {row.clusterId != '' ? <Minus/> : <Plus/>}
             </IconButton>
           </Tooltip>
@@ -106,37 +114,31 @@ const ClustersTabs = (props) => {
       </TabList>
       <TabPanel value='1'>
         <Card>
-          <ClustersHeader value={''} selectedRows={[]} handleFilter={() => {}} refresh={() => {}} />
+          <ClustersHeader selectedRows={store.selectedDetachedSubscriptions} handleFilter={handleFilter} />
           {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
           <DataGrid
             autoHeight
             pagination
             rows={getAttachedSubscriptions()}
             columns={defaultColumns}
-            checkboxSelection
             disableSelectionOnClick
             pageSize={8}
             sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
-            onSelectionModelChange={rows => {}}
-            onPageSizeChange={newPageSize => {}}
           />
         </Card>
       </TabPanel>
       <TabPanel value='2'>
         <Card>
-            <ClustersHeader value={''} selectedRows={[]} handleFilter={() => {}} refresh={() => {}} />
+            <ClustersHeader selectedRows={store.selectedAttachedSubscriptions} handleFilter={handleFilter} />
             {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
             <DataGrid
               autoHeight
               pagination
               rows={getDetachedSubscriptions()}
               columns={defaultColumns}
-              checkboxSelection
               disableSelectionOnClick
               pageSize={8}
               sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
-              onSelectionModelChange={rows => {}}
-              onPageSizeChange={newPageSize => {}}
             />
           </Card>
       </TabPanel>

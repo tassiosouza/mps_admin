@@ -130,14 +130,19 @@ export const appClusterSlice = createSlice({
     subscriptions: [],
     editingCluster:null,
     loading: true,
-    saving: false
+    saving: false,
+    selectedDetachedSubscriptions:[],
+    selectedAttachedSubscriptions:[],
   },
   reducers: {
     handleCleanSelection: (state, action) => {
-      state.selectedClusters = action.payload
       state.subscriptions = state.subscriptions.map(sub => {
         if(sub.editing) {
-          return {...sub, editing:false, clusterId:'', color:'#363636' }
+          if(sub.clusterId === '') {
+            return {...sub, editing:false, clusterId:state.selectedClusters[0].id, color:state.selectedClusters[0].color }
+          } else {
+            return {...sub, editing:false, clusterId:'', color:'#363636'}
+          }
         }
         return sub
       })
@@ -147,6 +152,7 @@ export const appClusterSlice = createSlice({
         lat: 33.3523247,
         lng:  -117.5310085
       }
+      state.selectedClusters = action.payload
     },
     handleLoadingClusters: (state, action) => {
       state.loading = action.payload

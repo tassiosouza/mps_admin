@@ -4,14 +4,14 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 
 // ** Icons Imports
 import EyeOutline from 'mdi-material-ui/EyeOutline'
 import EyeOffOutline from 'mdi-material-ui/EyeOffOutline'
 import Broadcast from 'mdi-material-ui/Broadcast'
 import BroadcastOff from 'mdi-material-ui/BroadcastOff'
-
 
 // ** Custom Components Imports
 import ClustersList from 'src/views/apps/clusters/list/ClustersList'
@@ -39,6 +39,37 @@ const ClustersPage = () => {
   const [value, setValue] = useState('')
   const [showSubscriptions, setShowSubscriptions] = useState(true)
   const [showClustering, setShowClustering] = useState(true)
+
+  const [open, setOpen] = useState(false)
+  const [snackPack, setSnackPack] = useState([])
+  const [messageInfo, setMessageInfo] = useState(undefined)
+  const [snackMessage, setSnackMessage] = useState('')
+
+  useEffect(() => {
+    if (snackPack.length && !messageInfo) {
+      setOpen(true)
+      setSnackPack(prev => prev.slice(1))
+      setMessageInfo({ ...snackPack[0] })
+    } else if (snackPack.length && messageInfo && open) {
+      setOpen(false)
+    }
+  }, [snackPack, messageInfo, open])
+
+  const handleClick = (message, subscription) => () => {
+    setSnackMessage('Subscription: ' + subscription.number + ' - ' + subscription.name)
+    setSnackPack(prev => [...prev, { message, key: new Date().getTime() }])
+  }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpen(false)
+  }
+
+  const handleExited = () => {
+    setMessageInfo(undefined)
+  }
 
   const initialPath = [
     { lat: 33.3047610128895, lng: -117.38569404687499},
@@ -198,7 +229,7 @@ const ClustersPage = () => {
                       {store.subscriptions.map((subscription, index) => (
                         <Marker
                           key={index}
-                          clickable={false}
+                          onClick={handleClick('success', subscription)}
                           icon={{
                             path: google.maps.SymbolPath.CIRCLE,
                             fillColor: subscription.color,
@@ -218,7 +249,7 @@ const ClustersPage = () => {
                 {store.subscriptions.map((subscription, index) => (
                     <Marker
                       visible={!showClustering && showSubscriptions}
-                      onClick={() => console.log(subscription.number)}
+                      onClick={handleClick('success', subscription)}
                       key={index}
                       icon={{
                         path: google.maps.SymbolPath.CIRCLE,
@@ -279,6 +310,27 @@ const ClustersPage = () => {
             )
           }
       </Grid>
+      <Snackbar
+        open={open}
+        onClose={handleClose}
+        autoHideDuration={3000}
+        TransitionProps={{ onExited: handleExited }}
+        key={messageInfo ? messageInfo.key : undefined}
+        message={messageInfo ? messageInfo.message : undefined}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center"
+       }}
+       sx={{top:'10px !important'}}
+      >
+        <Alert
+          elevation={3}
+          onClose={handleClose}
+          severity={messageInfo?.message === 'success' ? 'success' : 'error'}
+        >
+          {snackMessage}
+        </Alert>
+      </Snackbar>
     </Grid>
   )
 }
