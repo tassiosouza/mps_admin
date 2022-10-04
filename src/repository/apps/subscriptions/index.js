@@ -6,7 +6,7 @@ import Papa from "papaparse";
 
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
+import { createMpsSubscription, deleteMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
 import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
 import { SubscriptionStatus } from '../../../models'
 
@@ -76,6 +76,17 @@ export const getSubscriptions =  async params  => {
   })
   
   return filteredData
+}
+
+// ** Delete Subscriptions
+export const deleteSubscriptions = async (subscriptions)  => {
+  const subscriptionResult = false
+  for(var i = 0; i < subscriptions.length; i++) {
+    // ** Mutate (Delete) Route in Amplify
+    const response = await API.graphql(graphqlOperation(deleteMpsSubscription, {input: {id:subscriptions[i].id}}))
+    subscriptionResult = response.data.deleteMpsSubscription ? response.data.deleteMpsSubscription : null
+  }
+  return subscriptionResult
 }
 
 // ** Load Subscriptions

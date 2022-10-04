@@ -25,7 +25,7 @@ import Reload from 'mdi-material-ui/Reload'
 
 const TableHeader = props => {
   // ** Props
-  const { value, selectedRows, handleFilter } = props
+  const { value, selectedRows, handleFilter, handleMultipleAction } = props
 
   // ** Variables
   const allowedExtensions = ["csv"];
@@ -35,6 +35,7 @@ const TableHeader = props => {
   const [open, setOpen] = useState(false)
   const [messageInfo, setMessageInfo ] = useState('')
   const [syncError, setSyncError ] = useState(false)
+  const [actionValue, setActionValue] = useState('')
 
   // ** Refs
   const hiddenFileInput = useRef(null);
@@ -75,6 +76,11 @@ const TableHeader = props => {
     setOpen(true)
   } 
 
+  const handleAction = e => {
+    handleMultipleAction(e.target.value)
+    setActionValue('')
+  }
+
   return (
     <Box
       sx={{
@@ -91,16 +97,17 @@ const TableHeader = props => {
         size='small'
         displayEmpty
         defaultValue=''
+        value={actionValue}
         sx={{ mr: 4, mb: 2 }}
         disabled={selectedRows && selectedRows.length === 0}
         renderValue={selected => (selected.length === 0 ? 'Actions' : selected)}
+        onChange={handleAction}
       >
         <MenuItem value='' disabled>
           Actions
         </MenuItem>
         <MenuItem value='Delete'>Delete</MenuItem>
         <MenuItem value='Edit'>Edit</MenuItem>
-        <MenuItem value='Send'>Send</MenuItem>
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2 , width: '30%', justifyContent:'end'}}>
         

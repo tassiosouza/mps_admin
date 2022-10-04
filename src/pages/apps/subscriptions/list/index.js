@@ -23,9 +23,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
 
-
 // ** Icons Imports
-import Check from 'mdi-material-ui/Check'
 import Download from 'mdi-material-ui/Download'
 import Cancel from 'mdi-material-ui/Cancel'
 import ContentCopy from 'mdi-material-ui/ContentCopy'
@@ -39,7 +37,7 @@ import DatePicker from 'react-datepicker'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchSubscriptions, deleteSubscription, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
+import { fetchSubscriptions, handleLoadingSubscriptions } from 'src/store/apps/subscriptions'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
@@ -48,6 +46,7 @@ import { getInitials } from 'src/@core/utils/get-initials'
 import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 import TableHeader from 'src/views/apps/subscriptions/list/TableHeader'
+import DeleteSubscriptionsDialog from 'src/views/apps/subscriptions/list/DeleteSubscriptionsDialog'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
@@ -153,12 +152,12 @@ const defaultColumns = [
     flex: 0.1,
     minWidth: 80,
     field: 'subscriptionStatus',
-    headerName: 'Active',
+    headerName: 'Status',
     renderCell: ({ row }) => {
       const { status } = row
-
+      
       return (
-        <Typography variant='body2'>{toPascalCase(row.status)}</Typography> 
+        <Typography variant='body2'>{toPascalCase(status)}</Typography> 
       )
     }
   },
@@ -243,8 +242,9 @@ const SubscriptionList = () => {
   const [statusValue, setStatusValue] = useState(null)
   const [locationValue, setLocationValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
-  const [selectedRows, setSelectedRows] = useState([])
+  const [selectedSubscriptions, setSelectedSubscriptions] = useState([])
   const [startDateRange, setStartDateRange] = useState(null)
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false)
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -293,7 +293,7 @@ const SubscriptionList = () => {
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title='Delete Subscription'>
-            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => dispatch(deleteSubscription(row.id))}>
+            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleDeleteSubscriptions([row])}>
               <DeleteOutline />
             </IconButton>
           </Tooltip>
@@ -311,6 +311,44 @@ const SubscriptionList = () => {
       )
     }
   ]
+
+  const handleDeleteSubscriptions = (subscriptions) => {
+    setSelectedSubscriptions(subscriptions)
+    setOpenDeleteConfirm(true)
+  }
+
+  const handleCloseConfirmDialog = () => {
+    setOpenDeleteConfirm(false)
+  }
+
+  const handleDeleteConfirm = subscription => {
+    if(subscription) {
+      dispatch(
+        fetchSubscriptions({
+          dates,
+          q: value,
+          status: statusValue,
+          location: locationValue
+        })
+      )
+      setOpenDeleteConfirm(false)
+    }
+    else {
+      console.log('ERROR: The delete operation failed')
+    }
+  }
+
+  const handleMultipleAction = action => {
+    switch(action) {
+      case "Delete":
+        console.log('subsc:  - ' + JSON.stringify(selectedSubscriptions))
+        setSelectedSubscriptions(store.data.filter(sub => selectedSubscriptions.includes(sub.id)))
+        setOpenDeleteConfirm(true)
+      break
+      default:
+      break
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -385,7 +423,7 @@ const SubscriptionList = () => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} />
+          <TableHeader value={value} selectedRows={selectedSubscriptions} handleFilter={handleFilter} handleMultipleAction={handleMultipleAction}/>
           {store.loading && <LinearProgress sx={{ height:'2px' }} />}
           <DataGrid
             autoHeight
@@ -395,13 +433,19 @@ const SubscriptionList = () => {
             checkboxSelection
             disableSelectionOnClick
             pageSize={Number(pageSize)}
-            rowsPerPageOptions={[10, 25, 50]}
+            rowsPerPageOptions={[10, 25, 50, 100]}
             sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
-            onSelectionModelChange={rows => setSelectedRows(rows)}
+            onSelectionModelChange={rows => setSelectedSubscriptions(rows)}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Card>
       </Grid>
+      <DeleteSubscriptionsDialog 
+        subscriptions={selectedSubscriptions}
+        open={openDeleteConfirm}
+        onDelete={handleDeleteConfirm}
+        onCancel={handleCloseConfirmDialog}>
+      </DeleteSubscriptionsDialog>
     </Grid>
   )
 }

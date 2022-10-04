@@ -4,6 +4,21 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 // ** Repository Imports
 import { getSubscriptions, loadSubscriptions } from 'src/repository/apps/subscriptions';
 
+// ** Fetch Subscriptions from Server
+export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData', async (params)  => {
+  const subscriptions = await getSubscriptions(params)
+
+  return subscriptions
+})
+
+// ** Load Subscriptions from File
+export const loadSubscriptionsFromFile = createAsyncThunk('appSubscriptions/loadData', async (params, { getState })  => {
+  
+  const subscriptionsFromFile = await loadSubscriptions(params, getState)
+
+  return subscriptionsFromFile
+})
+
 export const appSubscriptionSlice = createSlice({
   name: 'appSubscriptions',
   initialState: {
@@ -60,21 +75,6 @@ export const appSubscriptionSlice = createSlice({
       }
     })
   }
-})
-
-// ** Fetch Subscriptions from Server
-export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData', async (params)  => {
-  const subscriptions = await getSubscriptions(params)
-
-  return subscriptions
-})
-
-// ** Load Subscriptions from File
-export const loadSubscriptionsFromFile = createAsyncThunk('appSubscriptions/loadData', async (params, { getState })  => {
-  
-  const subscriptionsFromFile = await loadSubscriptions(params, getState)
-
-  return subscriptionsFromFile
 })
 
 export const { handleLoadingSubscriptions } = appSubscriptionSlice.actions
