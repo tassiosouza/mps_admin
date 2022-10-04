@@ -1,7 +1,7 @@
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
 import { OrderStatus } from 'src/models'
-import { listMpsSubscriptions, listDrivers, listMRoutes, listMOrders, getMRoute } from '../../../graphql/queries'
+import { listMpsSubscriptions, listClusters, listDrivers, listMRoutes, listMOrders, getMRoute } from '../../../graphql/queries'
 import { createMRoute, createMOrder, updateMRoute, updateDriver, deleteMRoute, deleteMOrder, updateMpsSubscription } from '../../../graphql/mutations'
 
 // ** Axios Party Imports
@@ -10,39 +10,33 @@ import axios from 'axios'
 import { RouteStatus } from 'src/models'
 import { AssignStatus } from 'src/models'
 import { SubscriptionStatus } from 'src/models'
-import { Api } from 'mdi-material-ui'
 
-export const getLocations = async (params)  => {
-  var locations = []
+export const getClusters = async (params)  => {
+  // ** Query Server Subscriptions
+  const response = await API.graphql(graphqlOperation(listClusters, {
+    limit: 5000
+  }))
+
+  const clusters = response.data.listClusters.items
+  
+  const filtered = clusters.filter(cl => cl.name.toLowerCase().includes(params.q.toLowerCase()))
+  return {clusters: filtered} 
+}
+
+export const getSubscriptions = async ()  => {
   const filter = {
     status: {
       eq: SubscriptionStatus.ACTIVED
     }
   }
-
   // ** Query Server Subscriptions
   const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
     filter,
     limit: 5000
   }))
-
-  response.data.listMpsSubscriptions.items.map(sub => {
-    var locationName = sub.location
-    var registeredLocation = locations.find(loc => loc.name == locationName)
-    if(registeredLocation) {
-      registeredLocation.deliveries += 1
-    }
-    else {
-      locations.push({
-        name: locationName,
-        deliveries: 1,
-        included: false
-      })
-    }
-  })
+  const subscriptions = response.data.listMpsSubscriptions.items
   
-  const filtered = locations.filter(loc => loc.name.toLowerCase().includes(params.q.toLowerCase()))
-  return {locations: filtered, subscriptions: response.data.listMpsSubscriptions.items} 
+  return {subscriptions} 
 }
 
 export const getDrivers = async (params)  => {

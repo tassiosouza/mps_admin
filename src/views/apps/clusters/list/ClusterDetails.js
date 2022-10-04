@@ -109,7 +109,7 @@ const ClusterDetails = props => {
                     variant='standard'
                     size='small'
                     placeholder='Cluster Name'
-                    sx={{ ml: 3, mb: 1, maxWidth: '180px', mt:2.5, fontSize:'20px'}}
+                    sx={{ ml: 3, mb: 1, width: '350px', mt:2.5, fontSize:'20px'}}
                     InputProps={{ disableUnderline: true, style: {fontSize: 19} }}
                     />
                   ) : (

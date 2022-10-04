@@ -5,29 +5,28 @@ import { useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import { DialogTitle, Dialog, DialogContent, DialogActions } from '@mui/material'
+import { DialogTitle, Dialog, DialogContent, DialogActions, TextField } from '@mui/material'
 import LinearProgress from '@mui/material/LinearProgress'
-import { styled } from "@mui/material/styles";
-
-// ** Custom Components Imports
-import LocationsTableHeader from 'src/views/apps/routes/list/LocationsTableHeader'
-import LocationsTable from 'src/views/apps/routes/list/LocationsTable'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Tooltip from '@mui/material/Tooltip'
+import { DataGrid } from '@mui/x-data-grid'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchLocations, addLocation, removeLocation, clearTempResults, clearSelectedLocations, generateRoutes, saveRoutes } from 'src/store/apps/routes'
-import { Player, Controls } from '@lottiefiles/react-lottie-player';
-import { AssignStatus } from 'src/models'
+import { fetchClusters, clearTempResults, generateRoutes, saveRoutes } from 'src/store/apps/routes'
+import { Player } from '@lottiefiles/react-lottie-player';
 
 // ** Icons Imports
 import MapMarkerRadius from 'mdi-material-ui/MapMarkerRadius'
 import ClockTimeEightOutline from 'mdi-material-ui/ClockTimeEightOutline'
 import BriefcaseRemove from 'mdi-material-ui/BriefcaseRemove'
 import AccountCancel from 'mdi-material-ui/AccountCancel'
-import Alert from 'mdi-material-ui/Alert'
+import InformationOutline from 'mdi-material-ui/InformationOutline'
+import LocationsTableHeader from './LocationsTableHeader'
 
 const Status = {
   INITIAL: 'initial',
@@ -46,13 +45,14 @@ const LocationsDialog = (props) => {
   const [maxTimeValue, setMaxTimeValue] = useState('')
   const [status, setStatus] = useState(Status.INITIAL)
   const [error, setError] = useState('')
+  const [selectedClusters, setSelectedClusters] = useState([])
 
   // ** Redux
   const dispatch = useDispatch()
   const store = useSelector(state => state.routes)
   
   useEffect(() => {
-    dispatch(fetchLocations({q: value}))
+    dispatch(fetchClusters({q: value}))
   }, [dispatch, value])
 
   // ** Functions
@@ -106,32 +106,6 @@ const LocationsDialog = (props) => {
     setMaxTimeValue('')
     setValue('')
     setStatus(Status.INITIAL)
-  }
-
-  const handleAddLocation = location => {
-    dispatch(addLocation(location))
-  }
-
-  const handleRemoveLocation = location => {
-    dispatch(removeLocation(location))
-  }
-
-  const handleDriversCountChange = (e) => {
-    const re = /^[0-9\b]+$/;
-
-    // ** if value is not blank, then test the regex
-    if (e.target.value === '' || re.test(e.target.value)) {
-       setDriversValue(e.target.value)
-    }
-  }
-
-  const handleMaxTimeChange = (e) => {
-    const re = /^[0-9\b]+$/;
-
-    // ** if value is not blank, then test the regex
-    if (e.target.value === '' || re.test(e.target.value)) {
-       setMaxTimeValue(e.target.value)
-    }
   }
 
   const getDeliveriesCount = () => {
@@ -234,6 +208,29 @@ const LocationsDialog = (props) => {
     )
   }
 
+  const defaultColumns = [
+    {
+      flex: 1,
+      field: 'name',
+      minWidth: 80,
+      headerName: 'Name',
+      renderCell: ({ row }) => 
+      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+        {row.name}
+      </Box>
+    },
+    {
+      flex: 1,
+      minWidth: 100,
+      field:'subscriptionsCount',
+      headerName: 'Subscriptions',
+      renderCell: ({ row }) => 
+      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+        {row.subscriptionsCount}
+      </Box>
+    }
+  ]
+
   return (
       <Dialog
       open={open}
@@ -247,74 +244,85 @@ const LocationsDialog = (props) => {
       }}
     > 
       {(status == Status.LOADING || status == Status.SAVING) && <LinearProgress sx={{ height:'2px', mt:0.2 }} />}
-      <DialogTitle id='scroll-dialog-title'>Generate Optimized Routes</DialogTitle>
+      <DialogTitle id='scroll-dialog-title'>Generate Routes</DialogTitle>
       <DialogContent dividers={scroll === 'paper'} 
         style={{backgroundImage: status == Status.DONE || status == Status.SAVING ? backgroundImage : 'none',
-                backgroundSize: status == Status.DONE || status == Status.SAVING ? 'cover' : 'none',
-                width:'100%',
-                height: status == Status.DONE || status == Status.SAVING ? '63vH' : '100%',
-                display: 'flex',
-                flexDirection:'column',
-                justifyContent:'space-between'
+          backgroundSize: status == Status.DONE || status == Status.SAVING ? 'cover' : 'none',
+          width:'100%',
+          height: status == Status.DONE || status == Status.SAVING ? '63vH' : '100%',
+          display: 'flex',
+          flexDirection:'column',
+          justifyContent:'space-between'
         }}>
         {status === Status.INITIAL ? 
           (
-          <div >
-            <Grid container spacing={3} sx={{mb:5, justifyContent:'space-between'}}>
-              <Grid item xs={6}>
-                <Typography variant='h7'>Select the numbers of drivers, the target locations and the maximum 'in route' time(min).</Typography>
+          <div>
+            <Grid container direction={'column'} spacing={3} sx={{alignContent:'start'}}>
+              <Grid item>
+                <Typography variant='h7'>Select the route generation algorithm: </Typography>
+                <Select size='small' sx={{ml:2}} defaultValue='Optimization'>
+                  <MenuItem value='Optimization'>Optimization</MenuItem>
+                  <MenuItem value='Clustering'>Clustering</MenuItem>
+                </Select>
               </Grid>
-              <Grid item xs={3} sx={{textAlign:'right', pr:2}}>
-                <OutlinedInput
-                  variant={'standard'}
-                  size='small'
-                  value={driversValue}
-                  placeholder='Nº Drivers'
-                  sx={{  mb: 2, maxWidth: '180px'}}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                        <Typography variant='h7'>/ {store.drivers.filter(driver => driver.assignStatus === AssignStatus.UNASSIGNED).length}</Typography>
-                    </InputAdornment>
-                  }
-                  onChange={handleDriversCountChange}
-                />
+              <Grid item>
+                <Typography sx={{fontWeight:'bold'}} variant='h7'> Parameters </Typography>
+                <Tooltip title='Choose the amount of clusters you want to generate and the min and max subscriptions will have on each other'>
+                  <InformationOutline sx={{fontSize:14, ml:1}}/>
+                </Tooltip>
+                <Box sx={{display:'flex', justifyContent:'space-between', pt:5}}>
+                  <TextField
+                    variant='standard'
+                    size='small'
+                    placeholder='Quantity'
+                    sx={{width:'28%', fontSize:'20px'}}
+                  />
+                  <TextField
+                    variant='standard'
+                    size='small'
+                    placeholder='Min Bags'
+                    sx={{width:'28%', fontSize:'20px'}}
+                  />
+                  <TextField
+                    variant='standard'
+                    size='small'
+                    placeholder='Max Bags'
+                    sx={{width:'28%', fontSize:'20px'}}
+                  />
+                </Box>
               </Grid>
-              <Grid item xs={3} sx={{textAlign:'right', pr:2}}>
-                <OutlinedInput
-                  variant={'standard'}
-                  size='small'
-                  value={maxTimeValue}
-                  placeholder='Max'
-                  sx={{  mb: 2, maxWidth: '180px'}}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                        <Typography variant='h7'>minutes</Typography>
-                    </InputAdornment>
-                  }
-                  onChange={handleMaxTimeChange}
-                />
+              <Grid item sx={{width:'100%'}}>
+                <LocationsTableHeader handleFilter={handleFilter} selectedClusters={selectedClusters}></LocationsTableHeader>
+                <Box sx={{height:'240px', ['@media (min-width:1900px)']: { // eslint-disable-line no-useless-computed-key
+                    height: '500px'
+                  }}}>
+                  <DataGrid
+                    hideFooter
+                    selectionModel={selectedClusters.map(route => route.id)}
+                    onSelectionModelChange={(ids) => {
+                      const selectedIDs = new Set(ids)
+                      const selectedRowData = store.clusters.filter((cl) =>
+                        selectedIDs.has(cl.id.toString())
+                      )
+                      setSelectedClusters(selectedRowData)
+                    }}
+                    pagination
+                    checkboxSelection
+                    disableSelectionOnClick
+                    rows={store.clusters}
+                    columns={defaultColumns}
+                    sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
+                  />
+                </Box>
               </Grid>
             </Grid>
-            <LocationsTableHeader 
-              value={value} 
-              selectedLocations={store.selectedLocations} 
-              handleFilter={handleFilter} />
-            <LocationsTable 
-              locations={store.locations}
-              selectedLocations={store.selectedLocations} 
-              addLocation={handleAddLocation} 
-              removeLocation={handleRemoveLocation}/>
           </div>
           ) : (
             <LoadingAndDone/>
           )
         } 
-        <Grid container sx={{justifyContent:'space-between'}} direction='row' spacing={0}>
-        <Grid item xs={5} sx={{alignSelf:'center', pl:5}}>
-          {status === Status.INITIAL && <Typography variant='h7'>Total Deliveries: {getDeliveriesCount()}</Typography>}
-        </Grid>
-        <Grid item xs={7}>
-          <DialogActions sx={{pb:status == Status.DONE ? '0px' : ''}}>
+        <Grid sx={{justifyContent:'end'}} direction='row' spacing={0}>
+          <DialogActions sx={{pb:0}}>
             <Typography sx={{color:'error.main'}} variant='h7'>{error}</Typography>
             {status != Status.SAVING && <Button onClick={handleClose} sx={{ml: 3, color:status == Status.DONE ?'#fff' : 'primary'}}> Cancel</Button>}
             {status === Status.DONE && <Button onClick={handleRetry} sx={{color:status == Status.DONE ?'#fff' : 'primary'}}> Retry </Button>}
@@ -323,7 +331,6 @@ const LocationsDialog = (props) => {
             {status === Status.SAVING && <Button disabled onClick={handleConfirm} sx={{color:status == Status.DONE ?'#fff' : 'primary'}}> Saving... </Button>}
           </DialogActions>
         </Grid>
-      </Grid>
       </DialogContent>
     </Dialog>
   )
