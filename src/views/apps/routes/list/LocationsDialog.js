@@ -14,6 +14,9 @@ import Tooltip from '@mui/material/Tooltip'
 import { DataGrid } from '@mui/x-data-grid'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
+import Switch from '@mui/material/Switch'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Divider from '@mui/material/Divider'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -35,6 +38,11 @@ const Status = {
   SAVING: 'saving'
 }
 
+const ALGORITHM_TYPE = {
+  OPTIMIZATION: 'Optimization',
+  CLUSTERING: 'Clustering'
+}
+
 const LocationsDialog = (props) => {
   // ** Props
   const { open, onClose } = props
@@ -46,7 +54,15 @@ const LocationsDialog = (props) => {
   const [status, setStatus] = useState(Status.INITIAL)
   const [error, setError] = useState('')
   const [selectedClusters, setSelectedClusters] = useState([])
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(ALGORITHM_TYPE.OPTIMIZATION)
 
+  // ** Param States
+  const [paramIsBalanced, setParamIsBalanced] = useState(true)
+  const [paramIsFixed, setParamIsFixed] = useState(true)
+  const [paramMaxTime, setParamMaxTime] = useState(200)
+  const [paramClusterQty, setParamClusterQty] = useState(4)
+  const [paramMinBags, setParamMinBags] = useState(4)
+  const [paramMaxBags, setParamMaxBags] = useState(22)
   // ** Redux
   const dispatch = useDispatch()
   const store = useSelector(state => state.routes)
@@ -62,25 +78,49 @@ const LocationsDialog = (props) => {
 
   const handleGenerate = () => {
     // ** Form Validation
-    if(driversValue === '' || parseInt(driversValue) == 0 || parseInt(driversValue) > /*store.drivers.length*/ 50)
-    {
-      setError('Invalid number of drivers')
-      return
-    } 
-    if(!store.selectedLocations.length)
-    {
-      setError('Select at least one location')
-      return
-    } 
-    if(maxTimeValue === '' || parseInt(maxTimeValue) == 0)
-    {
-      setError('The maximum time should be greater than 0')
-      return
-    } 
+    // if(driversValue === '' || parseInt(driversValue) == 0 || parseInt(driversValue) > /*store.drivers.length*/ 50)
+    // {
+    //   setError('Invalid number of drivers')
+    //   return
+    // } 
+    // if(!store.selectedLocations.length)
+    // {
+    //   setError('Select at least one location')
+    //   return
+    // } 
+    // if(maxTimeValue === '' || parseInt(maxTimeValue) == 0)
+    // {
+    //   setError('The maximum time should be greater than 0')
+    //   return
+    // } 
 
+    console.log('gerating with params: ')
+    console.log('Algorith: ' + selectedAlgorithm)
+    if(selectedAlgorithm == ALGORITHM_TYPE.OPTIMIZATION) {
+      console.log('Max Time: ' + paramMaxTime)
+    }else {
+      console.log('Clusters Qty: ' + paramClusterQty)
+    }
+    console.log('Max Bags: ' + paramMaxBags)
+    console.log('Min Bags: ' + paramMinBags)
+    console.log('Selected clusters: ' + JSON.stringify(selectedClusters))
+    console.log('State clusters: ' + JSON.stringify(store.clusters))
+    console.log('Selected clusters: ' + JSON.stringify(selectedClusters))
     setError('')
     setStatus(Status.LOADING)
-    dispatch(generateRoutes({driversCount: parseInt(driversValue), maxTime:parseInt(maxTimeValue), callback: optimizationCallback}))
+    dispatch(generateRoutes({
+      parameters: {
+        selectedAlgorithm,
+        paramMaxTime,
+        paramClusterQty,
+        paramMinBags,
+        paramMinBags,
+        driversCount: store.drivers.length, 
+      }, 
+      subscriptions: store.subscriptions,
+      clusters:selectedClusters,
+      callback: optimizationCallback
+    }))
   }
 
   const handleConfirm = () => {
@@ -110,7 +150,7 @@ const LocationsDialog = (props) => {
 
   const getDeliveriesCount = () => {
     var result = 0
-    store.selectedLocations.map(loc => result += loc.deliveries)
+    store.clusters.map(cl => result += cl.subscriptionsCount)
     return result
   }
 
@@ -231,6 +271,94 @@ const LocationsDialog = (props) => {
     }
   ]
 
+  const getSelectedAlgorithmParameters = () => {
+    if(selectedAlgorithm === ALGORITHM_TYPE.CLUSTERING) {
+      return (
+        <Grid item>
+        <Typography sx={{fontWeight:'bold'}} variant='h7'> Parameters </Typography>
+        <Tooltip title='Choose the amount of clusters you want to generate and the min and max subscriptions will have on each other'>
+          <InformationOutline sx={{fontSize:14, ml:1}}/>
+        </Tooltip>
+        <Box sx={{display:'flex', justifyContent:'space-between', pt:5}}>
+          <FormControlLabel control={<Switch defaultChecked 
+                                             value={paramIsFixed} onChange={() => setParamIsFixed(!paramIsFixed)}/>}
+                                             labelPlacement='bottom' label='Fixed' />
+          <Divider orientation="vertical" variant="middle" flexItem />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Quantity'
+            value={paramClusterQty}
+            onChange={e => setParamClusterQty(e.target.value)}
+            placeholder='Quantity'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Min Bags'
+            value={paramMinBags}
+            onChange={e => setParamMinBags(e.target.value)}
+            placeholder='Min Bags'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Max Bags'
+            value={paramMaxBags}
+            onChange={e => setParamMaxBags(e.target.value)}
+            placeholder='Max Bags'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+        </Box>
+      </Grid>
+      )
+    } else {
+      return (
+        <Grid item>
+        <Typography sx={{fontWeight:'bold'}} variant='h7'> Parameters </Typography>
+        <Tooltip title='Here explanation about optimization'>
+          <InformationOutline sx={{fontSize:14, ml:1}}/>
+        </Tooltip>
+        <Box sx={{display:'flex', justifyContent:'space-between', pt:5}}>
+          <FormControlLabel control={<Switch defaultChecked 
+                            value={paramIsBalanced} onChange={() => setParamIsBalanced(!paramIsBalanced)}/>} 
+                            labelPlacement='bottom' label='Balanced' />
+          <Divider orientation="vertical" variant="middle" flexItem />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Max Time'
+            value={paramMaxTime}
+            onChange={e => setParamMaxTime(e.target.value)}
+            placeholder='Max Time'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Min Bags'
+            value={paramMinBags}
+            onChange={e => setParamMinBags(e.target.value)}
+            placeholder='Min Bags'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+          <TextField
+            variant='standard'
+            size='small'
+            label='Max Bags'
+            value={paramMaxBags}
+            onChange={e => setParamMaxBags(e.target.value)}
+            placeholder='Max Bags'
+            sx={{width:'25%', fontSize:'20px', alignSelf:'center'}}
+          />
+        </Box>
+      </Grid>
+      )
+    }
+  }
+
   return (
       <Dialog
       open={open}
@@ -260,58 +388,34 @@ const LocationsDialog = (props) => {
             <Grid container direction={'column'} spacing={3} sx={{alignContent:'start'}}>
               <Grid item>
                 <Typography variant='h7'>Select the route generation algorithm: </Typography>
-                <Select size='small' sx={{ml:2}} defaultValue='Optimization'>
+                <Select size='small' sx={{ml:2}} defaultValue={ALGORITHM_TYPE.OPTIMIZATION} value={selectedAlgorithm} 
+                        onChange={e => setSelectedAlgorithm(e.target.value)}>
                   <MenuItem value='Optimization'>Optimization</MenuItem>
                   <MenuItem value='Clustering'>Clustering</MenuItem>
                 </Select>
               </Grid>
-              <Grid item>
-                <Typography sx={{fontWeight:'bold'}} variant='h7'> Parameters </Typography>
-                <Tooltip title='Choose the amount of clusters you want to generate and the min and max subscriptions will have on each other'>
-                  <InformationOutline sx={{fontSize:14, ml:1}}/>
-                </Tooltip>
-                <Box sx={{display:'flex', justifyContent:'space-between', pt:5}}>
-                  <TextField
-                    variant='standard'
-                    size='small'
-                    placeholder='Quantity'
-                    sx={{width:'28%', fontSize:'20px'}}
-                  />
-                  <TextField
-                    variant='standard'
-                    size='small'
-                    placeholder='Min Bags'
-                    sx={{width:'28%', fontSize:'20px'}}
-                  />
-                  <TextField
-                    variant='standard'
-                    size='small'
-                    placeholder='Max Bags'
-                    sx={{width:'28%', fontSize:'20px'}}
-                  />
-                </Box>
-              </Grid>
+                {getSelectedAlgorithmParameters()}
               <Grid item sx={{width:'100%'}}>
                 <LocationsTableHeader handleFilter={handleFilter} selectedClusters={selectedClusters}></LocationsTableHeader>
-                <Box sx={{height:'240px', ['@media (min-width:1900px)']: { // eslint-disable-line no-useless-computed-key
-                    height: '500px'
+                <Box sx={{height:'210px', ['@media (min-width:1900px)']: { // eslint-disable-line no-useless-computed-key
+                    height: '475px'
                   }}}>
-                  <DataGrid
-                    hideFooter
-                    selectionModel={selectedClusters.map(route => route.id)}
-                    onSelectionModelChange={(ids) => {
-                      const selectedIDs = new Set(ids)
-                      const selectedRowData = store.clusters.filter((cl) =>
-                        selectedIDs.has(cl.id.toString())
-                      )
-                      setSelectedClusters(selectedRowData)
-                    }}
-                    pagination
-                    checkboxSelection
-                    disableSelectionOnClick
-                    rows={store.clusters}
-                    columns={defaultColumns}
-                    sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
+                    <DataGrid
+                      hideFooter
+                      selectionModel={selectedClusters.map(route => route.id)}
+                      onSelectionModelChange={(ids) => {
+                        const selectedIDs = new Set(ids)
+                        const selectedRowData = store.clusters.filter((cl) =>
+                          selectedIDs.has(cl.id.toString())
+                        )
+                        setSelectedClusters(selectedRowData)
+                      }}
+                      pagination
+                      checkboxSelection
+                      disableSelectionOnClick
+                      rows={store.clusters}
+                      columns={defaultColumns}
+                      sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
                   />
                 </Box>
               </Grid>

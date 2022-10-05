@@ -19,9 +19,9 @@ export const fetchDrivers = createAsyncThunk('appRoutes/fetchDrivers', async (pa
 })
 
 // ** Generate Optimized Routes
-export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async (params, { getState }) => {
+export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async (params) => {
   const { callback } = params
-  const { routes, solution, orders } = await getGraphHopperRoutes(params, getState)
+  const { routes, solution, orders } = await getGraphHopperRoutes(params)
   return { routes, solution, orders, callback }
 })
 

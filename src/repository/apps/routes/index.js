@@ -10,6 +10,17 @@ import axios from 'axios'
 import { RouteStatus } from 'src/models'
 import { AssignStatus } from 'src/models'
 import { SubscriptionStatus } from 'src/models'
+import { FoodTakeoutBox } from 'mdi-material-ui'
+
+const RESULT_STATUS = {
+  SUCCESS: 'SUCESS',
+  PARTIAL_FAILED: 'PARTIAL_FAILED',
+  FAILED: 'FAILED',
+}
+
+const GRAPHHOPPER_ROUTE_LIMIT = 80
+const GRAPHHOPPER_CLUSTER_LIMIT = 400
+const GRAPHHOPPER_TIME_LIMIT = 60 //seconds
 
 export const getClusters = async (params)  => {
   // ** Query Server Subscriptions
@@ -159,20 +170,13 @@ export const deleteRoutes = async (routes, orders)  => {
   return routeResult
 }
 
-export const getGraphHopperRoutes = async (params, getState)  => {
-  // ** Create Orders from Active Subscriptions
-  const state = getState()
-  var orders = await generateOrders(state)
+// ** Process Route Generation Based on Selected Algorithm
+export const getGraphHopperRoutes = async (params)  => {
+  const { driversCount, parameters, subscriptions, clusters } = params
 
-  const rest = 0
-  const requestCount = 1
-  const ordersInRequest = orders.length
-  var currentSpliceIndex = 0
-  const finalRoutes = []
-  const avaiableDrivers = params.driversCount
-  const maxTime = params.maxTime
-
-  const finalSolution = {
+  var finalRoutes = []
+  var finalOrders = []
+  var finalSolution = {
     costs: 0,
     totalDistance: 0,
     maxDuration: 0,
@@ -182,125 +186,136 @@ export const getGraphHopperRoutes = async (params, getState)  => {
     driversNotAssigned: 0
   }
 
-  var globalRequestAvaiableID = await getAvaiableRouteId()
+  for(var i = 0; i < clusters.length; i++) {
 
-  const clusterBody = getGraphHopperClusterRequestBody(orders)
+    const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === clusters[i].id)
+    const ordersToProcess = await generateOrders(subscriptionsToProcess)
 
-  const res = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', clusterBody)
-
-  if(res.data.clusters.length > 0) {
-    const clusters = res.data.clusters
-    for(var i = 0; i < clusters.length; i++) {
-      var splicedOrders = []
-      orders.map(order => {
-        if(clusters[i].ids.includes(order.id)) {
-          splicedOrders.push(order)
-        }
-      })
-      const ghBody = getGraphHopperRORequestBody(splicedOrders, 1, 99999)
-
-      try {
-        const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
-        
-        // ** Request successfuly completed (Process routes and solution)
-        const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
-  
-        globalRequestAvaiableID = avaiableID
-        
-        finalSolution.costs += solution.costs
-        finalSolution.totalDistance += solution.totalDistance
-        finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
-        finalSolution.ordersLeft.push(...solution.ordersLeft)
-        finalSolution.details.push(...solution.details)
-  
-        if(finalSolution.details.length > 0) {
-          finalSolution.result = 'problem'
-        }
-        finalRoutes.push(...routes)
-      }
-      catch(e) { // ** Handle Request Error
-        // ** Server error
-        if(e.status == 500) {
-          const errorMessage = 'GH internal error. Code: ' + e.status
-          console.log(errorMessage)
-          finalSolution.details.push(e.message)
-          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-        }
-        // ** Error in optimization -> No driver left to make the order
-        else {
-          const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
-          finalSolution.details.push(errorMessage)
-          splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-        }
-        finalSolution.result = 'error'
+    if(params.selectedAlgorith == 'Optimization') {
+      const {routes, orders, result} = processGraphHopperOptimizedRoutes(driversCount, parameters, subscriptions, clusters[i])
+      switch(result.status) {
+        case RESULT_STATUS.SUCCESS:
+          //Process here
+          finalRoutes.push(...routes)
+          finalOrders.push(...orders)
+        break
+        default:
         break
       }
+    }  
+    else {
+      const {routes, orders, result} = processGraphHopperClusteredRoutes(parameters, ordersToProcess, clusters[i])
+      console.log('cluster ' + clusters[i].name + ' result:')
+      console.log(JSON.stringify(result))
+      finalRoutes.push(...routes)
+      finalOrders.push(...orders)
     }
   }
+  
+  //** Calculate Final Solution */
+  // finalSolution = getFinalSolution(finalRoutes, finalOrders)
+  return { routes: finalRoutes, solution: finalSolution, orders:finalOrders }
+}
 
-  // ** Create Optimized Routes from new Orders
-  const MAX_ROUTES_PER_REQUEST = 80
-  if(orders.length > 80) {
-    const dividerFactor = getOptimizedFactor(orders.length, MAX_ROUTES_PER_REQUEST)
-    rest = orders.length%dividerFactor
-    requestCount = parseInt(orders.length/dividerFactor)
-    ordersInRequest = (orders.length - rest) / requestCount
+const processGraphHopperOptimizedRoutes = (driversCount, parameters, subscriptions, cluster) => {
+  const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === cluster.id)
+  const orders = generateOrders(subscriptionsToProcess)
+
+}
+
+const processGraphHopperClusteredRoutes = async (parameters, orders, cluster) => {
+  var clusterRoutes = []
+  var clusterOrders = []
+  var globalRequestAvaiableID = await getAvaiableRouteId()
+  var clusterResult = {status: RESULT_STATUS.SUCCESS, errors: []}
+
+  // ** Return error if cluster has more than 400 locations
+  if(orders.length > GRAPHHOPPER_CLUSTER_LIMIT) {
+    clusterResult = {status: RESULT_STATUS.FAILED, errors: ['The Cluster ' + cluster.name + ' has more than 400 subscriptions']}
+
+    return {routes:[], orders:[], result: clusterResult}
   }
 
-  
+  // ** Cluster locations if the number of orders exceds the route optimization locations limit
+  if(orders.length > GRAPHHOPPER_ROUTE_LIMIT) {
+    const ghBody = getFixedGraphHopperClusterRequestBody(orders)
+    const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+    
+    console.log('slepping...')
+    await new Promise(r => setTimeout(r, 60000))
+    console.log('continue...')
 
-  for(var i = 0; i < requestCount; i ++) {
-    var ordersCopy = [...orders]
-    const splicedOrders = ordersCopy.splice(currentSpliceIndex, ordersInRequest)
-    const ghBody = getGraphHopperRORequestBody(splicedOrders, avaiableDrivers, maxTime)
+    if(response.data) {
+      const clustersResult = response.data.clusters
+      for(var i = 0; i < clustersResult.length; i++) {
+        const clusterOrders = orders.filter(order => clustersResult[i].ids.includes(order.id))
+        // processGraphHopperClusteredRoutes(parameters, clusterOrders, cluster)
 
-  //   try {
-  //     const res = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
-      
-  //     // ** Request successfuly completed (Process routes and solution)
-  //     const { routes, solution, avaiableID } = getRoutesFromResponse(res, orders, globalRequestAvaiableID)
+        const ghBody = getGraphHopperClusterRequestBody(clusterOrders, parameters)
+        const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+        if(response.data) {
+          const insideClustersResult = response.data.clusters
+          for(var i = 0; i < insideClustersResult.length; i++) {
+            const insideClusterOrders = clusterOrders.filter(order => insideClustersResult[i].ids.includes(order.id))
+            console.log('slepping for vrp... ' + JSON.stringify())
+            await new Promise(r => setTimeout(r, 60000))
+            console.log('continue...')
 
-  //     globalRequestAvaiableID = avaiableID
+            // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
+            var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters.driversCount, 500)
+            const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
+            if(response.solution?.unassigned?.services?.length > 0) {
+              clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
+              return {routes:[], orders:[], result: clusterResult}
+            } else {
+              if(response.solution) {
+                const {routes, solution, avaiableID} = getRoutesFromResponse(response, orders, globalRequestAvaiableID)
+                clusterRoutes = [...clusterRoutes, ...routes]
+                globalRequestAvaiableID = avaiableID
+              } else {
+                clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
+                return {routes:[], orders:[], result: clusterResult}
+              }
+            }
+          }
+        }
+      }
+    }
+  } else {
+    const ghBody = getGraphHopperClusterRequestBody(orders, parameters)
+    const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+    if(response.data) {
+      const insideClustersResult = response.data.clusters
+      for(var i = 0; i < insideClustersResult.length; i++) {
+        const insideClusterOrders = clusterOrders.filter(order => insideClustersResult[i].ids.includes(order.id))
+        console.log('slepping for vrp... ' + JSON.stringify())
+        await new Promise(r => setTimeout(r, 60000))
+        console.log('continue...')
 
-  //     console.log(JSON.stringify(solution))
-      
-  //     avaiableDrivers = avaiableDrivers - routes.length
-  //     currentSpliceIndex += ordersInRequest
-  //     finalSolution.costs += solution.costs
-  //     finalSolution.totalDistance += solution.totalDistance
-  //     finalSolution.maxDuration = solution.maxDuration > finalSolution.maxDuration ? solution.maxDuration : finalSolution.maxDuration
-  //     finalSolution.ordersLeft.push(...solution.ordersLeft)
-  //     finalSolution.details.push(...solution.details)
-  //     finalSolution.driversNotAssigned = avaiableDrivers
+        // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
+        var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters.driversCount, 500)
+        const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
+        if(response.solution?.unassigned?.services?.length > 0) {
+          clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
+          return {routes:[], orders:[], result: clusterResult}
+        } else {
+          if(response.solution) {
+            const {routes, solution, avaiableID} = getRoutesFromResponse(response, orders, globalRequestAvaiableID)
+            clusterRoutes = [...clusterRoutes, ...routes]
+            globalRequestAvaiableID = avaiableID
+          } else {
+            clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
+            return {routes:[], orders:[], result: clusterResult}
+          }
+        }
+      }
+    }
+  } 
+  return {routes: clusterRoutes, orders: clusterOrders, result: clusterResult}
+}
 
-  //     if(finalSolution.details.length > 0) {
-  //       finalSolution.result = 'problem'
-  //     }
-  //     finalRoutes.push(...routes)
-  //   }
-  //   catch(e) { // ** Handle Request Error
-  //     // ** Server error
-  //     if(e.status == 500) {
-  //       const errorMessage = 'GH internal error. Code: ' + e.status
-  //       console.log(errorMessage)
-  //       finalSolution.details.push(e.message)
-  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-  //     }
-  //     // ** Error in optimization -> No driver left to make the order
-  //     else {
-  //       const errorMessage = 'Error generating the optimization batch number: ' + (i + 1)
-  //       finalSolution.details.push(errorMessage)
-  //       splicedOrders.map(order => finalSolution.ordersLeft.push(order.number))
-  //     }
-  //     finalSolution.result = 'error'
-  //     break
-  //   }
-   }
+const getFinalSolution = (routes, orders) => {
 
-  // Send only orders assigned to a route to be saved
-  orders = orders.filter(order => order.assignedRouteID != '')
-
-  return { routes: finalRoutes, solution: finalSolution, orders }
 }
 
 const getRoutesFromResponse = (response, orders, avaiableID) => {
@@ -448,8 +463,7 @@ const getGraphHopperRORequestBody = (orders, maxDrivers, maxTime) => {
   return body
 }
 
-const getGraphHopperClusterRequestBody = (orders) => {
-  const factor = (orders.length/22) + 2
+const getGraphHopperClusterRequestBody = (orders, parameteres) => {
   const configuration = {
     "response_type": "json",
     "routing": {
@@ -458,9 +472,9 @@ const getGraphHopperClusterRequestBody = (orders) => {
       "cost_per_meter":1
     },
     "clustering": {
-      "num_clusters": factor, 
-      "max_quantity": orders.length/factor,
-      "min_quantity": 5
+      "num_clusters": parameteres.paramClusterQty, 
+      "max_quantity": parameteres.paramMinBags,
+      "min_quantity": parameteres.paramMaxBags
     }
   }
   const customers = []
@@ -484,24 +498,50 @@ const getGraphHopperClusterRequestBody = (orders) => {
   return body
 }
 
-const generateOrders = async (state) => {
-  const locationsToProcess = state.routes.locations.filter(loc => loc.included)
-  const subscriptionsToProcess = state.routes.subscriptions.filter(sub => {
-    var result = false
-    for(var i = 0 ; i < locationsToProcess.length; i++) {
-      if(locationsToProcess[i].name === sub.location) {
-        result = true
-        break
-      }
+const getFixedGraphHopperClusterRequestBody = (orders) => {
+
+  const factor = orders.length % 80 == 0 ? (orders.length/80) : (orders.length/80) + 1
+  const configuration = {
+    "response_type": "json",
+    "routing": {
+      "profile": "as_the_crow_flies",
+      "cost_per_second":0,
+      "cost_per_meter":1
+    },
+    "clustering": {
+      "num_clusters": factor, 
+      "max_quantity": 80,
+      "min_quantity": 20
     }
-     return result
+  }
+  const customers = []
+
+  orders.map(order => {
+    customers.push({
+      id: order.id,
+      address: {
+        lon: order.longitude,
+        lat: order.latitude,
+        street_hint:order.address
+      },
+      quantity:1
+    })
   })
+
+  var body = {
+    configuration,
+    customers,
+  }
+  return body
+}
+
+const generateOrders = async (subscriptions) => {
 
   var orders = []
   var avaiableID = await getAvaiableOrderId()
   var index = 0
 
-  subscriptionsToProcess.map(sub => {
+  subscriptions.map(sub => {
     const id = '#' + (avaiableID + index)
     orders.push({
       id: id,

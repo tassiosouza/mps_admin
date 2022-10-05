@@ -28,11 +28,11 @@ const LocationsTableHeader = props => {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        justifyContent: 'end',
+        justifyContent: 'space-between',
       }}
     >
+      {selectedClusters.length > 0 ? selectedClusters.length + ' Clusters selecteds' : 'Select Clusters'}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        {selectedClusters.length > 0 ? selectedClusters.length + 'Clusters selected' : ''}
         <TextField
           size='small'
           placeholder='Search'
