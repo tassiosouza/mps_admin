@@ -172,7 +172,7 @@ export const deleteRoutes = async (routes, orders)  => {
 
 // ** Process Route Generation Based on Selected Algorithm
 export const getGraphHopperRoutes = async (params)  => {
-  const { driversCount, parameters, subscriptions, clusters } = params
+  const { parameters, subscriptions, clusters } = params
 
   var finalRoutes = []
   var finalOrders = []
@@ -191,7 +191,8 @@ export const getGraphHopperRoutes = async (params)  => {
     const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === clusters[i].id)
     const ordersToProcess = await generateOrders(subscriptionsToProcess)
     if(params.parameters.selectedAlgorithm === 'Optimization') {
-      const {routes, orders, result} = processGraphHopperOptimizedRoutes(driversCount, parameters, subscriptions, clusters[i])
+      const {routes, orders, result} = await processGraphHopperOptimizedRoutes(parameters, ordersToProcess, clusters[i])
+      console.log('getting result:  ' + JSON.stringify(routes))
       switch(result.status) {
         case RESULT_STATUS.SUCCESS:
           //Process here
@@ -218,15 +219,77 @@ export const getGraphHopperRoutes = async (params)  => {
   return { routes: finalRoutes, solution: finalSolution, orders:finalOrders }
 }
 
-const processGraphHopperOptimizedRoutes = (driversCount, parameters, subscriptions, cluster) => {
-  const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === cluster.id)
-  const orders = generateOrders(subscriptionsToProcess)
+const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) => {
 
+  var globalRequestAvaiableID = await getAvaiableRouteId()
+  var result = {status: RESULT_STATUS.SUCCESS, errors: []}
+  var clusterRoutes = []
+
+  // ** Return error if cluster has more than 400 locations
+  if(orders.length > GRAPHHOPPER_CLUSTER_LIMIT) {
+    result = {status: RESULT_STATUS.FAILED, errors: ['The Cluster ' + cluster.name + ' has more than 400 subscriptions']}
+
+    return {routes:[], orders:[], result: result}
+  }
+
+  // ** Cluster locations if the number of orders exceds the route optimization locations limit
+  if(orders.length > GRAPHHOPPER_ROUTE_LIMIT) {
+
+    const ghBody = getFixedGraphHopperClusterRequestBody(orders)
+    const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
+    
+    console.log('slepping...')
+    await new Promise(r => setTimeout(r, 60000))
+    console.log('continue...')
+
+    if(response.data) {
+      const clustersResult = response.data.clusters
+      for(var i = 0; i < clustersResult.length; i++) {
+        const insideClusterOrders = orders.filter(order => clustersResult[i].ids.includes(order.id))
+        // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
+        var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters.driversCount, 500)
+        const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
+
+        if(response.data?.solution?.unassigned?.services?.length > 0) {
+          result = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
+          return {routes:[], orders:[], result: result}
+        } else {
+          if(response.data.solution) {
+            const {routes, solution, avaiableID} = getRoutesFromResponse(response, insideClusterOrders, globalRequestAvaiableID)
+            clusterRoutes = [...clusterRoutes, ...routes]
+            globalRequestAvaiableID = avaiableID
+          } else {
+            result = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
+            return {routes:[], orders:[], result: result}
+          }
+        }
+      }
+    }
+  }
+  else {
+    // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
+    var ghRouteBody = getGraphHopperRORequestBody(orders, parameters.driversCount, 500)
+    const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
+
+    if(response.data?.solution?.unassigned?.services?.length > 0) {
+      result = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
+      return {routes:[], orders:[], result: result}
+    } else {
+      if(response.data.solution) {
+        const {routes, solution, avaiableID} = getRoutesFromResponse(response, orders, globalRequestAvaiableID)
+        clusterRoutes = [...clusterRoutes, ...routes]
+        globalRequestAvaiableID = avaiableID
+      } else {
+        result = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
+        return {routes:[], orders:[], result: result}
+      }
+    }
+  }
+  return {routes: clusterRoutes, orders, result: result}
 }
 
 const processGraphHopperClusteredRoutes = async (parameters, orders, cluster) => {
   var clusterRoutes = []
-  var clusterOrders = []
   var globalRequestAvaiableID = await getAvaiableRouteId()
   var clusterResult = {status: RESULT_STATUS.SUCCESS, errors: []}
 
@@ -249,40 +312,11 @@ const processGraphHopperClusteredRoutes = async (parameters, orders, cluster) =>
     if(response.data) {
       const clustersResult = response.data.clusters
       for(var i = 0; i < clustersResult.length; i++) {
-        const clusterOrders = orders.filter(order => clustersResult[i].ids.includes(order.id))
-        // processGraphHopperClusteredRoutes(parameters, clusterOrders, cluster)
-
-        const ghBody = getGraphHopperClusterRequestBody(clusterOrders, parameters)
-        const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
-        if(response.data) {
-          const insideClustersResult = response.data.clusters
-          for(var i = 0; i < insideClustersResult.length; i++) {
-            const insideClusterOrders = clusterOrders.filter(order => insideClustersResult[i].ids.includes(order.id))
-            console.log('slepping for vrp... ' + JSON.stringify())
-            await new Promise(r => setTimeout(r, 30000))
-            console.log('continue...')
-
-            // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
-            var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters.driversCount, 500)
-            const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
-            if(response.data?.solution?.unassigned?.services?.length > 0) {
-              clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
-              return {routes:[], orders:[], result: clusterResult}
-            } else {
-              if(response.data.solution) {
-                const {routes, solution, avaiableID} = getRoutesFromResponse(response, orders, globalRequestAvaiableID)
-                clusterRoutes = [...clusterRoutes, ...routes]
-                globalRequestAvaiableID = avaiableID
-              } else {
-                clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
-                return {routes:[], orders:[], result: clusterResult}
-              }
-            }
-          }
-        }
+        //TODO
       }
     }
   } else {
+    console.log('orders: ' + JSON.stringify(orders))
     const ghBody = getGraphHopperClusterRequestBody(orders, parameters)
     const response = await axios.post('https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghBody)
     if(response.data) {
@@ -290,40 +324,29 @@ const processGraphHopperClusteredRoutes = async (parameters, orders, cluster) =>
       for(var i = 0; i < insideClustersResult.length; i++) {
         const insideClusterOrders = orders.filter(order => insideClustersResult[i].ids.includes(order.id))
         console.log('slepping for vrp... ' + JSON.stringify())
-        await new Promise(r => setTimeout(r, 20000))
+        await new Promise(r => setTimeout(r, 30000))
         console.log('continue...')
 
         // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
         var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, 1, 500)
         const response = await axios.post('https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02', ghRouteBody)
-        console.log('after reponse 1')
+
         if(response.data?.solution?.unassigned?.services?.length > 0) {
-          console.log('after reponse 2')
           clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details}
-          console.log('after reponse 3')
           return {routes:[], orders:[], result: clusterResult}
         } else {
-          console.log('after reponse 4 : ' + JSON.stringify(response))
           if(response.data.solution) {
-            console.log('after reponse 5')
             const {routes, solution, avaiableID} = getRoutesFromResponse(response, orders, globalRequestAvaiableID)
-            console.log('after reponse 6: ' + JSON.stringify(routes) + ' ' + avaiableID)
             clusterRoutes = [...clusterRoutes, ...routes]
-            console.log('after reponse 7')
             globalRequestAvaiableID = avaiableID
-            console.log('after reponse 8')
           } else {
-            console.log('after reponse 9')
             clusterResult = {status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)]}
-            console.log('after reponse 10')
             return {routes:[], orders:[], result: clusterResult}
           }
         }
       }
     }
-    console.log('after reponse 11')
   } 
-  console.log('leaving')
   return {routes: clusterRoutes, orders, result: clusterResult}
 }
 
@@ -615,11 +638,11 @@ export const saveRoutesAndOrders = async (routes, orders, subscriptionsToUpdate)
   }
 
   // ** Mutate Server Subscriptions
-  for(var i = 0; i < subscriptionsToUpdate.length; i++) {
-    await API.graphql(graphqlOperation(updateMpsSubscription, {
-      input: {id: subscriptionsToUpdate[i].id, status:SubscriptionStatus.ASSIGNED}
-    }))
-  }
+  // for(var i = 0; i < subscriptionsToUpdate.length; i++) {
+  //   await API.graphql(graphqlOperation(updateMpsSubscription, {
+  //     input: {id: subscriptionsToUpdate[i].id, status:SubscriptionStatus.ASSIGNED}
+  //   }))
+  // }
 
   // ** Query Server Routes
   const fetchedRoutes = await fetchRoutes()

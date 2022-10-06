@@ -39,7 +39,7 @@ const DeleteSubscriptionsDialog = (props) => {
       }}
     >
       {deleting && <LinearProgress sx={{ height:'2px', mt:0.2 }} />}
-      <DialogTitle id='alert-dialog-title'>Delete Route</DialogTitle>
+      <DialogTitle id='alert-dialog-title'>Delete Subscription</DialogTitle>
       <DialogContent>
         {subscriptions.length && 
           <DialogContentText id='alert-dialog-description'>
