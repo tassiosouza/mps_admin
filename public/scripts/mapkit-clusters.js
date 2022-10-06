@@ -21,7 +21,7 @@ clusters = JSON.parse(values[1])
 subscriptions = JSON.parse(values[2])
 
 // ** Create and Set Map Initial View
-var mpsCoordinate = new mapkit.Coordinate(33.5523247, -117.5310085)
+var mpsCoordinate = new mapkit.Coordinate(33.152428, -117.227969)
 var map = new mapkit.Map("map", { center: mpsCoordinate})
 var span = new mapkit.CoordinateSpan(2.1)
 var region = new mapkit.CoordinateRegion(mpsCoordinate, span)

@@ -15,7 +15,7 @@ var intervalId = null
 var colorMap = new Map()
 
 // ** Create and Set Map Initial View
-var mpsCoordinate = new mapkit.Coordinate(33.1522247, -117.2310085)
+var mpsCoordinate = new mapkit.Coordinate(33.152428, -117.227969)
 var map = new mapkit.Map("map", { center: mpsCoordinate})
 var span = new mapkit.CoordinateSpan(.8)
 var region = new mapkit.CoordinateRegion(mpsCoordinate, span)

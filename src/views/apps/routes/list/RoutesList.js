@@ -32,7 +32,7 @@ import { RouteStatus } from 'src/models'
 
 // ** Store & Actions Imports
 import { useDispatch } from 'react-redux'
-import { fetchLocations, fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
+import { fetchRoutesAndOrders, setLoadingRoutes } from 'src/store/apps/routes'
 
 // ** Custom Components Imports
 import TableHeader from 'src/views/apps/routes/list/TableHeader'
@@ -227,7 +227,6 @@ const RoutesList = (props) => {
   const handleDeleteConfirm = route => {
     if(route) {
       dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
-      dispatch(fetchLocations({q: ''}))
       setOpenDeleteConfirm(false)
     }
     else {

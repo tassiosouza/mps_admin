@@ -180,9 +180,6 @@ export const appRoutesSlice = createSlice({
       state.orders = action.payload.orders
       state.locations = action.payload.locations
       state.subscriptions = action.payload.subscriptions
-      state.locations.map(loc => {
-        loc.included = false
-      })
       state.selectedLocations = []
       action.payload.callback()
     })

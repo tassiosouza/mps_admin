@@ -229,6 +229,7 @@ const ClustersPage = () => {
                       {store.subscriptions.map((subscription, index) => (
                         <Marker
                           key={index}
+                          clickable={false}
                           onClick={handleClick('success', subscription)}
                           icon={{
                             path: google.maps.SymbolPath.CIRCLE,

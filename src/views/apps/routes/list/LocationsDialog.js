@@ -323,8 +323,8 @@ const LocationsDialog = (props) => {
         </Tooltip>
         <Box sx={{display:'flex', justifyContent:'space-between', pt:5}}>
           <FormControlLabel control={<Switch defaultChecked 
-                            value={paramIsBalanced} onChange={() => setParamIsBalanced(!paramIsBalanced)}/>} 
-                            labelPlacement='bottom' label='Balanced' />
+            value={paramIsBalanced} onChange={() => setParamIsBalanced(!paramIsBalanced)}/>} 
+            labelPlacement='bottom' label='Balanced' />
           <Divider orientation="vertical" variant="middle" flexItem />
           <TextField
             variant='standard'

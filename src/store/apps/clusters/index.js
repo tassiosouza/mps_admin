@@ -122,8 +122,8 @@ export const appClusterSlice = createSlice({
   initialState: {
     currentZoom: 8.52,
     currentCenter: {
-      lat: 33.3523247,
-      lng:  -117.5310085
+      lat: 33.152428,
+      lng:  -117.227941
     },
     clusters: [],
     selectedClusters:[],
@@ -149,8 +149,8 @@ export const appClusterSlice = createSlice({
       state.editingCluster = null
       state.currentZoom = 8.53
       state.currentCenter = {
-        lat: 33.3523247,
-        lng:  -117.5310085
+        lat: 33.152428,
+        lng: -117.227941,
       }
       state.selectedClusters = action.payload
     },
@@ -178,8 +178,8 @@ export const appClusterSlice = createSlice({
       state.selectedClusters = clusters
       state.currentZoom = state.selectedClusters.length ? 11 : 8.52
       state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
-        lat: 33.3523247,
-        lng:  -117.5310085
+        lat: 33.152428,
+        lng: -117.227941,
       }
     },
     handleAddCluster: (state, action) => {
@@ -190,8 +190,8 @@ export const appClusterSlice = createSlice({
       // ** Update Selected Clusters and Zoom/Focus Control
       state.currentZoom = state.selectedClusters.length ? 11 : 8.52
       state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
-        lat: 33.3523247,
-        lng:  -117.5310085
+        lat: 33.152428,
+        lng: -117.227941,
       }
     },
     handleOpenCluster: (state, action) => {
@@ -200,8 +200,8 @@ export const appClusterSlice = createSlice({
       // ** Update Selected Clusters and Zoom/Focus Control
       state.currentZoom = state.selectedClusters.length ? 11 : 8.52
       state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
-        lat: 33.3523247,
-        lng:  -117.5310085
+        lat: 33.152428,
+        lng: -117.227941,
       }
     },
     editCluster: (state, action) => {
@@ -223,8 +223,8 @@ export const appClusterSlice = createSlice({
       // ** Update Selected Clusters and Zoom/Focus Control
       state.currentZoom = state.selectedClusters.length ? 11 : 8.52
       state.currentCenter = state.selectedClusters.length ? getLastSelectedCenter(state.selectedClusters) : {
-        lat: 33.3523247,
-        lng:  -117.5310085
+        lat: 33.152428,
+        lng: -117.227941,
       }
     }
   },
