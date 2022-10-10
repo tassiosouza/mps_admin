@@ -227,8 +227,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "location": {
-                    "name": "location",
+                "clusterId": {
+                    "name": "clusterId",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -850,5 +850,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "09a028ee4cea410d6c1c58ad9be421dc"
+    "version": "bf5a1a2b01518097b15ee08abe2da62e"
 };

@@ -57,10 +57,10 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 import '../../styles/globals.css'
 
 // ** Amplify
-import aws_exports from '../aws-exports';
-import Amplify, {Auth} from 'aws-amplify';
+import aws_exports from '../aws-exports'
+import Amplify, { Auth } from 'aws-amplify'
 
-Amplify.configure(aws_exports);
+Amplify.configure(aws_exports)
 
 const clientSideEmotionCache = createEmotionCache()
 

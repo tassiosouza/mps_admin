@@ -47,15 +47,15 @@ for(var i = 0; i < routes.length; i++) {
     coordinates.push(new mapkit.Coordinate(cord[1], cord[0]))
   })
   
-  var pol = new mapkit.PolylineOverlay(coordinates,
-    { 
-      style: new mapkit.Style({
-        lineWidth:5,
-        strokeOpacity:0.8,
-        strokeColor: colorMap.get(routeID)
-      })
-    })
-  map.addOverlay(pol)
+  // var pol = new mapkit.PolylineOverlay(coordinates,
+  //   { 
+  //     style: new mapkit.Style({
+  //       lineWidth:5,
+  //       strokeOpacity:0.8,
+  //       strokeColor: colorMap.get(routeID)
+  //     })
+  //   })
+  // map.addOverlay(pol)
 
   //** Display driver location for each in transit route */
   if(route != null && route.status == 'IN_TRANSIT') {
@@ -129,3 +129,14 @@ var annot = new mapkit.MarkerAnnotation(mpsCoordinate, {
   glyphText: "MPS"
 });
 map.addAnnotation(annot)
+
+//** Add space keyboard event for toggle titles visibility */
+document.addEventListener('keydown', (event) => {
+  var code = event.code;
+  var titleVisibility = (map.annotations[0].titleVisibility == mapkit.FeatureVisibility.Hidden) ? mapkit.FeatureVisibility.Visible :
+  mapkit.FeatureVisibility.Hidden
+
+  if(code === 'Space') {
+    map.annotations.map(annot => annot.titleVisibility = titleVisibility)
+  }
+}, false)

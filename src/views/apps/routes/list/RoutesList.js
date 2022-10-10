@@ -24,7 +24,6 @@ import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import DownloadOutline from 'mdi-material-ui/DownloadOutline'
 import CircleMedium from 'mdi-material-ui/CircleMedium'
 
-
 // ** Third Party Imports
 import format from 'date-fns/format'
 import DatePicker from 'react-datepicker'
@@ -42,9 +41,9 @@ import DeleteRouteDialog from 'src/views/apps/routes/list/DeleteRouteDialog'
 
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
-import { saveAs } from "file-saver"
-import XlsxPopulate from "xlsx-populate"
-import { Player } from '@lottiefiles/react-lottie-player';
+import { saveAs } from 'file-saver'
+import XlsxPopulate from 'xlsx-populate'
+import { Player } from '@lottiefiles/react-lottie-player'
 
 // ** Styled Components
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
@@ -57,8 +56,7 @@ const StyledLink = styled('a')(({ theme }) => ({
 }))
 
 /* eslint-enable */
-const RoutesList = (props) => {
-
+const RoutesList = props => {
   const { store } = props
 
   // ** State
@@ -85,29 +83,40 @@ const RoutesList = (props) => {
     {
       flex: 0.15,
       minWidth: 100,
-      field:'status',
+      field: 'status',
       headerName: 'Status',
-      renderCell: ({ row }) => 
-      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-        {toPascalCase(row.status)} 
-        <CircleMedium sx={{color:getStatusColor(row.status)}}/>
-      </Box>
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          {toPascalCase(row.status)}
+          <CircleMedium sx={{ color: getStatusColor(row.status) }} />
+        </Box>
+      )
     },
     {
-      flex: 0.20,
+      flex: 0.15,
       field: 'driver',
       minWidth: 120,
       headerName: 'Driver',
-      renderCell: ({ row }) => 
-      <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
-        <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
-        {row.status == RouteStatus.IN_TRANSIT && <Player
-          autoplay
-          loop
-          src={'https://assets6.lottiefiles.com/packages/lf20_buuuwhvb.json'}
-          style={{ height: '25px', width: '25px' }}
-        />}
-      </Box>
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <Typography variant='body2'>{getDriverName(row.driverID)}</Typography>
+          {row.status == RouteStatus.IN_TRANSIT && (
+            <Player
+              autoplay
+              loop
+              src={'https://assets6.lottiefiles.com/packages/lf20_buuuwhvb.json'}
+              style={{ height: '25px', width: '25px' }}
+            />
+          )}
+        </Box>
+      )
+    },
+    {
+      flex: 0.1,
+      minWidth: 80,
+      field: 'clusterId',
+      headerName: 'Cluster',
+      renderCell: ({ row }) => <Typography variant='body2'>{getClusterName(row.clusterId)}</Typography>
     },
     {
       flex: 0.07,
@@ -122,15 +131,15 @@ const RoutesList = (props) => {
       field: 'cost',
       headerName: 'Cost',
       renderCell: ({ row }) => <Typography variant='body2'>${parseInt(row.cost)}</Typography>
-    },
-    {
-      flex: 0.12,
-      minWidth: 90,
-      field: 'issuedDate',
-      headerName: 'Date',
-      renderCell: ({ row }) => <Typography variant='body2'>{
-        new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
     }
+    // {
+    //   flex: 0.12,
+    //   minWidth: 90,
+    //   field: 'issuedDate',
+    //   headerName: 'Date',
+    //   renderCell: ({ row }) => <Typography variant='body2'>{
+    //     new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
+    // }
   ]
   /* eslint-disable */
   const CustomInput = forwardRef((props, ref) => {
@@ -143,13 +152,17 @@ const RoutesList = (props) => {
     return <TextField fullWidth inputRef={ref} {...updatedProps} label={props.label || ''} value={value} />
   })
 
-  const getRouteOrders = (routeID) => {
-    if(routeID != '') {
+  const getRouteOrders = routeID => {
+    if (routeID != '') {
       return store.orders.filter(order => {
         return order.assignedRouteID === routeID
       })
     }
     return []
+  }
+
+  const getClusterName = clusterId => {
+    return store.clusters.find(cl => cl.id === clusterId).name
   }
 
   // ** Redux
@@ -162,7 +175,7 @@ const RoutesList = (props) => {
 
   const refresh = () => {
     dispatch(setLoadingRoutes(true))
-    dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
+    dispatch(fetchRoutesAndOrders({ q: value, dates, status: statusValue }))
   }
 
   const handleFilter = val => {
@@ -171,17 +184,17 @@ const RoutesList = (props) => {
 
   const getDriverName = driverID => {
     const drivers = store.drivers.filter(dr => dr.id === driverID)
-    if(drivers.length) {
+    if (drivers.length) {
       return drivers[0].name
     }
     return 'Unassigned'
   }
-  
+
   const getDriversNames = routes => {
     var result = []
     routes.map(route => {
       const drivers = store.drivers.filter(dr => dr.id === route.driverID)
-      if(drivers.length) {
+      if (drivers.length) {
         result.push(drivers[0].name)
       }
     })
@@ -205,12 +218,12 @@ const RoutesList = (props) => {
     setOpenLocationsDialog(true)
   }
 
-  const handleOpenRoutesDialog = (route) => {
+  const handleOpenRoutesDialog = route => {
     setSelectedRoutes([route])
     setOpenRoutesDialog(true)
   }
 
-  const handleOpenDeleteConfirm = (route) => {
+  const handleOpenDeleteConfirm = route => {
     setSelectedRoutes([route])
     setOpenDeleteConfirm(true)
   }
@@ -225,11 +238,10 @@ const RoutesList = (props) => {
   }
 
   const handleDeleteConfirm = route => {
-    if(route) {
-      dispatch(fetchRoutesAndOrders({q: value, dates, status:statusValue}))
+    if (route) {
+      dispatch(fetchRoutesAndOrders({ q: value, dates, status: statusValue }))
       setOpenDeleteConfirm(false)
-    }
-    else {
+    } else {
       console.log('ERROR: The delete operation failed')
     }
   }
@@ -238,14 +250,15 @@ const RoutesList = (props) => {
     setOpenDeleteConfirm(false)
   }
 
-  const toPascalCase = (text) => {
+  const toPascalCase = text => {
     text = text.replace('_', ' ')
-    return text.replace(/(\w)(\w*)/g,
-        function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase()})
+    return text.replace(/(\w)(\w*)/g, function (g0, g1, g2) {
+      return g1.toUpperCase() + g2.toLowerCase()
+    })
   }
 
-  const getStatusColor = (status) => {
-    switch(status) {
+  const getStatusColor = status => {
+    switch (status) {
       case RouteStatus.PLANNED:
         return '#51AB3B'
       case RouteStatus.ASSIGNED:
@@ -264,141 +277,243 @@ const RoutesList = (props) => {
   }
 
   const handleMultipleAction = action => {
-    switch(action) {
-      case "View": 
+    switch (action) {
+      case 'View':
         setOpenRoutesDialog(true)
-      break
-      case "Download":
+        break
+      case 'Download':
         saveAsExcel(selectedRoutes)
         setSelectedRoutes([])
-      break
-      case "Delete":
+        break
+      case 'Delete':
         setOpenDeleteConfirm(true)
-      break
+        break
       default:
-      break
+        break
     }
   }
 
-  const getFixedWidth = (width) => {
+  const getFixedWidth = width => {
     return (width * 21) / 126
   }
 
   async function saveAsExcel(routes) {
-    XlsxPopulate.fromBlankAsync().then(async (workbook) => {
-      for(var i = 0; i < routes.length; i++) {
-        const sheet = workbook.addSheet(routes[i].id);
+    XlsxPopulate.fromBlankAsync().then(async workbook => {
+      for (var i = 0; i < routes.length; i++) {
+        const sheet = workbook.addSheet(routes[i].id)
         const routeOrders = getRouteOrders(routes[i].id)
         routeOrders.sort((a, b) => a.sort - b.sort)
         const routeDriverName = getDriverName(routes[i].driverID)
 
-        var date = new Date(routes[i].routeDate);
-        const formattedDate = date.toLocaleString('default', { day: 'numeric', month: 'short', year:'numeric' })
+        var date = new Date(routes[i].routeDate)
+        const formattedDate = date.toLocaleString('default', { day: 'numeric', month: 'short', year: 'numeric' })
 
         // ** Build Spreadsheet Header ****************************************************
         // ** Set Sheet Cells Sizes
-        sheet.column("A").width(getFixedWidth(61))
-        sheet.column("B").width(getFixedWidth(25))
-        sheet.column("C").width(getFixedWidth(237))
-        sheet.column("D").width(getFixedWidth(250))
-        sheet.column("E").width(getFixedWidth(100))
-        sheet.column("F").width(getFixedWidth(283))
-        sheet.row("1").height(24)
-        sheet.row("2").height(24)
-        sheet.row("3").height(24)
-        sheet.row("4").height(24)
-        sheet.row("5").height(24)
+        sheet.column('A').width(getFixedWidth(61))
+        sheet.column('B').width(getFixedWidth(25))
+        sheet.column('C').width(getFixedWidth(237))
+        sheet.column('D').width(getFixedWidth(250))
+        sheet.column('E').width(getFixedWidth(100))
+        sheet.column('F').width(getFixedWidth(283))
+        sheet.row('1').height(24)
+        sheet.row('2').height(24)
+        sheet.row('3').height(24)
+        sheet.row('4').height(24)
+        sheet.row('5').height(24)
 
         // ** Merge Header Cells
-        workbook.sheet(routes[i].id).range("B1:D1").merged(true)
-        workbook.sheet(routes[i].id).range("B2:D2").merged(true)
-        workbook.sheet(routes[i].id).range("B3:D3").merged(true)
-        workbook.sheet(routes[i].id).range("A4:D4").merged(true)
+        workbook.sheet(routes[i].id).range('B1:D1').merged(true)
+        workbook.sheet(routes[i].id).range('B2:D2').merged(true)
+        workbook.sheet(routes[i].id).range('B3:D3').merged(true)
+        workbook.sheet(routes[i].id).range('A4:D4').merged(true)
 
         // ** Manage Header Cells Colors
-        sheet.range("A1:F1").style({fill:"FFFFFF", border: true, borderColor:"FFFFFF"})
-        sheet.range("A2:F2").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
-        sheet.range("A3:F3").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
-        sheet.range("A4:F4").style({fill:"e6ecec", border: true, borderColor:"bfbfbf"})
-        sheet.range("A5:F5").style({fill:"7cc465", border: true, borderColor:"bfbfbf"})
-        
+        sheet.range('A1:F1').style({ fill: 'FFFFFF', border: true, borderColor: 'FFFFFF' })
+        sheet.range('A2:F2').style({ fill: 'e6ecec', border: true, borderColor: 'bfbfbf' })
+        sheet.range('A3:F3').style({ fill: 'e6ecec', border: true, borderColor: 'bfbfbf' })
+        sheet.range('A4:F4').style({ fill: 'e6ecec', border: true, borderColor: 'bfbfbf' })
+        sheet.range('A5:F5').style({ fill: '7cc465', border: true, borderColor: 'bfbfbf' })
+
         // ** Build Spreadsheet Header ****************************************************
 
         // ** Manage Header Cells Values
-        sheet.cell("A2").value(routes[i].id)
-        sheet.cell("B2").value(routes[i].location)
-        sheet.cell("E2").value('ORDERS')
-        sheet.cell("F2").value(formattedDate)
-        
-        sheet.cell("A3").value('DRIVER')
-        sheet.cell("B3").value(routeDriverName)
-        sheet.cell("E3").value(routeOrders.length)
+        sheet.cell('A2').value(routes[i].id)
+        sheet.cell('B2').value(routes[i].location)
+        sheet.cell('E2').value('ORDERS')
+        sheet.cell('F2').value(formattedDate)
 
-        sheet.cell("A4").value('AMOUNT OF BAGS  >>')
-        sheet.cell("A4").style({horizontalAlignment: 'right'})
-        sheet.cell("E4").value(routeOrders.length)
-        sheet.cell("F4").value('5:10')
+        sheet.cell('A3').value('DRIVER')
+        sheet.cell('B3').value(routeDriverName)
+        sheet.cell('E3').value(routeOrders.length)
 
-        sheet.cell("A5").value('N.')
-        sheet.cell("D5").value('1 ICE PACKS PER BAG')
-        sheet.cell("E5").value('PHONE #')
-        sheet.cell("F5").value('ADDRESS / NOTES')
+        sheet.cell('A4').value('AMOUNT OF BAGS  >>')
+        sheet.cell('A4').style({ horizontalAlignment: 'right' })
+        sheet.cell('E4').value(routeOrders.length)
+        sheet.cell('F4').value('5:10')
+
+        sheet.cell('A5').value('N.')
+        sheet.cell('D5').value('1 ICE PACKS PER BAG')
+        sheet.cell('E5').value('PHONE #')
+        sheet.cell('F5').value('ADDRESS / NOTES')
 
         const currentRow = 6
 
         routeOrders.map(order => {
           sheet.row(currentRow).height(24)
 
-          sheet.cell("A" + currentRow).value(order.sort + '°')
-          sheet.cell("C" + currentRow).value(" " + order.customerName + " (" + order.number + ") ")
-          sheet.cell("C" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
-          sheet.cell("D" + currentRow).value(" " + order.customerName + " (" + order.number + ") ")
-          sheet.cell("D" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
-          sheet.cell("E" + currentRow).value(order.phone)
-          sheet.cell("E" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
-          sheet.cell("F" + currentRow).value(" " + order.address)
-          sheet.cell("F" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
+          sheet.cell('A' + currentRow).value(order.sort + '°')
+          sheet.cell('C' + currentRow).value(' ' + order.customerName + ' (' + order.number + ') ')
+          sheet.cell('C' + currentRow).style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'left',
+            verticalAlignment: 'center'
+          })
+          sheet.cell('D' + currentRow).value(' ' + order.customerName + ' (' + order.number + ') ')
+          sheet.cell('D' + currentRow).style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'left',
+            verticalAlignment: 'center'
+          })
+          sheet.cell('E' + currentRow).value(order.phone)
+          sheet.cell('E' + currentRow).style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+          sheet.cell('F' + currentRow).value(' ' + order.address)
+          sheet.cell('F' + currentRow).style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'left',
+            verticalAlignment: 'center'
+          })
 
-          workbook.sheet(routes[i].id).range("A"+currentRow+ ":A" + (currentRow+1)).merged(true)
-          workbook.sheet(routes[i].id).range("B"+currentRow+ ":B" + (currentRow+1)).merged(true)
-          sheet.cell("A" + currentRow).style({fill:"ffffff", border: true, borderColor:"bfbfbf", fontSize:15, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
+          workbook
+            .sheet(routes[i].id)
+            .range('A' + currentRow + ':A' + (currentRow + 1))
+            .merged(true)
+          workbook
+            .sheet(routes[i].id)
+            .range('B' + currentRow + ':B' + (currentRow + 1))
+            .merged(true)
+          sheet.cell('A' + currentRow).style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 15,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
           currentRow += 1
-          if(order.mealPlan.length < 10){
-            sheet.cell("C" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
-            sheet.cell("D" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'left', verticalAlignment: 'center' })
-            
-            sheet.cell("C" + currentRow).value(' ' + order.mealPlan + '\r\n')
-            sheet.cell("D" + currentRow).value(' ' + order.mealPlan + '\r\n')
+          if (order.mealPlan.length < 10) {
+            sheet.cell('C' + currentRow).style({
+              fill: 'ececec',
+              border: true,
+              borderColor: 'bfbfbf',
+              fontSize: 13,
+              fontFamily: 'Times New Roman',
+              bold: true,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center'
+            })
+            sheet.cell('D' + currentRow).style({
+              fill: 'ececec',
+              border: true,
+              borderColor: 'bfbfbf',
+              fontSize: 13,
+              fontFamily: 'Times New Roman',
+              bold: true,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center'
+            })
 
+            sheet.cell('C' + currentRow).value(' ' + order.mealPlan + '\r\n')
+            sheet.cell('D' + currentRow).value(' ' + order.mealPlan + '\r\n')
+          } else {
+            sheet.cell('C' + currentRow).style({
+              fill: 'ececec',
+              border: true,
+              borderColor: 'bfbfbf',
+              fontSize: 10,
+              fontFamily: 'Helvetica Neue',
+              bold: false,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center'
+            })
+            sheet.cell('D' + currentRow).style({
+              fill: 'ececec',
+              border: true,
+              borderColor: 'bfbfbf',
+              fontSize: 10,
+              fontFamily: 'Helvetica Neue',
+              bold: false,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center'
+            })
+
+            sheet.cell('C' + currentRow).value('\r\n' + order.mealPlan + '\r\n')
+            sheet.cell('D' + currentRow).value('\r\n' + order.mealPlan + '\r\n')
           }
-          else {
-            sheet.cell("C" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:10, fontFamily: 'Helvetica Neue', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
-            sheet.cell("D" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf", fontSize:10, fontFamily: 'Helvetica Neue', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
-          
-            sheet.cell("C" + currentRow).value('\r\n' + order.mealPlan + '\r\n')
-            sheet.cell("D" + currentRow).value('\r\n' + order.mealPlan + '\r\n')
-          }
 
-          if(order.deliveryInstruction.length < 10 && order.mealPlan.length < 10) sheet.row(currentRow).height(24)
+          if (order.deliveryInstruction.length < 10 && order.mealPlan.length < 10) sheet.row(currentRow).height(24)
 
-          sheet.cell("F" + currentRow).style({fill:"ececec", wrapText:true, border: true, borderColor:"bfbfbf", fontSize:12, fontFamily: 'Times New Roman', bold: false, horizontalAlignment: 'left', verticalAlignment: 'center' })
+          sheet.cell('F' + currentRow).style({
+            fill: 'ececec',
+            wrapText: true,
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 12,
+            fontFamily: 'Times New Roman',
+            bold: false,
+            horizontalAlignment: 'left',
+            verticalAlignment: 'center'
+          })
 
-          if(order.deliveryInstruction != '0')sheet.cell("F" + currentRow).value(" " + order.deliveryInstruction)
-          sheet.range("C" + currentRow + ":F" + currentRow).style({fill:"ececec", border: true, borderColor:"bfbfbf"})
+          if (order.deliveryInstruction != '0') sheet.cell('F' + currentRow).value(' ' + order.deliveryInstruction)
+          sheet
+            .range('C' + currentRow + ':F' + currentRow)
+            .style({ fill: 'ececec', border: true, borderColor: 'bfbfbf' })
 
           currentRow += 1
         })
 
-        sheet.range("A1:F" + 5).style({fontSize:13, fontFamily: 'Times New Roman', bold: true, horizontalAlignment: 'center', verticalAlignment: 'center' })
-        sheet.cell("A4").style({horizontalAlignment: 'right'})
+        sheet.range('A1:F' + 5).style({
+          fontSize: 13,
+          fontFamily: 'Times New Roman',
+          bold: true,
+          horizontalAlignment: 'center',
+          verticalAlignment: 'center'
+        })
+        sheet.cell('A4').style({ horizontalAlignment: 'right' })
       }
-      workbook.deleteSheet(0);
-      return workbook.outputAsync().then((res) => {
-        if(routes.length == 1) {
-          saveAs(res, routes[0].id + ".xlsx")
-        }
-        else {
-          saveAs(res, "MPS - System Routes.xlsx")
+      workbook.deleteSheet(0)
+      return workbook.outputAsync().then(res => {
+        if (routes.length == 1) {
+          saveAs(res, routes[0].id + '.xlsx')
+        } else {
+          saveAs(res, 'MPS - System Routes.xlsx')
         }
       })
     })
@@ -414,19 +529,25 @@ const RoutesList = (props) => {
       headerName: 'Actions',
       renderCell: ({ row }) => {
         return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title='Delete Route'>
-            <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDeleteConfirm(row)}>
-              <DeleteOutline />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title='Export Route'>
-          <IconButton size='small' component='a' sx={{ textDecoration: 'none', mr: 0.5 }} onClick={() => saveAsExcel([row])}>
-            <DownloadOutline />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      )}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title='Delete Route'>
+              <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDeleteConfirm(row)}>
+                <DeleteOutline />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Export Route'>
+              <IconButton
+                size='small'
+                component='a'
+                sx={{ textDecoration: 'none', mr: 0.5 }}
+                onClick={() => saveAsExcel([row])}
+              >
+                <DownloadOutline />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )
+      }
     }
   ]
 
@@ -450,39 +571,39 @@ const RoutesList = (props) => {
                   >
                     <MenuItem value=''>All</MenuItem>
                     <MenuItem value='PLANNED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.PLANNED)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.PLANNED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.PLANNED)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.PLANNED) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='ASSIGNED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.ASSIGNED)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.ASSIGNED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.ASSIGNED)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.ASSIGNED) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='CHECKING_BAGS'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.CHECKING_BAGS)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.CHECKING_BAGS)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.CHECKING_BAGS)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.CHECKING_BAGS) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='IN_TRANSIT'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.IN_TRANSIT)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.IN_TRANSIT)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.IN_TRANSIT)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.IN_TRANSIT) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='DONE'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.DONE)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.DONE)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.DONE)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.DONE) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='CANCELED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(RouteStatus.CANCELED)} 
-                        <CircleMedium sx={{color:getStatusColor(RouteStatus.CANCELED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(RouteStatus.CANCELED)}
+                        <CircleMedium sx={{ color: getStatusColor(RouteStatus.CANCELED) }} />
                       </Box>
                     </MenuItem>
                   </Select>
@@ -500,7 +621,6 @@ const RoutesList = (props) => {
                   >
                     <MenuItem value=''>All</MenuItem>
                     {/* {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)} */}
-                    
                   </Select>
                 </FormControl>
               </Grid>
@@ -534,14 +654,15 @@ const RoutesList = (props) => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader 
-            value={value} 
-            selectedRoutes={selectedRoutes} 
-            handleFilter={handleFilter} 
+          <TableHeader
+            value={value}
+            selectedRoutes={selectedRoutes}
+            handleFilter={handleFilter}
             openDialog={handleOpenLocationsDialog}
-            refresh={refresh} 
-            handleMultipleAction={handleMultipleAction}/>
-          {store.loadingRoutes && <LinearProgress sx={{ height:'2px' }} />}
+            refresh={refresh}
+            handleMultipleAction={handleMultipleAction}
+          />
+          {store.loadingRoutes && <LinearProgress sx={{ height: '2px' }} />}
           <DataGrid
             autoHeight
             pagination
@@ -553,35 +674,30 @@ const RoutesList = (props) => {
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
             sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
-            onSelectionModelChange={(ids) => {
-              const selectedIDs = new Set(ids);
-              const selectedRowData = store.routes.filter((route) =>
-                selectedIDs.has(route.id.toString())
-              )
+            onSelectionModelChange={ids => {
+              const selectedIDs = new Set(ids)
+              const selectedRowData = store.routes.filter(route => selectedIDs.has(route.id.toString()))
               setSelectedRoutes(selectedRowData)
             }}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Card>
       </Grid>
-      <LocationsDialog
-        open={openLocationsDialog}
-        onClose={handleCloseLocationsDialog}
-      />
-      <RoutesDialog 
+      <LocationsDialog open={openLocationsDialog} onClose={handleCloseLocationsDialog} />
+      <RoutesDialog
         open={openRoutesDialog}
         onClose={handleCloseRoutesDialog}
         routes={selectedRoutes}
         orders={store.orders}
         drivers={getDriversNames(selectedRoutes)}
       />
-      <DeleteRouteDialog 
+      <DeleteRouteDialog
         routes={selectedRoutes}
         orders={store.orders}
         open={openDeleteConfirm}
         onDelete={handleDeleteConfirm}
-        onCancel={handleCloseConfirmDialog}>
-      </DeleteRouteDialog>
+        onCancel={handleCloseConfirmDialog}
+      ></DeleteRouteDialog>
     </Grid>
   )
 }

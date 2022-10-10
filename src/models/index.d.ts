@@ -97,7 +97,7 @@ export declare class MOrder {
   readonly longitude?: number | null;
   readonly orderDate?: number | null;
   readonly phone?: string | null;
-  readonly location?: string | null;
+  readonly clusterId?: string | null;
   readonly sort?: number | null;
   readonly avatar?: string | null;
   readonly subscriptionID?: string | null;

@@ -23,7 +23,6 @@ import { DataGrid } from '@mui/x-data-grid'
 import Select from '@mui/material/Select'
 import LinearProgress from '@mui/material/LinearProgress'
 
-
 // ** Icons Imports
 import Check from 'mdi-material-ui/Check'
 import Download from 'mdi-material-ui/Download'
@@ -185,15 +184,16 @@ const OrderList = () => {
     setEndDateRange(end)
   }
 
-  const toPascalCase = (text) => {
+  const toPascalCase = text => {
     text = text.replace('_', ' ')
-    
-    return text.replace(/(\w)(\w*)/g,
-        function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+
+    return text.replace(/(\w)(\w*)/g, function (g0, g1, g2) {
+      return g1.toUpperCase() + g2.toLowerCase()
+    })
   }
 
-  const getStatusColor = (status) => {
-    switch(status) {
+  const getStatusColor = status => {
+    switch (status) {
       case OrderStatus.CREATED:
         return '#51AB3B'
       case OrderStatus.CHECKED:
@@ -209,7 +209,7 @@ const OrderList = () => {
     }
   }
 
-  const handleOpenDialogOrder = (order) => {
+  const handleOpenDialogOrder = order => {
     setSelectedOrder(order)
     setOpenOrderDialog(true)
   }
@@ -232,11 +232,11 @@ const OrderList = () => {
       field: 'subscriptionID',
       headerName: 'Sub. ID',
       renderCell: ({ row }) => {
-        return ( 
+        return (
           <Tooltip placement='top' title={row.subscriptionID}>
-            <Typography variant='body2'>{row.subscriptionID}</Typography>
+            <Typography variant='body2'>{row.subscriptionNumber}</Typography>
           </Tooltip>
-          )
+        )
       }
     },
     {
@@ -244,8 +244,7 @@ const OrderList = () => {
       minWidth: 100,
       field: 'routeID',
       headerName: 'Route',
-      renderCell: ({ row }) => 
-      <Typography variant='body2'>{row.assignedRouteID}</Typography>
+      renderCell: ({ row }) => <Typography variant='body2'>{row.assignedRouteID}</Typography>
     },
     {
       flex: 0.09,
@@ -254,9 +253,9 @@ const OrderList = () => {
       headerName: 'Status',
       renderCell: ({ row }) => {
         return (
-          <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-            {toPascalCase(row.status)} 
-            <CircleMedium sx={{color:getStatusColor(row.status)}}/>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            {toPascalCase(row.status)}
+            <CircleMedium sx={{ color: getStatusColor(row.status) }} />
           </Box>
         )
       }
@@ -268,7 +267,7 @@ const OrderList = () => {
       headerName: 'Client',
       renderCell: ({ row }) => {
         const { customerName } = row
-  
+
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -289,8 +288,13 @@ const OrderList = () => {
       minWidth: 90,
       field: 'issuedDate',
       headerName: 'Date',
-      renderCell: ({ row }) => <Typography variant='body2'>{
-        new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.subscriptionDate)}</Typography>
+      renderCell: ({ row }) => (
+        <Typography variant='body2'>
+          {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(
+            row.subscriptionDate
+          )}
+        </Typography>
+      )
     },
     {
       flex: 0.09,
@@ -322,11 +326,11 @@ const OrderList = () => {
               <DeleteOutline />
             </IconButton>
           </Tooltip>
-          { row.status === OrderStatus.DELIVERED && 
+          {row.status === OrderStatus.DELIVERED && (
             <IconButton size='small' sx={{ mr: 0.5 }} onClick={() => handleOpenDialogOrder(row)}>
               <ImageOutline />
             </IconButton>
-          }
+          )}
           <RowOptions id={row.id} />
         </Box>
       )
@@ -354,33 +358,33 @@ const OrderList = () => {
                   >
                     <MenuItem value=''>All</MenuItem>
                     <MenuItem value='CREATED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(OrderStatus.CREATED)} 
-                        <CircleMedium sx={{color:getStatusColor(OrderStatus.CREATED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(OrderStatus.CREATED)}
+                        <CircleMedium sx={{ color: getStatusColor(OrderStatus.CREATED) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='CHECKED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(OrderStatus.CHECKED)} 
-                        <CircleMedium sx={{color:getStatusColor(OrderStatus.CHECKED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(OrderStatus.CHECKED)}
+                        <CircleMedium sx={{ color: getStatusColor(OrderStatus.CHECKED) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='IN_TRANSIT'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(OrderStatus.IN_TRANSIT)} 
-                        <CircleMedium sx={{color:getStatusColor(OrderStatus.IN_TRANSIT)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(OrderStatus.IN_TRANSIT)}
+                        <CircleMedium sx={{ color: getStatusColor(OrderStatus.IN_TRANSIT) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='DELIVERED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(OrderStatus.DELIVERED)} 
-                        <CircleMedium sx={{color:getStatusColor(OrderStatus.DELIVERED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(OrderStatus.DELIVERED)}
+                        <CircleMedium sx={{ color: getStatusColor(OrderStatus.DELIVERED) }} />
                       </Box>
                     </MenuItem>
                     <MenuItem value='CANCELED'>
-                      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        {toPascalCase(OrderStatus.CANCELED)} 
-                        <CircleMedium sx={{color:getStatusColor(OrderStatus.CANCELED)}}/>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                        {toPascalCase(OrderStatus.CANCELED)}
+                        <CircleMedium sx={{ color: getStatusColor(OrderStatus.CANCELED) }} />
                       </Box>
                     </MenuItem>
                   </Select>
@@ -398,8 +402,11 @@ const OrderList = () => {
                     labelId='subscription-location-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)}
-                    
+                    {store.locations.map((location, index) => (
+                      <MenuItem key={index} value={location}>
+                        {location}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -434,7 +441,7 @@ const OrderList = () => {
       <Grid item xs={12}>
         <Card>
           <TableHeader value={value} selectedRows={selectedRows} handleFilter={handleFilter} refresh={refresh} />
-          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
+          {store.loading && <LinearProgress sx={{ height: '2px' }} />}
           <DataGrid
             autoHeight
             pagination
@@ -444,17 +451,13 @@ const OrderList = () => {
             disableSelectionOnClick
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
-            sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
+            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
             onSelectionModelChange={rows => setSelectedRows(rows)}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Card>
       </Grid>
-      <OrderDialog 
-        open={openOrderDialog}
-        onClose={handleCloseDialog}
-        order={selectedOrder}>
-      </OrderDialog>
+      <OrderDialog open={openOrderDialog} onClose={handleCloseDialog} order={selectedOrder}></OrderDialog>
     </Grid>
   )
 }

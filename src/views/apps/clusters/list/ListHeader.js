@@ -15,15 +15,15 @@ const ListHeader = props => {
   return (
     <Card
       sx={{
-        pt: 5,                  
+        pt: 5,
         pb: 3,
         width: '100%',
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent:'space-between'
+        justifyContent: 'space-between'
       }}
-    > 
-      <Typography sx={{ pt: 1, pl:4 }} variant='h6'>
+    >
+      <Typography sx={{ pt: 1, pl: 4 }} variant='h6'>
         Clusters
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -31,11 +31,11 @@ const ListHeader = props => {
           size='small'
           value={value}
           placeholder='Search'
-          sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
+          sx={{ mr: 4, mb: 2, maxWidth: '180px' }}
           onChange={e => handleFilter(e.target.value)}
         />
-        <Button sx={{height:'fit-content', mr:4 }} variant='contained' color='primary' startIcon={<Plus/>}>
-            Add
+        <Button sx={{ height: 'fit-content', mr: 4 }} variant='contained' color='primary' startIcon={<Plus />}>
+          Add
         </Button>
       </Box>
     </Card>

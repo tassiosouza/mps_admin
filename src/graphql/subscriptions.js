@@ -12,7 +12,7 @@ export const onCreateMRoute = /* GraphQL */ `
       driverID
       distance
       duration
-      location
+      clusterId
       routePlanName
       routeDate
       points
@@ -32,7 +32,7 @@ export const onUpdateMRoute = /* GraphQL */ `
       driverID
       distance
       duration
-      location
+      clusterId
       routePlanName
       routeDate
       points
@@ -52,7 +52,7 @@ export const onDeleteMRoute = /* GraphQL */ `
       driverID
       distance
       duration
-      location
+      clusterId
       routePlanName
       routeDate
       points
@@ -77,7 +77,7 @@ export const onCreateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
-      location
+      clusterId
       sort
       avatar
       subscriptionID
@@ -104,7 +104,7 @@ export const onUpdateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
-      location
+      clusterId
       sort
       avatar
       subscriptionID
@@ -131,7 +131,7 @@ export const onDeleteMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
-      location
+      clusterId
       sort
       avatar
       subscriptionID

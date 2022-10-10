@@ -13,8 +13,7 @@ import Close from 'mdi-material-ui/Close'
 // ** Script Hook Import
 import useScript from 'src/hooks/useScript'
 
-const DialogFullScreen = (props) => {
-
+const DialogFullScreen = props => {
   const { open, onClose, routes, drivers, orders } = props
 
   const MapKit = () => {
@@ -24,7 +23,7 @@ const DialogFullScreen = (props) => {
   const ordersToDisplay = []
   const routesToDisplay = []
 
-  if(routes != null) {
+  if (routes != null) {
     routesToDisplay = routes
     routesToDisplay.map(route => {
       var ordersToAdd = orders.filter(order => {
@@ -37,8 +36,8 @@ const DialogFullScreen = (props) => {
   const divStyle = {
     width: '100%',
     height: '100%',
-    position:"relative"
-  };
+    position: 'relative'
+  }
 
   return (
     <div>
@@ -50,18 +49,19 @@ const DialogFullScreen = (props) => {
           <IconButton
             aria-label='close'
             onClick={onClose}
-            sx={{top: 15, right: 10, position: 'absolute', color:theme => theme.palette.grey[500]}}
+            sx={{ top: 15, right: 10, position: 'absolute', color: theme => theme.palette.grey[500] }}
           >
             <Close />
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          <div 
-          id="map"
-          style={divStyle}
-          route={routesToDisplay ? JSON.stringify(routesToDisplay) : ''}
-          orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''}>
-            <MapKit/>
+          <div
+            id='map'
+            style={divStyle}
+            route={routesToDisplay ? JSON.stringify(routesToDisplay) : ''}
+            orders={ordersToDisplay ? JSON.stringify(ordersToDisplay) : ''}
+          >
+            <MapKit />
           </div>
         </DialogContent>
         <DialogActions sx={{ p: theme => `${theme.spacing(3)} !important` }}>

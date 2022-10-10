@@ -23,7 +23,7 @@ class CustomDocument extends Document {
           />
           <link rel='apple-touch-icon' sizes='180x180' href='/images/apple-touch-icon.png' />
           <link rel='shortcut icon' href='/images/favicon.png' />
-          <script src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"></script>
+          <script src='https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js'></script>
         </Head>
         <body>
           <Main />

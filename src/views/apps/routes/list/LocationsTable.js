@@ -8,36 +8,34 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
-import { styled } from '@mui/system';
+import { styled } from '@mui/system'
 
 const columns = [
-  { id: 'location', label: 'Location', align:'start' },
-  { id: 'deliveries', label: 'Deliveries', align:'center' },
-  { id: 'action', label: 'Action', align:'right' }
+  { id: 'location', label: 'Location', align: 'start' },
+  { id: 'deliveries', label: 'Deliveries', align: 'center' },
+  { id: 'action', label: 'Action', align: 'right' }
 ]
 
 const SmallTableCell = styled(TableCell)({
-  padding: '5px 20px 5px 20px !important',
+  padding: '5px 20px 5px 20px !important'
 })
 
-
-const LocationsTable = (props) => {
+const LocationsTable = props => {
   // ** Props
   const { locations, selectedLocations, addLocation, removeLocation } = props
- 
+
   // ** Functions
-  const handleCheckLocation = (location) => {
-    if(selectedLocations.filter(loc => loc.name === location.name).length > 0) {
+  const handleCheckLocation = location => {
+    if (selectedLocations.filter(loc => loc.name === location.name).length > 0) {
       removeLocation(location)
-    }
-    else {
+    } else {
       addLocation(location)
     }
   }
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 330 }} >
+      <TableContainer sx={{ maxHeight: 330 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
@@ -62,8 +60,8 @@ const LocationsTable = (props) => {
                         <Box sx={{ display: 'flex', justifyContent: 'end' }}>
                           <Checkbox
                             onChange={() => handleCheckLocation(location)}
-                            checked={location.included}>
-                          </Checkbox>
+                            checked={location.included}
+                          ></Checkbox>
                         </Box>
                       </SmallTableCell>
                     )

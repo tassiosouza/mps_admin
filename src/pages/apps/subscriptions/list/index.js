@@ -129,11 +129,12 @@ const renderClient = row => {
   }
 }
 
-const toPascalCase = (text) => {
+const toPascalCase = text => {
   text = text.replace('_', ' ')
 
-  return text.replace(/(\w)(\w*)/g,
-      function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase()})
+  return text.replace(/(\w)(\w*)/g, function (g0, g1, g2) {
+    return g1.toUpperCase() + g2.toLowerCase()
+  })
 }
 
 const defaultColumns = [
@@ -155,10 +156,8 @@ const defaultColumns = [
     headerName: 'Status',
     renderCell: ({ row }) => {
       const { status } = row
-      
-      return (
-        <Typography variant='body2'>{toPascalCase(status)}</Typography> 
-      )
+
+      return <Typography variant='body2'>{toPascalCase(status)}</Typography>
     }
   },
   {
@@ -200,8 +199,13 @@ const defaultColumns = [
     minWidth: 90,
     field: 'issuedDate',
     headerName: 'Date',
-    renderCell: ({ row }) => <Typography variant='body2'>{
-      new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.subscriptionDate)}</Typography>
+    renderCell: ({ row }) => (
+      <Typography variant='body2'>
+        {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(
+          row.subscriptionDate
+        )}
+      </Typography>
+    )
   },
   {
     flex: 0.15,
@@ -209,16 +213,13 @@ const defaultColumns = [
     field: 'mealPlan',
     headerName: 'Meal Plan',
     renderCell: ({ row }) => {
-
-    return (
-      row.mealPlan !== 0 ? (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {row.mealPlan}
-      </Typography>
+      return row.mealPlan !== 0 ? (
+        <Typography variant='body2' sx={{ color: 'text.primary' }}>
+          {row.mealPlan}
+        </Typography>
       ) : (
         <CustomChip size='small' skin='light' color='success' label='Paid' />
       )
-    )
     }
   }
 ]
@@ -312,7 +313,7 @@ const SubscriptionList = () => {
     }
   ]
 
-  const handleDeleteSubscriptions = (subscriptions) => {
+  const handleDeleteSubscriptions = subscriptions => {
     setSelectedSubscriptions(subscriptions)
     setOpenDeleteConfirm(true)
   }
@@ -322,7 +323,7 @@ const SubscriptionList = () => {
   }
 
   const handleDeleteConfirm = subscription => {
-    if(subscription) {
+    if (subscription) {
       dispatch(
         fetchSubscriptions({
           dates,
@@ -332,21 +333,20 @@ const SubscriptionList = () => {
         })
       )
       setOpenDeleteConfirm(false)
-    }
-    else {
+    } else {
       console.log('ERROR: The delete operation failed')
     }
   }
 
   const handleMultipleAction = action => {
-    switch(action) {
-      case "Delete":
+    switch (action) {
+      case 'Delete':
         console.log('subsc:  - ' + JSON.stringify(selectedSubscriptions))
         setSelectedSubscriptions(store.data.filter(sub => selectedSubscriptions.includes(sub.id)))
         setOpenDeleteConfirm(true)
-      break
+        break
       default:
-      break
+        break
     }
   }
 
@@ -388,8 +388,11 @@ const SubscriptionList = () => {
                     labelId='subscription-location-select'
                   >
                     <MenuItem value=''>All</MenuItem>
-                    {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)}
-                    
+                    {store.locations.map((location, index) => (
+                      <MenuItem key={index} value={location}>
+                        {location}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -423,8 +426,13 @@ const SubscriptionList = () => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <TableHeader value={value} selectedRows={selectedSubscriptions} handleFilter={handleFilter} handleMultipleAction={handleMultipleAction}/>
-          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
+          <TableHeader
+            value={value}
+            selectedRows={selectedSubscriptions}
+            handleFilter={handleFilter}
+            handleMultipleAction={handleMultipleAction}
+          />
+          {store.loading && <LinearProgress sx={{ height: '2px' }} />}
           <DataGrid
             autoHeight
             pagination
@@ -440,12 +448,12 @@ const SubscriptionList = () => {
           />
         </Card>
       </Grid>
-      <DeleteSubscriptionsDialog 
+      <DeleteSubscriptionsDialog
         subscriptions={selectedSubscriptions}
         open={openDeleteConfirm}
         onDelete={handleDeleteConfirm}
-        onCancel={handleCloseConfirmDialog}>
-      </DeleteSubscriptionsDialog>
+        onCancel={handleCloseConfirmDialog}
+      ></DeleteSubscriptionsDialog>
     </Grid>
   )
 }

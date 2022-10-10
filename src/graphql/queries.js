@@ -12,7 +12,7 @@ export const getMRoute = /* GraphQL */ `
       driverID
       distance
       duration
-      location
+      clusterId
       routePlanName
       routeDate
       points
@@ -37,7 +37,7 @@ export const listMRoutes = /* GraphQL */ `
         driverID
         distance
         duration
-        location
+        clusterId
         routePlanName
         routeDate
         points
@@ -64,7 +64,7 @@ export const getMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
-      location
+      clusterId
       sort
       avatar
       subscriptionID
@@ -96,7 +96,7 @@ export const listMOrders = /* GraphQL */ `
         longitude
         orderDate
         phone
-        location
+        clusterId
         sort
         avatar
         subscriptionID

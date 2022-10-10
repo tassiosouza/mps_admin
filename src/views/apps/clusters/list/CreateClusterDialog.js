@@ -11,18 +11,17 @@ import DialogActions from '@mui/material/DialogActions'
 import Close from 'mdi-material-ui/Close'
 
 // ** Store & Actions Imports
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { createClusters } from 'src/store/apps/clusters'
 
-const CreateClusterDialog = (props) => {
-
+const CreateClusterDialog = props => {
   const { open, onClose, selectedCluster, parent } = props
 
   // ** Hooks
   const dispatch = useDispatch()
 
   const handleCreate = () => {
-    dispatch(createClusters({parentCluster: selectedCluster}))
+    dispatch(createClusters({ parentCluster: selectedCluster }))
     onClose()
   }
 
@@ -36,14 +35,12 @@ const CreateClusterDialog = (props) => {
           <IconButton
             aria-label='close'
             onClick={onClose}
-            sx={{top: 15, right: 10, position: 'absolute', color:theme => theme.palette.grey[500]}}
+            sx={{ top: 15, right: 10, position: 'absolute', color: theme => theme.palette.grey[500] }}
           >
             <Close />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
-          TEXT
-        </DialogContent>
+        <DialogContent dividers>TEXT</DialogContent>
         <DialogActions sx={{ p: theme => `${theme.spacing(3)} !important` }}>
           <Button onClick={handleCreate}>Done</Button>
         </DialogActions>

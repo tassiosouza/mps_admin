@@ -20,7 +20,7 @@ import PlusCircleOutline from 'mdi-material-ui/PlusCircleOutline'
 import Check from 'mdi-material-ui/Check'
 
 // ** Store & Actions Imports
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 // ** Repository Imports
 import { fetchDrivers, setAssigningDriver, assignDriver, unassignDriver } from 'src/store/apps/routes'
@@ -30,9 +30,9 @@ import { AssignStatus } from 'src/models'
 import DriversTableHeader from 'src/views/apps/routes/list/DriversTableHeader'
 
 // ** Third Party Styles Imports
-import Popup from 'reactjs-popup';
-import ReactLoading from "react-loading";
-import 'reactjs-popup/dist/index.css';
+import Popup from 'reactjs-popup'
+import ReactLoading from 'react-loading'
+import 'reactjs-popup/dist/index.css'
 
 const defaultColumns = [
   {
@@ -43,9 +43,8 @@ const defaultColumns = [
   }
 ]
 
-const DriverActions = (props) => {
-
-  const {driver, handleRouteAssignment, handleUnassign} = props
+const DriverActions = props => {
+  const { driver, handleRouteAssignment, handleUnassign } = props
 
   const [anchorEl, setAnchorEl] = useState(null)
 
@@ -62,57 +61,63 @@ const DriverActions = (props) => {
     handleRouteAssignment(routeID, driverID)
   }
 
-  const handleUnassignment = (driverID) => {
+  const handleUnassignment = driverID => {
     handleCloseMenu()
     handleUnassign(driverID)
   }
-  
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {driver.assignStatus == AssignStatus.ASSIGNING && (
-            <Box sx={{ ml: 2, mr: 2, color:'#51AB3B'}}>
-              <ReactLoading type={'spokes'} width='20px' height='20px' color="#51AB3B"/>
-            </Box>
-          )}
-          {driver.assignStatus == AssignStatus.UNASSIGNED && 
-            <Popup 
-            trigger={
-              <IconButton size='small' sx={{ mr: 0.5}}>    
-                <PlusCircleOutline/>
-              </IconButton>
-            }
-            position="left center">
-              <OutlinedInput
-                variant={'standard'}
-                size='small'
-                placeholder='Route Id'
-                sx={{ maxWidth: '180px' }}
-                onKeyDown={e => handleAssignment(e, driver.id)}
-              />
-              
-            </Popup>
-          }
-          {driver.assignStatus == AssignStatus.ASSIGNED && <Check sx={{textDecoration: 'none', mr: 2, ml: 1, color:"#51AB3B"}}/>}
-          <div>
-            <IconButton size='small' component='a' sx={{ textDecoration: 'none' }} onClick={handleClick}>
-              <DotsVertical/>
-            </IconButton>
-            <Menu keepMounted id='simple-menu' anchorEl={anchorEl} onClose={handleCloseMenu} open={Boolean(anchorEl)}>
-                <MenuItem disabled={driver.assignStatus != AssignStatus.ASSIGNED} onClick={() => handleUnassignment(driver.id)}>Unassign</MenuItem>
-                <MenuItem onClick={handleCloseMenu}>View</MenuItem>
-                <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
-            </Menu>
-          </div>
+      {driver.assignStatus == AssignStatus.ASSIGNING && (
+        <Box sx={{ ml: 2, mr: 2, color: '#51AB3B' }}>
+          <ReactLoading type={'spokes'} width='20px' height='20px' color='#51AB3B' />
         </Box>
+      )}
+      {driver.assignStatus == AssignStatus.UNASSIGNED && (
+        <Popup
+          trigger={
+            <IconButton size='small' sx={{ mr: 0.5 }}>
+              <PlusCircleOutline />
+            </IconButton>
+          }
+          position='left center'
+        >
+          <OutlinedInput
+            variant={'standard'}
+            size='small'
+            placeholder='Route Id'
+            sx={{ maxWidth: '180px' }}
+            onKeyDown={e => handleAssignment(e, driver.id)}
+          />
+        </Popup>
+      )}
+      {driver.assignStatus == AssignStatus.ASSIGNED && (
+        <Check sx={{ textDecoration: 'none', mr: 2, ml: 1, color: '#51AB3B' }} />
+      )}
+      <div>
+        <IconButton size='small' component='a' sx={{ textDecoration: 'none' }} onClick={handleClick}>
+          <DotsVertical />
+        </IconButton>
+        <Menu keepMounted id='simple-menu' anchorEl={anchorEl} onClose={handleCloseMenu} open={Boolean(anchorEl)}>
+          <MenuItem
+            disabled={driver.assignStatus != AssignStatus.ASSIGNED}
+            onClick={() => handleUnassignment(driver.id)}
+          >
+            Unassign
+          </MenuItem>
+          <MenuItem onClick={handleCloseMenu}>View</MenuItem>
+          <MenuItem onClick={handleCloseMenu}>Delete</MenuItem>
+        </Menu>
+      </div>
+    </Box>
   )
 }
 
 /* eslint-enable */
-const DriversList = (props) => {
-
+const DriversList = props => {
   const { store } = props
 
-  const ASSIGN_SUCCESS_MESSAGE = "Driver assigned successfully"
+  const ASSIGN_SUCCESS_MESSAGE = 'Driver assigned successfully'
 
   // ** State
   const [value, setValue] = useState('')
@@ -125,7 +130,7 @@ const DriversList = (props) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(fetchDrivers({query: value}))
+    dispatch(fetchDrivers({ query: value }))
   }, [dispatch, statusValue, value])
 
   const handleFilter = val => {
@@ -133,22 +138,21 @@ const DriversList = (props) => {
   }
 
   const handleRouteAssignment = (e, driverID) => {
-    if(e.keyCode == 13) {
+    if (e.keyCode == 13) {
       const routeID = e.target.value
-       dispatch(setAssigningDriver({driverID}))
-       dispatch(assignDriver({routeID, driverID, callback: assignDriverCallback}))
+      dispatch(setAssigningDriver({ driverID }))
+      dispatch(assignDriver({ routeID, driverID, callback: assignDriverCallback }))
     }
   }
 
-  const handleUnassign = (driverID) => {
-    dispatch(setAssigningDriver({driverID}))
+  const handleUnassign = driverID => {
+    dispatch(setAssigningDriver({ driverID }))
 
     const routes = store.routes.filter(route => route.driverID === driverID)
-    if(routes.length) {
+    if (routes.length) {
       const routeID = routes[0].id
-      dispatch(unassignDriver({routeID, driverID, callback: assignDriverCallback}))
-    }
-    else {
+      dispatch(unassignDriver({ routeID, driverID, callback: assignDriverCallback }))
+    } else {
       console.log('ERROR: Driver not assigned')
     }
   }
@@ -157,17 +161,16 @@ const DriversList = (props) => {
     setOpenSnackbar(false)
   }
 
-  const assignDriverCallback = (error) => {
+  const assignDriverCallback = error => {
     setOpenSnackbar(true)
     // ** Set error message in snackbar
-    if(error) {
+    if (error) {
       setMessageInfo(error)
-    }
-    else {
-      // ** Set message to blank will show success message on snackbar 
+    } else {
+      // ** Set message to blank will show success message on snackbar
       setMessageInfo('')
     }
-  } 
+  }
 
   const columns = [
     ...defaultColumns,
@@ -178,10 +181,7 @@ const DriversList = (props) => {
       field: 'actions',
       headerName: 'Actions',
       renderCell: ({ row }) => (
-        <DriverActions
-          driver={row}
-          handleRouteAssignment={handleRouteAssignment}
-          handleUnassign={handleUnassign}/>
+        <DriverActions driver={row} handleRouteAssignment={handleRouteAssignment} handleUnassign={handleUnassign} />
       )
     }
   ]
@@ -190,8 +190,8 @@ const DriversList = (props) => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <DriversTableHeader value={value} handleFilter={handleFilter}/>
-          {store.loading && <LinearProgress sx={{ height:'2px' }} />}
+          <DriversTableHeader value={value} handleFilter={handleFilter} />
+          {store.loading && <LinearProgress sx={{ height: '2px' }} />}
           <DataGrid
             autoHeight
             pagination
@@ -200,16 +200,12 @@ const DriversList = (props) => {
             disableSelectionOnClick
             pageSize={Number(pageSize)}
             rowsPerPageOptions={[10, 25, 50]}
-            sx={{ '& .MuiDataGrid-columnHeaders': {borderRadius: 0 } }}
+            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Card>
       </Grid>
-      <Snackbar
-        open={openSnackbar}
-        onClose={handleCloseSnackbar}
-        autoHideDuration={3000}
-      >
+      <Snackbar open={openSnackbar} onClose={handleCloseSnackbar} autoHideDuration={3000}>
         <Alert
           elevation={3}
           variant='filled'

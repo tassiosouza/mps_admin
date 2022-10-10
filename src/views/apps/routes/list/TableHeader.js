@@ -37,7 +37,7 @@ const TableHeader = props => {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
       }}
     >
       <Select
@@ -60,18 +60,18 @@ const TableHeader = props => {
       </Select>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <Tooltip placement='top' title='Refresh Orders'>
-          <IconButton size='small' onClick={() => refresh()} sx={{ mr: 4, mb: 2, maxWidth: '180px'}}>
-            <Reload sx={{fontSize: '1.375rem'}}/>
+          <IconButton size='small' onClick={() => refresh()} sx={{ mr: 4, mb: 2, maxWidth: '180px' }}>
+            <Reload sx={{ fontSize: '1.375rem' }} />
           </IconButton>
         </Tooltip>
         <TextField
           size='small'
           value={value}
           placeholder='Search Route'
-          sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
+          sx={{ mr: 4, mb: 2, maxWidth: '180px' }}
           onChange={e => handleFilter(e.target.value)}
         />
-        <Button sx={{ mb: 2}} variant='contained' onClick={handleOpenDialog}>
+        <Button sx={{ mb: 2 }} variant='contained' onClick={handleOpenDialog}>
           Generate Routes
         </Button>
       </Box>

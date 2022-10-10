@@ -13,16 +13,8 @@ import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 
 // ** Icons Imports
-import Check from 'mdi-material-ui/Check'
-import Download from 'mdi-material-ui/Download'
-import Cancel from 'mdi-material-ui/Cancel'
-import ContentCopy from 'mdi-material-ui/ContentCopy'
-import DotsVertical from 'mdi-material-ui/DotsVertical'
-import PencilOutline from 'mdi-material-ui/PencilOutline'
-import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import Plus from 'mdi-material-ui/Plus'
 import Minus from 'mdi-material-ui/Minus'
-import ImageOutline from 'mdi-material-ui/ImageOutline'
 
 // ** Custom Components Imports
 import ClustersHeader from 'src/views/apps/clusters/list/ClustersHeader'
@@ -37,8 +29,7 @@ const StyledLink = styled('a')(({ theme }) => ({
   cursor: 'pointer'
 }))
 
-const ClustersTabs = (props) => {
-
+const ClustersTabs = props => {
   const { store, dispatch } = props
 
   // ** State
@@ -51,22 +42,30 @@ const ClustersTabs = (props) => {
   }
 
   const getAttachedSubscriptions = () => {
-    return store.subscriptions.filter(sub => sub.clusterId === store.selectedClusters[0].id && 
-      (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) || sub.number.toLowerCase().includes(filter.toLocaleLowerCase())))
+    return store.subscriptions.filter(
+      sub =>
+        sub.clusterId === store.selectedClusters[0].id &&
+        (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) ||
+          sub.number.toLowerCase().includes(filter.toLocaleLowerCase()))
+    )
   }
 
   const getDetachedSubscriptions = () => {
-    return store.subscriptions.filter(sub => sub.clusterId === '' && 
-    (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) || sub.number.toLowerCase().includes(filter.toLocaleLowerCase())))
+    return store.subscriptions.filter(
+      sub =>
+        sub.clusterId === '' &&
+        (sub.name.toLowerCase().includes(filter.toLocaleLowerCase()) ||
+          sub.number.toLowerCase().includes(filter.toLocaleLowerCase()))
+    )
   }
 
   const handleAssignment = subscriptions => {
     // ** If subscription is assigned = unassign
     // ** If subscription is unassigned = assign
-    dispatch(setSubscriptionsAssignment({subscriptionsToUpdate: subscriptions, cluster: store.selectedClusters[0]}))
+    dispatch(setSubscriptionsAssignment({ subscriptionsToUpdate: subscriptions, cluster: store.selectedClusters[0] }))
   }
 
-  const handleFilter = (value) => {
+  const handleFilter = value => {
     setFilter(value)
   }
 
@@ -81,12 +80,11 @@ const ClustersTabs = (props) => {
     {
       flex: 1,
       minWidth: 100,
-      field:'name',
+      field: 'name',
       headerName: 'Client',
-      renderCell: ({ row }) => 
-      <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-        {row.name}
-      </Box>
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>{row.name}</Box>
+      )
     },
     {
       flex: 0.1,
@@ -97,8 +95,15 @@ const ClustersTabs = (props) => {
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title={row.clusterId != '' ? 'Detach' : 'Attach'}>
-            <IconButton disabled={!store.selectedClusters[0].editing} size='small' sx={{ mr: 0.5 }} onClick={() => {handleAssignment([row])}}>
-              {row.clusterId != '' ? <Minus/> : <Plus/>}
+            <IconButton
+              disabled={!store.selectedClusters[0].editing}
+              size='small'
+              sx={{ mr: 0.5 }}
+              onClick={() => {
+                handleAssignment([row])
+              }}
+            >
+              {row.clusterId != '' ? <Minus /> : <Plus />}
             </IconButton>
           </Tooltip>
         </Box>
@@ -123,24 +128,24 @@ const ClustersTabs = (props) => {
             columns={defaultColumns}
             disableSelectionOnClick
             pageSize={8}
-            sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
+            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
           />
         </Card>
       </TabPanel>
       <TabPanel value='2'>
         <Card>
-            <ClustersHeader selectedRows={store.selectedAttachedSubscriptions} handleFilter={handleFilter} />
-            {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
-            <DataGrid
-              autoHeight
-              pagination
-              rows={getDetachedSubscriptions()}
-              columns={defaultColumns}
-              disableSelectionOnClick
-              pageSize={8}
-              sx={{'& .MuiDataGrid-columnHeaders': { borderRadius: 0 }}}
-            />
-          </Card>
+          <ClustersHeader selectedRows={store.selectedAttachedSubscriptions} handleFilter={handleFilter} />
+          {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
+          <DataGrid
+            autoHeight
+            pagination
+            rows={getDetachedSubscriptions()}
+            columns={defaultColumns}
+            disableSelectionOnClick
+            pageSize={8}
+            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
+          />
+        </Card>
       </TabPanel>
     </TabContext>
   )
