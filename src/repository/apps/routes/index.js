@@ -215,34 +215,18 @@ export const getGraphHopperRoutes = async params => {
   for (var i = 0; i < clusters.length; i++) {
     const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === clusters[i].id)
     const ordersToProcess = await generateOrders(subscriptionsToProcess)
-    if (params.parameters.selectedAlgorithm === 'Optimization') {
-      const { routes, orders, result } = await processGraphHopperOptimizedRoutes(
-        parameters,
-        ordersToProcess,
-        clusters[i]
-      )
-      switch (result.status) {
-        case RESULT_STATUS.SUCCESS:
-          //Process here
-          finalRoutes.push(...routes)
-          finalOrders.push(...orders)
-          break
-        default:
-          break
-      }
-    } else {
-      const { routes, orders, result } = await processGraphHopperClusteredRoutes(
-        parameters,
-        ordersToProcess,
-        clusters[i]
-      )
-      finalRoutes.push(...routes)
-      finalOrders.push(...orders)
+    const { routes, orders, result } = await processGraphHopperOptimizedRoutes(parameters, ordersToProcess, clusters[i])
+    switch (result.status) {
+      case RESULT_STATUS.SUCCESS:
+        //Process here
+        finalRoutes.push(...routes)
+        finalOrders.push(...orders)
+        break
+      default:
+        break
     }
   }
 
-  //** Calculate Final Solution */
-  // finalSolution = getFinalSolution(finalRoutes, finalOrders)
   return { routes: finalRoutes, solution: finalSolution, orders: finalOrders }
 }
 
@@ -342,90 +326,6 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
   return { routes: clusterRoutes, orders, result: result }
 }
 
-const processGraphHopperClusteredRoutes = async (parameters, orders, cluster) => {
-  var clusterRoutes = []
-  var globalRequestAvaiableID = await getAvaiableRouteId()
-  var clusterResult = { status: RESULT_STATUS.SUCCESS, errors: [] }
-
-  // ** Return error if cluster has more than 400 locations
-  if (orders.length > GRAPHHOPPER_CLUSTER_LIMIT) {
-    clusterResult = {
-      status: RESULT_STATUS.FAILED,
-      errors: ['The Cluster ' + cluster.name + ' has more than 400 subscriptions']
-    }
-
-    return { routes: [], orders: [], result: clusterResult }
-  }
-
-  // ** Cluster locations if the number of orders exceds the route optimization locations limit
-  if (orders.length > GRAPHHOPPER_ROUTE_LIMIT) {
-    const ghBody = getFixedGraphHopperClusterRequestBody(orders)
-    const response = await axios.post(
-      'https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02',
-      ghBody
-    )
-
-    console.log('slepping...')
-    await new Promise(r => setTimeout(r, 60000))
-    console.log('continue...')
-
-    if (response.data) {
-      const clustersResult = response.data.clusters
-      for (var i = 0; i < clustersResult.length; i++) {
-        //TODO
-      }
-    }
-  } else {
-    console.log('orders: ' + JSON.stringify(orders))
-    const ghBody = getGraphHopperClusterRequestBody(orders, parameters)
-    const response = await axios.post(
-      'https://graphhopper.com/api/1/cluster?key=110bcab4-47b7-4242-a713-bb7970de2e02',
-      ghBody
-    )
-    if (response.data) {
-      const insideClustersResult = response.data.clusters
-      for (var i = 0; i < insideClustersResult.length; i++) {
-        const insideClusterOrders = orders.filter(order => insideClustersResult[i].ids.includes(order.id))
-        console.log('slepping for vrp... ' + JSON.stringify())
-        await new Promise(r => setTimeout(r, 30000))
-        console.log('continue...')
-
-        // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
-        var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters, 1)
-        const response = await axios.post(
-          'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
-          ghRouteBody
-        )
-
-        if (response.data?.solution?.unassigned?.services?.length > 0) {
-          clusterResult = {
-            status: RESULT_STATUS.PARTIAL_FAILED,
-            errors: response.solution.unassigned.services.details
-          }
-          return { routes: [], orders: [], result: clusterResult }
-        } else {
-          if (response.data.solution) {
-            const { routes, solution, avaiableID } = getRoutesFromResponse(
-              response,
-              orders,
-              globalRequestAvaiableID,
-              cluster.id
-            )
-            clusterRoutes = [...clusterRoutes, ...routes]
-            globalRequestAvaiableID = avaiableID
-          } else {
-            clusterResult = { status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)] }
-            return { routes: [], orders: [], result: clusterResult }
-          }
-        }
-      }
-    }
-  }
-  return { routes: clusterRoutes, orders, result: clusterResult }
-}
-
-const getFinalSolution = (routes, orders) => {}
-
 const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
   const ghRoutes = response.data.solution.routes
   var routes = []
@@ -520,20 +420,9 @@ const getOptimizedFactor = (x, y) => {
 }
 
 const getGraphHopperRORequestBody = (orders, parameters, factor) => {
-  console.log('parameters: ' + JSON.stringify(parameters))
-  const routesCount = parameters.paramMaxTime / factor
+  const routesCount = parameters.paramMaxRoutes / factor
   const services = []
   const vehicles = []
-  const objectives = [
-    {
-      type: 'min-max',
-      value: 'completion_time'
-    },
-    {
-      type: 'min-max',
-      value: 'activities'
-    }
-  ]
 
   orders.map(order => {
     console.log(order.id)
@@ -571,47 +460,11 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
   var body = {
     vehicles,
     services,
-    // objectives,
     configuration: {
       routing: {
         calc_points: true
       }
     }
-  }
-  return body
-}
-
-const getGraphHopperClusterRequestBody = (orders, parameteres) => {
-  const configuration = {
-    response_type: 'json',
-    routing: {
-      profile: 'as_the_crow_flies',
-      cost_per_second: 0,
-      cost_per_meter: 1
-    },
-    clustering: {
-      num_clusters: parameteres.paramClusterQty,
-      max_quantity: parameteres.paramMinBags,
-      min_quantity: parameteres.paramMaxBags
-    }
-  }
-  const customers = []
-
-  orders.map(order => {
-    customers.push({
-      id: order.id,
-      address: {
-        lon: order.longitude,
-        lat: order.latitude,
-        street_hint: 'teste'
-      },
-      quantity: 1
-    })
-  })
-
-  var body = {
-    configuration,
-    customers
   }
   return body
 }

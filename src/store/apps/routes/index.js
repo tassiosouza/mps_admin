@@ -37,7 +37,7 @@ export const generateRoutes = createAsyncThunk('appRoutes/generateRoutes', async
 
 // ** Generate Optimized Routes
 export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOrders', async params => {
-  const { status, dates, q } = params
+  const { status, clusterId, dates, q } = params
 
   const routes = await fetchRoutes(status)
   const orders = await fetchOrders()
@@ -70,6 +70,8 @@ export const fetchRoutesAndOrders = createAsyncThunk('appRoutes/fetchRoutesAndOr
       return route.id.toLowerCase().includes(queryLowered) || route.status.toLowerCase().includes(queryLowered)
     }
   })
+
+  filteredData = filteredData.filter(route => route.clusterId.includes(clusterId))
 
   return { routes: filteredData, orders, clusters }
 })

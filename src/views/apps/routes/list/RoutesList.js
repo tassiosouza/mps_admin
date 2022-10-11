@@ -64,7 +64,7 @@ const RoutesList = props => {
   const [value, setValue] = useState('')
   const [pageSize, setPageSize] = useState(10)
   const [statusValue, setStatusValue] = useState('')
-  const [locationValue, setLocationValue] = useState('')
+  const [clusterValue, setClusterValue] = useState('')
   const [endDateRange, setEndDateRange] = useState(null)
   const [selectedRoutes, setSelectedRoutes] = useState([])
   const [startDateRange, setStartDateRange] = useState(null)
@@ -171,11 +171,11 @@ const RoutesList = props => {
   useEffect(() => {
     // ** Fetch routes and orders from server
     refresh()
-  }, [dispatch, dates, statusValue, value])
+  }, [dispatch, dates, statusValue, value, clusterValue])
 
   const refresh = () => {
     dispatch(setLoadingRoutes(true))
-    dispatch(fetchRoutesAndOrders({ q: value, dates, status: statusValue }))
+    dispatch(fetchRoutesAndOrders({ q: value, clusterId: clusterValue, dates, status: statusValue }))
   }
 
   const handleFilter = val => {
@@ -239,7 +239,7 @@ const RoutesList = props => {
 
   const handleDeleteConfirm = route => {
     if (route) {
-      dispatch(fetchRoutesAndOrders({ q: value, dates, status: statusValue }))
+      dispatch(fetchRoutesAndOrders({ q: value, clusterId: clusterValue, dates, status: statusValue }))
       setOpenDeleteConfirm(false)
     } else {
       console.log('ERROR: The delete operation failed')
@@ -611,16 +611,21 @@ const RoutesList = props => {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel id='route-location-select'>Route Location</InputLabel>
+                  <InputLabel id='route-location-select'>Route Cluster</InputLabel>
                   <Select
                     fullWidth
-                    value={locationValue}
+                    value={clusterValue}
                     sx={{ mr: 4, mb: 2 }}
                     label='route Location'
                     labelId='route-location-select'
+                    onChange={e => setClusterValue(e.target.value)}
                   >
                     <MenuItem value=''>All</MenuItem>
-                    {/* {store.locations.map((location, index) => <MenuItem key={index} value={location} >{location}</MenuItem>)} */}
+                    {store.clusters.map((cluster, index) => (
+                      <MenuItem key={index} value={cluster.id}>
+                        {cluster.name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>

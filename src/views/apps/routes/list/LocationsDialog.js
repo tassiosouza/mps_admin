@@ -53,10 +53,8 @@ const LocationsDialog = props => {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState(ALGORITHM_TYPE.OPTIMIZATION)
 
   // ** Param States
-  const [paramIsBalanced, setParamIsBalanced] = useState(true)
-  const [paramIsFixed, setParamIsFixed] = useState(true)
-  const [paramMaxTime, setParamMaxTime] = useState(3)
-  const [paramClusterQty, setParamClusterQty] = useState(4)
+  const [paramIsDefault, setParamIsDefault] = useState(true)
+  const [paramMaxRoutes, setParamMaxRoutes] = useState(3)
   const [paramMinBags, setParamMinBags] = useState(4)
   const [paramMaxBags, setParamMaxBags] = useState(22)
   // ** Redux
@@ -95,12 +93,9 @@ const LocationsDialog = props => {
     dispatch(
       generateRoutes({
         parameters: {
-          selectedAlgorithm,
-          paramMaxTime: parseInt(paramMaxTime),
-          paramClusterQty,
+          paramMaxRoutes: parseInt(paramMaxRoutes),
           paramMinBags: parseInt(paramMinBags),
-          paramMaxBags: parseInt(paramMaxBags),
-          driversCount: store.drivers.length
+          paramMaxBags: parseInt(paramMaxBags)
         },
         subscriptions: store.subscriptions,
         clusters: selectedClusters,
@@ -328,18 +323,18 @@ const LocationsDialog = props => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 5 }}>
           <FormControlLabel
             control={
-              <Switch defaultChecked value={paramIsBalanced} onChange={() => setParamIsBalanced(!paramIsBalanced)} />
+              <Switch defaultChecked value={paramIsDefault} onChange={() => setParamIsDefault(!paramIsDefault)} />
             }
             labelPlacement='bottom'
-            label='Balanced'
+            label='Default'
           />
           <Divider orientation='vertical' variant='middle' flexItem />
           <TextField
             variant='standard'
             size='small'
-            label='Max Time'
-            value={paramMaxTime}
-            onChange={e => setParamMaxTime(e.target.value)}
+            label='Max Routes'
+            value={paramMaxRoutes}
+            onChange={e => setParamMaxRoutes(e.target.value)}
             placeholder='Max Time'
             sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
           />
