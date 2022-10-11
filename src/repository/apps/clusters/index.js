@@ -48,6 +48,46 @@ export const deleteRemoteClusters = async (clusters, subscriptions) => {
   }
 }
 
+// ** Recalculate Clusters from Amplify
+export const recalculateRemoteClusters = async (clusters, subscriptions) => {
+  for (var i = 0; i < clusters.length; i++) {
+    const polygon = []
+    for (var k = 0; k < clusters[i].path.length; k++) {
+      polygon.push([clusters[i].path[k].lng, clusters[i].path[k].lat])
+    }
+
+    var updatedSubscriptions = subscriptions.map(sub => {
+      var point = [sub.longitude, sub.latitude]
+      if (pointInPolygon(polygon, point)) {
+        return { ...sub, editing: true }
+      }
+      return sub
+    })
+
+    const insideClusterSubscriptions = updatedSubscriptions.filter(s => s.editing)
+
+    await API.graphql(
+      graphqlOperation(updateCluster, {
+        input: { id: clusters[i].id, subscriptionsCount: insideClusterSubscriptions.length }
+      })
+    )
+
+    for (var k = 0; k < insideClusterSubscriptions.length; k++) {
+      await API.graphql(
+        graphqlOperation(updateMpsSubscription, {
+          input: {
+            id: insideClusterSubscriptions[k].id,
+            editing: false,
+            clusterId: clusters[i].id,
+            color: clusters[i].color
+          }
+        })
+      )
+    }
+  }
+  console.log('not leaving')
+}
+
 // ** Save ALL editing clusters and subscriptions in Amplify
 export const saveClustersAndSubscriptions = async (subscriptions, cluster) => {
   const subscriptionsCount = subscriptions.filter(sub => sub.clusterId === cluster.id).length

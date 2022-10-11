@@ -55,7 +55,7 @@ const LocationsDialog = props => {
   // ** Param States
   const [paramIsBalanced, setParamIsBalanced] = useState(true)
   const [paramIsFixed, setParamIsFixed] = useState(true)
-  const [paramMaxTime, setParamMaxTime] = useState(200)
+  const [paramMaxTime, setParamMaxTime] = useState(3)
   const [paramClusterQty, setParamClusterQty] = useState(4)
   const [paramMinBags, setParamMinBags] = useState(4)
   const [paramMaxBags, setParamMaxBags] = useState(22)

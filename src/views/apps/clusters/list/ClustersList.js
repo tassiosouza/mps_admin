@@ -13,12 +13,16 @@ import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import LinearProgress from '@mui/material/LinearProgress'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 
 // ** Icons Imports
 import DeleteOutline from 'mdi-material-ui/DeleteOutline'
 import AlertCircleOutline from 'mdi-material-ui/AlertCircleOutline'
 import Plus from 'mdi-material-ui/Plus'
 import DownloadOutline from 'mdi-material-ui/DownloadOutline'
+import DotsVertical from 'mdi-material-ui/DotsVertical'
+import SourceBranchRefresh from 'mdi-material-ui/SourceBranchRefresh'
 
 // ** Third Party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -42,12 +46,24 @@ import {
 // ** Clusters App Component Imports
 import ClusterDetails from './ClusterDetails'
 import DeleteDialog from './DeleteDialog'
+import RecalculateDialog from './RecalculateDialog'
 
 const ClustersList = props => {
   const { store } = props
   const [clusterDetailOpen, setClusterDetailsOpen] = useState(false)
   const [clustersToDelete, setClustersToDelete] = useState([])
+  const [clustersToRecalculate, setClustersToRecalculate] = useState([])
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
+  const [recalculateConfirmationOpen, setRecalculateConfirmationOpen] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null)
+
+  const handleClick = event => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null)
+  }
 
   // ** Hooks
   const dispatch = useDispatch()
@@ -100,9 +116,29 @@ const ClustersList = props => {
     setDeleteConfirmationOpen(true)
   }
 
+  const handleRecalculateCluster = (e, clusters) => {
+    e.stopPropagation()
+    setClustersToRecalculate(clusters)
+    setRecalculateConfirmationOpen(true)
+  }
+
   return (
     <Card>
-      <CardHeader sx={{ pl: 7 }} title='Clusters' />
+      <CardHeader
+        sx={{ pl: 7 }}
+        title='Clusters'
+        action={
+          <IconButton>
+            <DotsVertical onClick={handleClick} />
+            <Menu keepMounted id='simple-menu' anchorEl={anchorEl} onClose={handleCloseMenu} open={Boolean(anchorEl)}>
+              <MenuItem onClick={() => handleRecalculate()}>
+                <SourceBranchRefresh fontSize='small' sx={{ mr: 2 }} />
+                Recalculate All
+              </MenuItem>
+            </Menu>
+          </IconButton>
+        }
+      />
       {store.loading && <LinearProgress sx={{ height: '2px' }} />}
       <CardContent sx={{ p: 0 }}>
         <Box sx={{ px: { xs: 2.5, sm: 5 }, backgroundColor: 'background.paper' }}>
@@ -131,7 +167,7 @@ const ClustersList = props => {
                     <DeleteOutline onClick={e => handleDeleteClusters(e, store.selectedClusters)} />
                   </IconButton>
                   <IconButton>
-                    <DownloadOutline />
+                    <SourceBranchRefresh />
                   </IconButton>
                 </Fragment>
               ) : null}
@@ -229,14 +265,14 @@ const ClustersList = props => {
                           className='mail-actions'
                           sx={{ display: 'none', alignItems: 'center', justifyContent: 'flex-end' }}
                         >
-                          <Tooltip placement='top' title='Edit'>
+                          <Tooltip placement='top' title='Delete'>
                             <IconButton>
                               <DeleteOutline onClick={e => handleDeleteClusters(e, [cluster])} />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip placement='top' title='Delete'>
-                            <IconButton>
-                              <DownloadOutline />
+                          <Tooltip placement='top' title='Recalculate'>
+                            <IconButton onClick={e => handleRecalculateCluster(e, [cluster])}>
+                              <SourceBranchRefresh />
                             </IconButton>
                           </Tooltip>
                         </Box>
@@ -284,6 +320,13 @@ const ClustersList = props => {
         dispatch={dispatch}
         open={clusterDetailOpen}
         handleClose={handleCloseClusterDetails}
+      />
+      <RecalculateDialog
+        clusters={clustersToRecalculate}
+        open={recalculateConfirmationOpen}
+        onRecalculate={() => setRecalculateConfirmationOpen(false)}
+        onCancel={() => setRecalculateConfirmationOpen(false)}
+        dispatch={dispatch}
       />
       <DeleteDialog
         clusters={clustersToDelete}

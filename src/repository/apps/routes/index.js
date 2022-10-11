@@ -464,7 +464,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
     }
 
     const polyline = []
-    for (var i = 0; i < route.points.length - 1; i++) {
+    for (var i = 0; i < route.points.length; i++) {
       polyline.push(...route.points[i].coordinates)
     }
 
@@ -564,8 +564,7 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
         lon: -117.161087,
         lat: 32.7105867,
         name: 'home end'
-      },
-      max_driving_time: 500 * 60 // ** Receive in minutes and send in seconds
+      }
     })
   }
 
@@ -628,8 +627,7 @@ const getFixedGraphHopperClusterRequestBody = orders => {
     },
     clustering: {
       num_clusters: factor,
-      max_quantity: 80,
-      min_quantity: 20
+      min_quantity: orders.length / factor
     }
   }
   const customers = []

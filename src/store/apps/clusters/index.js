@@ -1,5 +1,6 @@
 // ** Redux Imports
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { CarKey } from 'mdi-material-ui'
 
 // ** Repository Imports
 import {
@@ -7,7 +8,8 @@ import {
   getSubscriptions,
   updateClusterLocally,
   saveClustersAndSubscriptions,
-  deleteRemoteClusters
+  deleteRemoteClusters,
+  recalculateRemoteClusters
 } from 'src/repository/apps/clusters'
 
 // ** Fetch Clusters from Server
@@ -59,6 +61,17 @@ export const deleteClusters = createAsyncThunk('appClusters/deleteClusters', asy
     return false
   })
   await deleteRemoteClusters(clustersToDelete, subscriptionsToUpdate)
+
+  const clusters = await getClusters({ q: '' })
+  const subscriptions = await getSubscriptions()
+
+  return { clusters, subscriptions, callback }
+})
+
+// ** Recalculate Clusters in Amplify
+export const recalculateClusters = createAsyncThunk('appClusters/recalculateClusters', async (params, { getState }) => {
+  const { clustersToRecalculate, callback } = params
+  await recalculateRemoteClusters(clustersToRecalculate, getState().clusters.subscriptions)
 
   const clusters = await getClusters({ q: '' })
   const subscriptions = await getSubscriptions()
@@ -286,6 +299,16 @@ export const appClusterSlice = createSlice({
         state.loading = false
       }),
       builder.addCase(deleteClusters.fulfilled, (state, action) => {
+        // ** Update clusters and subscriptions states
+        state.clusters = action.payload.clusters.map(cl => {
+          return { ...cl, hover: false, path: JSON.parse(cl.path) }
+        })
+        state.subscriptions = action.payload.subscriptions
+
+        // ** Call delete callback
+        action.payload.callback()
+      }),
+      builder.addCase(recalculateClusters.fulfilled, (state, action) => {
         // ** Update clusters and subscriptions states
         state.clusters = action.payload.clusters.map(cl => {
           return { ...cl, hover: false, path: JSON.parse(cl.path) }
