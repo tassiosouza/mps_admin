@@ -9,7 +9,7 @@ import Button from '@mui/material/Button'
 import { DialogTitle, Dialog, DialogContent, DialogActions, TextField } from '@mui/material'
 import LinearProgress from '@mui/material/LinearProgress'
 import Tooltip from '@mui/material/Tooltip'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, GridRowParams } from '@mui/x-data-grid'
 import Switch from '@mui/material/Switch'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
@@ -22,10 +22,13 @@ import { Player } from '@lottiefiles/react-lottie-player'
 // ** Icons Imports
 import MapMarkerRadius from 'mdi-material-ui/MapMarkerRadius'
 import ClockTimeEightOutline from 'mdi-material-ui/ClockTimeEightOutline'
-import BriefcaseRemove from 'mdi-material-ui/BriefcaseRemove'
-import AccountCancel from 'mdi-material-ui/AccountCancel'
 import InformationOutline from 'mdi-material-ui/InformationOutline'
+import TimelinePlus from 'mdi-material-ui/TimelinePlus'
+import TimelineMinus from 'mdi-material-ui/TimelineMinus'
+
+// ** Custom Components Imports
 import LocationsTableHeader from './LocationsTableHeader'
+import { isEmpty } from '@aws-amplify/core'
 
 const Status = {
   INITIAL: 'initial',
@@ -45,18 +48,15 @@ const LocationsDialog = props => {
 
   // ** States
   const [value, setValue] = useState('')
-  const [driversValue, setDriversValue] = useState('')
-  const [maxTimeValue, setMaxTimeValue] = useState('')
   const [status, setStatus] = useState(Status.INITIAL)
   const [error, setError] = useState('')
   const [selectedClusters, setSelectedClusters] = useState([])
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState(ALGORITHM_TYPE.OPTIMIZATION)
 
   // ** Param States
   const [paramIsDefault, setParamIsDefault] = useState(true)
-  const [paramMaxRoutes, setParamMaxRoutes] = useState(3)
-  const [paramMinBags, setParamMinBags] = useState(4)
-  const [paramMaxBags, setParamMaxBags] = useState(22)
+  const [paramMaxRoutes, setParamMaxRoutes] = useState('-')
+  const [paramMinBags, setParamMinBags] = useState('-')
+  const [paramMaxBags, setParamMaxBags] = useState('-')
   // ** Redux
   const dispatch = useDispatch()
   const store = useSelector(state => state.routes)
@@ -72,27 +72,30 @@ const LocationsDialog = props => {
 
   const handleGenerate = () => {
     // ** Form Validation
-    // if(driversValue === '' || parseInt(driversValue) == 0 || parseInt(driversValue) > /*store.drivers.length*/ 50)
-    // {
-    //   setError('Invalid number of drivers')
-    //   return
-    // }
-    // if(!store.selectedLocations.length)
-    // {
-    //   setError('Select at least one location')
-    //   return
-    // }
-    // if(maxTimeValue === '' || parseInt(maxTimeValue) == 0)
-    // {
-    //   setError('The maximum time should be greater than 0')
-    //   return
-    // }
+    if (!paramIsDefault) {
+      if (
+        isNaN(paramMaxRoutes) ||
+        isEmpty(paramMaxRoutes) ||
+        isNaN(paramMinBags) ||
+        isEmpty(paramMinBags) ||
+        isNaN(paramMaxBags) ||
+        isEmpty(paramMaxBags)
+      ) {
+        setError('Invalid parameters')
+        return
+      }
+    }
+    if (!selectedClusters.length) {
+      setError('Select at least one cluster')
+      return
+    }
 
     setError('')
     setStatus(Status.LOADING)
     dispatch(
       generateRoutes({
         parameters: {
+          paramIsDefault,
           paramMaxRoutes: parseInt(paramMaxRoutes),
           paramMinBags: parseInt(paramMinBags),
           paramMaxBags: parseInt(paramMaxBags)
@@ -112,6 +115,11 @@ const LocationsDialog = props => {
   const handleRetry = () => {
     setError('')
     setValue('')
+    setParamIsDefault(true)
+    setParamMaxBags('-')
+    setParamMinBags('-')
+    setParamMaxRoutes('-')
+    setSelectedClusters([])
     dispatch(clearTempResults())
     setStatus(Status.INITIAL)
   }
@@ -123,9 +131,12 @@ const LocationsDialog = props => {
   const handleClose = () => {
     onClose()
     setError('')
-    setDriversValue('')
-    setMaxTimeValue('')
     setValue('')
+    setParamIsDefault(true)
+    setParamMaxBags('-')
+    setParamMinBags('-')
+    setParamMaxRoutes('-')
+    setSelectedClusters([])
     setStatus(Status.INITIAL)
   }
 
@@ -133,6 +144,10 @@ const LocationsDialog = props => {
     var result = 0
     store.clusters.map(cl => (result += cl.subscriptionsCount))
     return result
+  }
+
+  const isClusterRouted = cluster => {
+    return store.routes.filter(r => r.clusterId === cluster.id).length
   }
 
   var resolutionAnimationPath = ''
@@ -176,7 +191,7 @@ const LocationsDialog = props => {
             and
             <Box fontWeight='600' display='inline'>
               {' '}
-              {driversValue} Drivers
+              {2} Drivers
             </Box>
           </Typography>
         </Grid>
@@ -212,16 +227,16 @@ const LocationsDialog = props => {
         </Grid>
         <Grid item sx={{ alignSelf: 'center' }}>
           {store.solution.result === 'success' && (
-            <Typography sx={{ fontSize: '25px', fontWeight: '600' }}>Optimization finished with success</Typography>
+            <Typography sx={{ fontSize: '25px', fontWeight: '600' }}>Routes generated with success.</Typography>
           )}
           {store.solution.result === 'problem' && (
             <Typography sx={{ fontSize: '25px', fontWeight: '600' }}>
-              Optimization finished with some problems
+              Wrong parameters used to generate the routes.
             </Typography>
           )}
           {store.solution.result === 'error' && (
             <Typography sx={{ fontSize: '25px', fontWeight: '600' }}>
-              Errors occurred during route optimization
+              Could not generate routes. Please check the console.
             </Typography>
           )}
         </Grid>
@@ -241,44 +256,30 @@ const LocationsDialog = props => {
             {store.solution.result != 'error' && (
               <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Routes</Typography>
             )}
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
-                {store.tempRoutes.length}
-              </Typography>
-            )}
+            <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
+              {store.tempRoutes.length}
+            </Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <ClockTimeEightOutline sx={{ alignSelf: 'center' }}></ClockTimeEightOutline>
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Max Duration</Typography>
-            )}
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
-                {parseInt(store.solution.maxDuration / 60)} min
-              </Typography>
-            )}
+            <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Max Duration</Typography>
+            <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
+              {parseInt(store.solution.maxDuration / 60)} min
+            </Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <AccountCancel sx={{ alignSelf: 'center' }}></AccountCancel>
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Drivers Not Assigned</Typography>
-            )}
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
-                {store.solution.driversNotAssigned}
-              </Typography>
-            )}
+            <TimelinePlus sx={{ alignSelf: 'center' }}></TimelinePlus>
+            <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Max Route Bags</Typography>
+            <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
+              {store.solution.maxBags}
+            </Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <BriefcaseRemove sx={{ alignSelf: 'center' }}></BriefcaseRemove>
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Orders Left</Typography>
-            )}
-            {store.solution.result != 'error' && (
-              <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
-                {store.solution.ordersLeft.length}
-              </Typography>
-            )}
+            <TimelineMinus sx={{ alignSelf: 'center' }}></TimelineMinus>
+            <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Min Route Bags</Typography>
+            <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
+              {store.solution.minBags}
+            </Typography>
           </Box>
           {/* {store.solution.details.map((detail, index) => {
             return ( <Typography key={index} component='div'>{detail}</Typography>)
@@ -323,7 +324,17 @@ const LocationsDialog = props => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 5 }}>
           <FormControlLabel
             control={
-              <Switch defaultChecked value={paramIsDefault} onChange={() => setParamIsDefault(!paramIsDefault)} />
+              <Switch
+                defaultChecked
+                value={paramIsDefault}
+                onChange={e => {
+                  setParamIsDefault(e.target.checked)
+                  console.log(e.target.checked)
+                  setParamMaxRoutes(e.target.checked ? '-' : '')
+                  setParamMinBags(e.target.checked ? '-' : '')
+                  setParamMaxBags(e.target.checked ? '-' : '')
+                }}
+              />
             }
             labelPlacement='bottom'
             label='Default'
@@ -334,7 +345,12 @@ const LocationsDialog = props => {
             size='small'
             label='Max Routes'
             value={paramMaxRoutes}
-            onChange={e => setParamMaxRoutes(e.target.value)}
+            onChange={e => {
+              const re = /^[0-9\b]+$/
+              if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
+                setParamMaxRoutes(e.target.value)
+              }
+            }}
             placeholder='Max Time'
             sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
           />
@@ -343,7 +359,12 @@ const LocationsDialog = props => {
             size='small'
             label='Min Bags'
             value={paramMinBags}
-            onChange={e => setParamMinBags(e.target.value)}
+            onChange={e => {
+              const re = /^[0-9\b]+$/
+              if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
+                setParamMinBags(e.target.value)
+              }
+            }}
             placeholder='Min Bags'
             sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
           />
@@ -352,7 +373,12 @@ const LocationsDialog = props => {
             size='small'
             label='Max Bags'
             value={paramMaxBags}
-            onChange={e => setParamMaxBags(e.target.value)}
+            onChange={e => {
+              const re = /^[0-9\b]+$/
+              if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
+                setParamMaxBags(e.target.value)
+              }
+            }}
             placeholder='Max Bags'
             sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
           />
@@ -415,6 +441,7 @@ const LocationsDialog = props => {
                     }}
                     pagination
                     checkboxSelection
+                    isRowSelectable={params => !isClusterRouted(params.row)}
                     disableSelectionOnClick
                     rows={store.clusters}
                     columns={defaultColumns}
@@ -450,7 +477,7 @@ const LocationsDialog = props => {
                 Generate{' '}
               </Button>
             )}
-            {status === Status.DONE && store.solution.result != 'error' && (
+            {status === Status.DONE && store.solution.result == 'success' && (
               <Button onClick={handleConfirm} sx={{ color: status == Status.DONE ? '#fff' : 'primary' }}>
                 {' '}
                 Confirm{' '}

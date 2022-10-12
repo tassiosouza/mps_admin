@@ -169,9 +169,10 @@ export const deleteRoutes = async (routes, orders) => {
         )
       }
 
-      // ** Mutate (Delete) Orders in Amplify the where linked to the route
-      for (var i = 0; i < orders.length; i++) {
-        await API.graphql(graphqlOperation(deleteMOrder, { input: { id: orders[i].id } }))
+      // ** Mutate (Delete) Orders in Amplify that where linked to the route
+      const filteredOrders = orders.filter(order => order.assignedRouteID === routes[j].id)
+      for (var i = 0; i < filteredOrders.length; i++) {
+        await API.graphql(graphqlOperation(deleteMOrder, { input: { id: filteredOrders[i].id } }))
       }
 
       // ** Mutate (Set Order Subscription to Active) Subscriptions in Amplify the where linked to the route
@@ -203,13 +204,10 @@ export const getGraphHopperRoutes = async params => {
   var finalRoutes = []
   var finalOrders = []
   var finalSolution = {
-    costs: 0,
-    totalDistance: 0,
-    maxDuration: 0,
-    details: [],
-    ordersLeft: [],
-    result: 'success',
-    driversNotAssigned: 0
+    maxBags: '-',
+    minBags: '-',
+    maxDuration: '-',
+    result: 'success'
   }
 
   for (var i = 0; i < clusters.length; i++) {
@@ -221,6 +219,16 @@ export const getGraphHopperRoutes = async params => {
         //Process here
         finalRoutes.push(...routes)
         finalOrders.push(...orders)
+        const sol = getSolution(finalRoutes, finalOrders)
+        finalSolution.maxBags = '' + sol.max
+        finalSolution.minBags = '' + sol.min
+        finalSolution.maxDuration = '' + sol.maxDuration
+        break
+      case RESULT_STATUS.PARTIAL_FAILED:
+        finalSolution.result = 'problem'
+        break
+      case RESULT_STATUS.FAILED:
+        finalSolution.result = 'error'
         break
       default:
         break
@@ -228,6 +236,19 @@ export const getGraphHopperRoutes = async params => {
   }
 
   return { routes: finalRoutes, solution: finalSolution, orders: finalOrders }
+}
+
+const getSolution = (routes, orders) => {
+  const max = 0
+  const min = 1000
+  const maxDuration = 0
+  routes.map(route => {
+    const filtered = orders.filter(order => order.assignedRouteID === route.id)
+    max = filtered.length > max ? filtered.length : max
+    min = filtered.length < min ? filtered.length : min
+    maxDuration = route.duration > maxDuration ? route.duration : maxDuration
+  })
+  return { max, min, maxDuration }
 }
 
 const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) => {
@@ -268,59 +289,78 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
         await new Promise(r => setTimeout(r, 5 * insideClusterOrders.length * 150))
         console.log('continue...')
 
-        const response = await axios.post(
-          'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
-          ghRouteBody
-        )
-        console.log('body: ' + JSON.stringify(ghRouteBody))
+        try {
+          const response = await axios.post(
+            'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
+            ghRouteBody
+          )
+          console.log('body: ' + JSON.stringify(response))
 
-        if (response.data?.solution?.unassigned?.services?.length > 0) {
-          result = { status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details }
-          return { routes: [], orders: [], result: result }
-        } else {
-          if (response.data.solution) {
-            console.log('response: ' + JSON.stringify(response.data.solution))
-            const { routes, solution, avaiableID } = getRoutesFromResponse(
-              response,
-              insideClusterOrders,
-              globalRequestAvaiableID,
-              cluster.id
-            )
-            clusterRoutes = [...clusterRoutes, ...routes]
-            globalRequestAvaiableID = avaiableID
-          } else {
-            result = { status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)] }
-            return { routes: [], orders: [], result: result }
+          if (response.data) {
+            // ** Problems with parameters
+            if (response.data.solution.unassigned.services.length) {
+              result = {
+                status: RESULT_STATUS.PARTIAL_FAILED,
+                errors: response.data.solution.unassigned.services.details
+              }
+              return { routes: [], orders: [], result: result }
+            }
+            // ** Sucess with optimization
+            else {
+              console.log('response: ' + JSON.stringify(response.data.solution))
+              const { routes, solution, avaiableID } = getRoutesFromResponse(
+                response,
+                insideClusterOrders,
+                globalRequestAvaiableID,
+                cluster.id
+              )
+              clusterRoutes = [...clusterRoutes, ...routes]
+              globalRequestAvaiableID = avaiableID
+            }
           }
+        } catch (error) {
+          // ** Error with the request
+          result = { status: RESULT_STATUS.FAILED, errors: [JSON.stringify(error)] }
+          return { routes: [], orders: [], result: result }
         }
       }
     }
   } else {
     // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
     var ghRouteBody = getGraphHopperRORequestBody(orders, parameters, 1)
-    const response = await axios.post(
-      'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
-      ghRouteBody
-    )
-    console.log('body: ' + JSON.stringify(ghRouteBody))
-    if (response.data?.solution?.unassigned?.services?.length > 0) {
-      result = { status: RESULT_STATUS.PARTIAL_FAILED, errors: response.solution.unassigned.services.details }
-      return { routes: [], orders: [], result: result }
-    } else {
-      if (response.data.solution) {
-        console.log('response: ' + JSON.stringify(response.data.solution))
-        const { routes, solution, avaiableID } = getRoutesFromResponse(
-          response,
-          orders,
-          globalRequestAvaiableID,
-          cluster.id
-        )
-        clusterRoutes = [...clusterRoutes, ...routes]
-        globalRequestAvaiableID = avaiableID
-      } else {
-        result = { status: RESULT_STATUS.PARTIAL_FAILED, errors: [JSON.stringify(response)] }
-        return { routes: [], orders: [], result: result }
+    try {
+      const response = await axios.post(
+        'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
+        ghRouteBody
+      )
+      console.log('body: ' + JSON.stringify(response))
+
+      if (response.data) {
+        // ** Problems with parameters
+        if (response.data.solution.unassigned.services.length) {
+          result = {
+            status: RESULT_STATUS.PARTIAL_FAILED,
+            errors: response.data.solution.unassigned.services.details
+          }
+          return { routes: [], orders: [], result: result }
+        }
+        // ** Sucess with optimization
+        else {
+          console.log('response: ' + JSON.stringify(response.data.solution))
+          const { routes, solution, avaiableID } = getRoutesFromResponse(
+            response,
+            orders,
+            globalRequestAvaiableID,
+            cluster.id
+          )
+          clusterRoutes = [...clusterRoutes, ...routes]
+          globalRequestAvaiableID = avaiableID
+        }
       }
+    } catch (error) {
+      // ** Error with the request
+      result = { status: RESULT_STATUS.FAILED, errors: [JSON.stringify(error)] }
+      return { routes: [], orders: [], result: result }
     }
   }
   return { routes: clusterRoutes, orders, result: result }
@@ -421,6 +461,14 @@ const getOptimizedFactor = (x, y) => {
 
 const getGraphHopperRORequestBody = (orders, parameters, factor) => {
   const routesCount = parameters.paramMaxRoutes / factor
+
+  if (parameters.paramIsDefault) {
+    routesCount = Math.floor(orders.length / 16) > 0 ? Math.floor(orders.length / 16) : 1
+  }
+
+  const max = Math.floor(orders.length / routesCount) + 2
+  const min = max - 2
+
   const services = []
   const vehicles = []
 
@@ -446,13 +494,13 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
         lon: -117.227969, // ** MPS longitude
         lat: 33.152428 // ** MPS latitude
       },
-      max_jobs: parameters.paramMaxBags,
-      min_jobs: parameters.paramMinBags,
+      max_jobs: parameters.paramIsDefault ? max : parameters.paramMaxBags,
+      min_jobs: parameters.paramIsDefault ? min : parameters.paramMinBags,
       end_address: {
         location_id: 'end',
-        lon: -117.161087,
-        lat: 32.7105867,
-        name: 'home end'
+        lon: -117.047,
+        lat: 32.5556,
+        name: 'San Ysidro end'
       }
     })
   }
