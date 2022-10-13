@@ -24,7 +24,7 @@ const CrmAward = () => {
         <Typography variant='h6'>
           Congratulations{' '}
           <Box component='span' sx={{ fontWeight: 'bold' }}>
-            Norris
+            Larissa
           </Box>
           ! 🎉
         </Typography>

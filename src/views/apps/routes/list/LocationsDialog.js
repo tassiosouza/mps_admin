@@ -53,10 +53,9 @@ const LocationsDialog = props => {
   const [selectedClusters, setSelectedClusters] = useState([])
 
   // ** Param States
-  const [paramIsDefault, setParamIsDefault] = useState(true)
-  const [paramMaxRoutes, setParamMaxRoutes] = useState('-')
-  const [paramMinBags, setParamMinBags] = useState('-')
-  const [paramMaxBags, setParamMaxBags] = useState('-')
+  const [paramMinBags, setParamMinBags] = useState('')
+  const [paramMaxBags, setParamMaxBags] = useState('')
+
   // ** Redux
   const dispatch = useDispatch()
   const store = useSelector(state => state.routes)
@@ -72,19 +71,11 @@ const LocationsDialog = props => {
 
   const handleGenerate = () => {
     // ** Form Validation
-    if (!paramIsDefault) {
-      if (
-        isNaN(paramMaxRoutes) ||
-        isEmpty(paramMaxRoutes) ||
-        isNaN(paramMinBags) ||
-        isEmpty(paramMinBags) ||
-        isNaN(paramMaxBags) ||
-        isEmpty(paramMaxBags)
-      ) {
-        setError('Invalid parameters')
-        return
-      }
+    if (isNaN(paramMinBags) || isEmpty(paramMinBags) || isNaN(paramMaxBags) || isEmpty(paramMaxBags)) {
+      setError('Invalid parameters')
+      return
     }
+
     if (!selectedClusters.length) {
       setError('Select at least one cluster')
       return
@@ -95,8 +86,6 @@ const LocationsDialog = props => {
     dispatch(
       generateRoutes({
         parameters: {
-          paramIsDefault,
-          paramMaxRoutes: parseInt(paramMaxRoutes),
           paramMinBags: parseInt(paramMinBags),
           paramMaxBags: parseInt(paramMaxBags)
         },
@@ -115,10 +104,8 @@ const LocationsDialog = props => {
   const handleRetry = () => {
     setError('')
     setValue('')
-    setParamIsDefault(true)
-    setParamMaxBags('-')
-    setParamMinBags('-')
-    setParamMaxRoutes('-')
+    setParamMaxBags('')
+    setParamMinBags('')
     setSelectedClusters([])
     dispatch(clearTempResults())
     setStatus(Status.INITIAL)
@@ -132,10 +119,8 @@ const LocationsDialog = props => {
     onClose()
     setError('')
     setValue('')
-    setParamIsDefault(true)
-    setParamMaxBags('-')
-    setParamMinBags('-')
-    setParamMaxRoutes('-')
+    setParamMaxBags('')
+    setParamMinBags('')
     setSelectedClusters([])
     setStatus(Status.INITIAL)
   }
@@ -318,42 +303,10 @@ const LocationsDialog = props => {
           {' '}
           Parameters{' '}
         </Typography>
-        <Tooltip title='Here explanation about optimization'>
+        <Tooltip title='The routes will be generated respecting the limits for minimum and maximum amount of bags.'>
           <InformationOutline sx={{ fontSize: 14, ml: 1 }} />
         </Tooltip>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 5 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                defaultChecked
-                value={paramIsDefault}
-                onChange={e => {
-                  setParamIsDefault(e.target.checked)
-                  console.log(e.target.checked)
-                  setParamMaxRoutes(e.target.checked ? '-' : '')
-                  setParamMinBags(e.target.checked ? '-' : '')
-                  setParamMaxBags(e.target.checked ? '-' : '')
-                }}
-              />
-            }
-            labelPlacement='bottom'
-            label='Default'
-          />
-          <Divider orientation='vertical' variant='middle' flexItem />
-          <TextField
-            variant='standard'
-            size='small'
-            label='Max Routes'
-            value={paramMaxRoutes}
-            onChange={e => {
-              const re = /^[0-9\b]+$/
-              if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
-                setParamMaxRoutes(e.target.value)
-              }
-            }}
-            placeholder='Max Time'
-            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
-          />
+        <Box sx={{ display: 'flex', justifyContent: 'start', pt: 5 }}>
           <TextField
             variant='standard'
             size='small'
@@ -366,8 +319,9 @@ const LocationsDialog = props => {
               }
             }}
             placeholder='Min Bags'
-            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
+            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', mr: 5 }}
           />
+          <Divider orientation='vertical' variant='middle' flexItem />
           <TextField
             variant='standard'
             size='small'
@@ -380,7 +334,7 @@ const LocationsDialog = props => {
               }
             }}
             placeholder='Max Bags'
-            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center' }}
+            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', ml: 5 }}
           />
         </Box>
       </Grid>

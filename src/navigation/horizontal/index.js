@@ -1,5 +1,9 @@
 // ** Icon imports
 import Apps from 'mdi-material-ui/Apps'
+import TruckFast from 'mdi-material-ui/TruckFast'
+import FoodTurkey from 'mdi-material-ui/FoodTurkey'
+import HumanMaleBoardPoll from 'mdi-material-ui/HumanMaleBoardPoll'
+import AccountTieHatOutline from 'mdi-material-ui/AccountTieHatOutline'
 import Menu from 'mdi-material-ui/Menu'
 import Table from 'mdi-material-ui/Table'
 import Lifebuoy from 'mdi-material-ui/Lifebuoy'
@@ -40,7 +44,6 @@ import NewspaperVariantMultiple from 'mdi-material-ui/NewspaperVariantMultiple'
 import PackageVariant from 'mdi-material-ui/PackageVariant'
 import MapMarkerMultiple from 'mdi-material-ui/MapMarkerMultiple'
 
-
 const navigation = () => {
   return [
     {
@@ -65,13 +68,18 @@ const navigation = () => {
       ]
     },
     {
-      icon: Apps,
-      title: 'Apps',
+      icon: TruckFast,
+      title: 'Logistics',
       children: [
         {
           title: 'Routes',
           icon: CarTractionControl,
           path: '/apps/routes/list'
+        },
+        {
+          title: 'Clusters',
+          icon: MapMarkerMultiple,
+          path: '/apps/clusters/list'
         },
         {
           title: 'Orders',
@@ -84,80 +92,80 @@ const navigation = () => {
           path: '/apps/subscriptions/list'
         },
         {
-          title: 'Clusters',
-          icon: MapMarkerMultiple,
-          path: '/apps/clusters/list'
-        },
-        {
-          title: 'Email',
-          icon: EmailOutline,
-          path: '/apps/email'
-        },
-        {
-          title: 'Chat',
-          icon: MessageOutline,
-          path: '/apps/chat'
-        },
-        {
-          title: 'Calendar',
-          icon: CalendarBlankOutline,
-          path: '/apps/calendar'
-        },
-        {
-          title: 'Invoice',
-          icon: FileDocumentOutline,
-          children: [
-            {
-              title: 'List',
-              path: '/apps/invoice/list'
-            },
-            {
-              title: 'Preview',
-              path: '/apps/invoice/preview'
-            },
-            {
-              title: 'Edit',
-              path: '/apps/invoice/edit'
-            },
-            {
-              title: 'Add',
-              path: '/apps/invoice/add'
-            }
-          ]
-        },
-        {
-          title: 'User',
-          icon: AccountOutline,
-          children: [
-            {
-              title: 'List',
-              path: '/apps/user/list'
-            },
-            {
-              title: 'View',
-              path: '/apps/user/view'
-            }
-          ]
-        },
-        {
-          title: 'Roles & Permissions',
-          icon: LockOutline,
-          children: [
-            {
-              title: 'Roles',
-              path: '/apps/roles'
-            },
-            {
-              title: 'Permissions',
-              path: '/apps/permissions'
-            }
-          ]
+          title: 'Drivers',
+          icon: AccountTieHatOutline,
+          path: '/apps/subscriptions/list'
         }
+        // {
+        //   title: 'Email',
+        //   icon: EmailOutline,
+        //   path: '/apps/email'
+        // },
+        // {
+        //   title: 'Chat',
+        //   icon: MessageOutline,
+        //   path: '/apps/chat'
+        // },
+        // {
+        //   title: 'Calendar',
+        //   icon: CalendarBlankOutline,
+        //   path: '/apps/calendar'
+        // },
+        // {
+        //   title: 'Invoice',
+        //   icon: FileDocumentOutline,
+        //   children: [
+        //     {
+        //       title: 'List',
+        //       path: '/apps/invoice/list'
+        //     },
+        //     {
+        //       title: 'Preview',
+        //       path: '/apps/invoice/preview'
+        //     },
+        //     {
+        //       title: 'Edit',
+        //       path: '/apps/invoice/edit'
+        //     },
+        //     {
+        //       title: 'Add',
+        //       path: '/apps/invoice/add'
+        //     }
+        //   ]
+        // },
+        // {
+        //   title: 'User',
+        //   icon: AccountOutline,
+        //   children: [
+        //     {
+        //       title: 'List',
+        //       path: '/apps/user/list'
+        //     },
+        //     {
+        //       title: 'View',
+        //       path: '/apps/user/view'
+        //     }
+        //   ]
+        // },
+        // {
+        //   title: 'Roles & Permissions',
+        //   icon: LockOutline,
+        //   children: [
+        //     {
+        //       title: 'Roles',
+        //       path: '/apps/roles'
+        //     },
+        //     {
+        //       title: 'Permissions',
+        //       path: '/apps/permissions'
+        //     }
+        //   ]
+        // }
       ]
     },
     {
-      icon: PaletteSwatchOutline,
-      title: 'UI',
+      icon: FoodTurkey,
+      title: 'Kitchen',
       children: [
         {
           title: 'Typography',
@@ -278,14 +286,14 @@ const navigation = () => {
             {
               title: 'More',
               path: '/components/more'
-            },
+            }
           ]
         }
       ]
     },
     {
-      icon: FileOutline,
-      title: 'Pages',
+      icon: CurrencyUsd,
+      title: 'Purchase',
       children: [
         {
           title: 'Authentication',
@@ -417,8 +425,8 @@ const navigation = () => {
       ]
     },
     {
-      title: 'Forms & Tables',
-      icon: CheckboxMarkedOutline,
+      title: 'Human Resources',
+      icon: HumanMaleBoardPoll,
       children: [
         {
           title: 'Form Elements',
@@ -471,7 +479,7 @@ const navigation = () => {
             {
               title: 'Input Mask',
               path: '/forms/form-elements/input-mask'
-            },
+            }
           ]
         },
         {

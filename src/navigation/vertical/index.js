@@ -24,7 +24,6 @@ import NewspaperVariantMultiple from 'mdi-material-ui/NewspaperVariantMultiple'
 import PackageVariant from 'mdi-material-ui/PackageVariant'
 import MapMarkerMultiple from 'mdi-material-ui/MapMarkerMultiple'
 
-
 const navigation = () => {
   return [
     {
@@ -48,7 +47,7 @@ const navigation = () => {
       ]
     },
     {
-      sectionTitle: 'Apps & Pages'
+      sectionTitle: 'Logistics'
     },
     {
       title: 'Routes',
@@ -386,7 +385,7 @@ const navigation = () => {
         {
           title: 'More',
           path: '/components/more'
-        },
+        }
       ]
     },
     {
@@ -443,7 +442,7 @@ const navigation = () => {
         {
           title: 'Input Mask',
           path: '/forms/form-elements/input-mask'
-        },
+        }
       ]
     },
     {

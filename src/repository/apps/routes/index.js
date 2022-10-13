@@ -460,14 +460,7 @@ const getOptimizedFactor = (x, y) => {
 }
 
 const getGraphHopperRORequestBody = (orders, parameters, factor) => {
-  const routesCount = parameters.paramMaxRoutes / factor
-
-  if (parameters.paramIsDefault) {
-    routesCount = Math.floor(orders.length / 14) > 0 ? Math.floor(orders.length / 14) : 1
-  }
-
-  const max = Math.floor(orders.length / routesCount) + 2
-  const min = max - 2
+  const routesCount = Math.floor(orders.length / parameters.paramMinBags)
 
   const services = []
   const vehicles = []
@@ -494,12 +487,12 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
         lon: -117.227969, // ** MPS longitude
         lat: 33.152428 // ** MPS latitude
       },
-      max_jobs: parameters.paramIsDefault ? max : parameters.paramMaxBags,
-      min_jobs: parameters.paramIsDefault ? min : parameters.paramMinBags,
+      max_jobs: parameters.paramMaxBags,
+      min_jobs: parameters.paramMinBags,
       end_address: {
         location_id: 'end',
-        lon: -117.047,
-        lat: 32.5556,
+        lon: -117.1661,
+        lat: 32.7167,
         name: 'San Ysidro end'
       }
     })
@@ -518,7 +511,10 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
 }
 
 const getFixedGraphHopperClusterRequestBody = orders => {
-  const factor = orders.length % 80 == 0 ? orders.length / 80 : orders.length / 80 + 1
+  const factor = orders.length < 80 ? 1 : 2
+  if (orders.length > 160) {
+    factor = 3
+  }
   const configuration = {
     response_type: 'json',
     routing: {
@@ -528,7 +524,7 @@ const getFixedGraphHopperClusterRequestBody = orders => {
     },
     clustering: {
       num_clusters: factor,
-      min_quantity: orders.length / factor
+      min_quantity: orders.length / factor - 5
     }
   }
   const customers = []
