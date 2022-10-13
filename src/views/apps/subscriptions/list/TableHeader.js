@@ -28,53 +28,51 @@ const TableHeader = props => {
   const { value, selectedRows, handleFilter, handleMultipleAction } = props
 
   // ** Variables
-  const allowedExtensions = ["csv"];
+  const allowedExtensions = ['csv']
 
   // ** States
   const [loadFileError, setLoadFileError] = useState('')
   const [open, setOpen] = useState(false)
-  const [messageInfo, setMessageInfo ] = useState('')
-  const [syncError, setSyncError ] = useState(false)
+  const [messageInfo, setMessageInfo] = useState('')
+  const [syncError, setSyncError] = useState(false)
   const [actionValue, setActionValue] = useState('')
 
   // ** Refs
-  const hiddenFileInput = useRef(null);
+  const hiddenFileInput = useRef(null)
 
   // ** Hooks
   const dispatch = useDispatch()
 
-  const handleFileUpload = (e) => {
-    setLoadFileError('');
+  const handleFileUpload = e => {
+    setLoadFileError('')
     if (e.target.files.length) {
-        const inputFile = e.target.files[0];
+      const inputFile = e.target.files[0]
 
-        const fileExtension = inputFile?.type.split("/")[1];
-        if (!allowedExtensions.includes(fileExtension)) {
-            setLoadFileError('Please, enter a valid csv file');
-            return;
-        }
-        dispatch(handleLoadingSubscriptions(true))
-        dispatch(
-          loadSubscriptionsFromFile({file: inputFile, callback: finishSyncCallback})
-        )
+      const fileExtension = inputFile?.type.split('/')[1]
+      if (!allowedExtensions.includes(fileExtension)) {
+        setLoadFileError('Please, enter a valid csv file')
+        return
+      }
+      dispatch(handleLoadingSubscriptions(true))
+      dispatch(loadSubscriptionsFromFile({ file: inputFile, callback: finishSyncCallback }))
     }
   }
 
   const handleClick = event => {
-    hiddenFileInput.current.click();
-  };
+    hiddenFileInput.current.click()
+  }
 
   const handleClose = () => {
     setOpen(false)
   }
 
   const finishSyncCallback = (error, message) => {
-    if(error) {
+    if (error) {
       setSyncError(true)
     }
     setMessageInfo(message)
     setOpen(true)
-  } 
+  }
 
   const handleAction = e => {
     handleMultipleAction(e.target.value)
@@ -90,7 +88,7 @@ const TableHeader = props => {
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between'
       }}
     >
       <Select
@@ -109,23 +107,23 @@ const TableHeader = props => {
         <MenuItem value='Delete'>Delete</MenuItem>
         <MenuItem value='Edit'>Edit</MenuItem>
       </Select>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2 , width: '30%', justifyContent:'end'}}>
-        
-      </Box>
+      <Box
+        sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', mb: 2, width: '30%', justifyContent: 'end' }}
+      ></Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <Typography variant='subtitle2' sx={{ color: false ? 'success.main' : 'error.main', mr: 4, mb: 2 }}>
           {loadFileError}
         </Typography>
         <Tooltip placement='top' title='Refresh Subscriptions'>
-          <IconButton size='small' onClick={handleClick} sx={{ mr: 4, mb: 2, maxWidth: '180px'}}>
-            <Reload sx={{fontSize: '1.375rem'}}/>
+          <IconButton size='small' onClick={handleClick} sx={{ mr: 4, mb: 2, maxWidth: '180px' }}>
+            <Reload sx={{ fontSize: '1.375rem' }} />
             <input
-                onChange={handleFileUpload}
-                id="csvInput"
-                name="file"
-                type="File"
-                ref={hiddenFileInput}
-                style={{display: 'none'}}
+              onChange={handleFileUpload}
+              id='csvInput'
+              name='file'
+              type='File'
+              ref={hiddenFileInput}
+              style={{ display: 'none' }}
             />
           </IconButton>
         </Tooltip>
@@ -133,11 +131,11 @@ const TableHeader = props => {
           size='small'
           value={value}
           placeholder='Search Subscription'
-          sx={{ mr: 4, mb: 2, maxWidth: '180px'}}
+          sx={{ mr: 4, mb: 2, maxWidth: '180px' }}
           onChange={e => handleFilter(e.target.value)}
         />
         <Link href='/apps/invoice/add' passHref>
-          <Button sx={{ mb: 2}} variant='contained'>
+          <Button sx={{ mb: 2 }} variant='contained'>
             Create Subscription
           </Button>
         </Link>
@@ -148,12 +146,7 @@ const TableHeader = props => {
         autoHideDuration={3000}
         message={messageInfo ? messageInfo.message : undefined}
       >
-        <Alert
-          elevation={3}
-          variant='filled'
-          onClose={handleClose}
-          severity={syncError ? 'error' : 'success'}
-        >
+        <Alert elevation={3} variant='filled' onClose={handleClose} severity={syncError ? 'error' : 'success'}>
           {messageInfo}
         </Alert>
       </Snackbar>

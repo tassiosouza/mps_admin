@@ -463,7 +463,7 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
   const routesCount = parameters.paramMaxRoutes / factor
 
   if (parameters.paramIsDefault) {
-    routesCount = Math.floor(orders.length / 16) > 0 ? Math.floor(orders.length / 16) : 1
+    routesCount = Math.floor(orders.length / 14) > 0 ? Math.floor(orders.length / 14) : 1
   }
 
   const max = Math.floor(orders.length / routesCount) + 2

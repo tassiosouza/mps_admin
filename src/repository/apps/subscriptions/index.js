@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 // ** Third Party Imports
-import Papa from "papaparse";
+import Papa from 'papaparse'
 
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
@@ -13,26 +13,30 @@ import { SubscriptionStatus } from '../../../models'
 // ** Utils Import
 import { getDateRange } from 'src/@core/utils/get-daterange'
 
-export const getSubscriptions =  async params  => {
-  const {status, location, dates, q} = params
-  
-  const filter = status ? {
-    status: {
-      eq: status
-    },
-    address: {
-      contains: location != '' ? location : ','
-    }
-  } : {
-    address: {
-      contains: location != '' ? location : ','
-    }
-  }
+export const getSubscriptions = async params => {
+  const { status, location, dates, q } = params
 
-  const response = await API.graphql(graphqlOperation(listMpsSubscriptions, {
-    filter,
-    limit: 5000
-  }))
+  const filter = status
+    ? {
+        status: {
+          eq: status
+        },
+        address: {
+          contains: location != '' ? location : ','
+        }
+      }
+    : {
+        address: {
+          contains: location != '' ? location : ','
+        }
+      }
+
+  const response = await API.graphql(
+    graphqlOperation(listMpsSubscriptions, {
+      filter,
+      limit: 5000
+    })
+  )
 
   const queryLowered = q.toLowerCase()
 
@@ -55,73 +59,73 @@ export const getSubscriptions =  async params  => {
 
       if (filtered.length && filtered.includes(subscription.number)) {
         return (
-          (subscription.address.toLowerCase().includes(queryLowered) ||
+          subscription.address.toLowerCase().includes(queryLowered) ||
           subscription.name.toLowerCase().includes(queryLowered) ||
           String(subscription.number).toLowerCase().includes(queryLowered) ||
           String(subscription.phone).toLowerCase().includes(queryLowered) ||
           String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
-          String(subscription.status).toLowerCase().includes(queryLowered))
+          String(subscription.status).toLowerCase().includes(queryLowered)
         )
       }
     } else {
       return (
-        (subscription.address.toLowerCase().includes(queryLowered) ||
-          subscription.name.toLowerCase().includes(queryLowered) ||
-          String(subscription.number).toLowerCase().includes(queryLowered) ||
-          String(subscription.phone).toLowerCase().includes(queryLowered) ||
-          String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
-          String(subscription.status).toLowerCase().includes(queryLowered))
+        subscription.address.toLowerCase().includes(queryLowered) ||
+        subscription.name.toLowerCase().includes(queryLowered) ||
+        String(subscription.number).toLowerCase().includes(queryLowered) ||
+        String(subscription.phone).toLowerCase().includes(queryLowered) ||
+        String(subscription.mealPlan).toLowerCase().includes(queryLowered) ||
+        String(subscription.status).toLowerCase().includes(queryLowered)
       )
     }
   })
-  
+
   return filteredData
 }
 
 // ** Delete Subscriptions
-export const deleteSubscriptions = async (subscriptions)  => {
+export const deleteSubscriptions = async subscriptions => {
   const subscriptionResult = false
-  for(var i = 0; i < subscriptions.length; i++) {
+  for (var i = 0; i < subscriptions.length; i++) {
     // ** Mutate (Delete) Route in Amplify
-    const response = await API.graphql(graphqlOperation(deleteMpsSubscription, {input: {id:subscriptions[i].id}}))
+    const response = await API.graphql(graphqlOperation(deleteMpsSubscription, { input: { id: subscriptions[i].id } }))
     subscriptionResult = response.data.deleteMpsSubscription ? response.data.deleteMpsSubscription : null
   }
   return subscriptionResult
 }
 
 // ** Load Subscriptions
-export const loadSubscriptions = async (params, getState)  => {
+export const loadSubscriptions = async (params, getState) => {
   const subscriptions = []
   const parsedData = ''
 
   const state = getState()
-  const oldSubscriptions = state.subscriptions.data;
+  const oldSubscriptions = state.subscriptions.data
 
   // ** Read external final
   await Promise.all(
     (function* () {
-        yield new Promise(resolve => {
-          let reader = new FileReader();
-          reader.onload = (event) => resolve(event.target.result);
-          reader.readAsText(params.file);
-        })})())
-    .then(async parsedSubscriptions => {
-      const csv = Papa.parse(parsedSubscriptions.toString(),{ 
-        delimiter: "", // auto-detect 
-        newline: "", // auto-detect 
-        quoteChar: '"', 
-        escapeChar: '"', 
-        header: true, // creates array of {head:value} 
-        dynamicTyping: false, // convert values to numbers if possible
-        skipEmptyLines: true 
+      yield new Promise(resolve => {
+        let reader = new FileReader()
+        reader.onload = event => resolve(event.target.result)
+        reader.readAsText(params.file)
       })
-      parsedData = csv?.data;
-    });
+    })()
+  ).then(async parsedSubscriptions => {
+    const csv = Papa.parse(parsedSubscriptions.toString(), {
+      delimiter: '', // auto-detect
+      newline: '', // auto-detect
+      quoteChar: '"',
+      escapeChar: '"',
+      header: true, // creates array of {head:value}
+      dynamicTyping: false, // convert values to numbers if possible
+      skipEmptyLines: true
+    })
+    parsedData = csv?.data
+  })
   // ** Process subscriptions (retreive lat and lng)
   subscriptions = await syncSubscriptions(parsedData, oldSubscriptions, params.callback)
   return subscriptions
 }
-
 
 const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
   var synced = []
@@ -135,28 +139,26 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
   var failed = []
   var errorMessage = ''
 
-  for (var i= 0; i < parsedData.length; i++) {
-    if(i % 2 == 0) {
-      newSubscriptions.push({
-        id: parsedData[i].number + parsedData[i].name,
-        number: parsedData[i].number,
-        subscriptionDate: Date.now(),
-        address: parsedData[i].address,
-        location: '',
-        email: parsedData[i].email,
-        phone: parsedData[i].phone,
-        name: parsedData[i].name,
-        mealPlan: parsedData[i + 1].name,
-        latitude: 0,
-        avatar: '',
-        status: SubscriptionStatus.ACTIVED,
-        longitude: 0,
-        deliveryInstruction: parsedData[i + 1].Address,
-        clusterId: '',
-        editing: false,
-        color: '#363636'
-      })
-    }
+  for (var i = 0; i < parsedData.length; i++) {
+    newSubscriptions.push({
+      id: parsedData[i].number + parsedData[i].name,
+      number: parsedData[i].number,
+      subscriptionDate: Date.now(),
+      address: parsedData[i].address,
+      location: '',
+      email: parsedData[i].email,
+      phone: parsedData[i].phone,
+      name: parsedData[i].name,
+      mealPlan: parsedData[i].meal_plan,
+      latitude: 0,
+      avatar: '',
+      status: SubscriptionStatus.ACTIVED,
+      longitude: 0,
+      deliveryInstruction: parsedData[i].delivery_instructions,
+      clusterId: '',
+      editing: false,
+      color: '#363636'
+    })
   }
 
   var oldSubscriptionsNumber = []
@@ -166,69 +168,87 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
 
   synced = newSubscriptions.filter(subscription => {
     return oldSubscriptionsNumber.includes(subscription.number + subscription.name)
-  });
+  })
 
   toUpdate = newSubscriptions.filter(subscription => {
     const matchSubscription = null
-    for(var i = 0; i < oldSubscriptions.length; i++) {
-      if(oldSubscriptions.length) {
-        if((oldSubscriptions[i].number + oldSubscriptions[i].name) == (subscription.number + subscription.name))
-        {
+    for (var i = 0; i < oldSubscriptions.length; i++) {
+      if (oldSubscriptions.length) {
+        if (oldSubscriptions[i].number + oldSubscriptions[i].name == subscription.number + subscription.name) {
           matchSubscription = oldSubscriptions[i]
           break
         }
       }
     }
-    
-    if(matchSubscription) {
+
+    if (matchSubscription) {
       var addressName = matchSubscription.address.split(',')[0].split(' ')
       var mainAddress = addressName[0]
       // ** Check if the registered order has different address or status
-      return !subscription.address.toLowerCase().includes(mainAddress.toLowerCase()) || matchSubscription.status === 'Canceled'
+      return (
+        !subscription.address.toLowerCase().includes(mainAddress.toLowerCase()) ||
+        matchSubscription.status === 'Canceled'
+      )
     }
     return false
   })
 
   toCancel = oldSubscriptions.filter(subscription => {
-    return !newSubscriptionsNumber.includes(subscription.number + subscription.name) && subscription.status === 'Actived'
-  });
+    return (
+      !newSubscriptionsNumber.includes(subscription.number + subscription.name) && subscription.status === 'Actived'
+    )
+  })
 
   toInclude = newSubscriptions.filter(subscription => {
     return !oldSubscriptionsNumber.includes(subscription.number + subscription.name)
-  });
+  })
 
-  if(oldSubscriptions.length > -1) {
-    for(var i = 0; i < toInclude.length; i++) {
-      if(errorMessage != '') break
-      const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toInclude[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
-        await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
-          if(response.data.results.length > 0) {
+  if (oldSubscriptions.length > -1) {
+    for (var i = 0; i < toInclude.length; i++) {
+      if (errorMessage != '') break
+      const urlRequest =
+        'https://maps.googleapis.com/maps/api/geocode/json?address=' +
+        toInclude[i].address +
+        '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
+      await axios
+        .get(urlRequest.replaceAll('#', 'n'))
+        .then(async response => {
+          if (response.data.results.length > 0) {
             const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
             toInclude[i].address = response.data.results[0].formatted_address
             toInclude[i].latitude = response.data.results[0].geometry.location.lat
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
-            toInclude[i].location = locality[0].long_name,
-            await API.graphql(graphqlOperation(createMpsSubscription, {input: toInclude[i]}))
-            console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
+            ;(toInclude[i].location = locality[0].long_name),
+              await API.graphql(graphqlOperation(createMpsSubscription, { input: toInclude[i] }))
+            console.log(
+              response.data.results[0].geometry.location.lat,
+              ',',
+              response.data.results[0].geometry.location.lng
+            )
             included.push(toInclude[i])
-          }
-          else {
+          } else {
             failed.push(toInclude[i])
-            errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 
+            errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number
             console.log('error for: ' + JSON.stringify(toInclude[i]))
-          }    
-        }).catch(err => {
-          // errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number 
+          }
+        })
+        .catch(err => {
+          // errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number
           failed.push(toInclude[i])
           console.log('CRITICAL ERROR: ' + JSON.stringify(err))
         })
     }
 
-    for(var i = 0; i < toUpdate.length; i++) {
-      if(errorMessage != '') break
-        const urlRequest = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + toUpdate[i].address + '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
-        await axios.get(urlRequest.replaceAll('#','n')).then(async (response) => {
-          if(response.data.results.length > 0) {
+    for (var i = 0; i < toUpdate.length; i++) {
+      if (errorMessage != '') break
+      const urlRequest =
+        'https://maps.googleapis.com/maps/api/geocode/json?address=' +
+        toUpdate[i].address +
+        '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
+      await axios
+        .get(urlRequest.replaceAll('#', 'n'))
+        .then(async response => {
+          if (response.data.results.length > 0) {
             const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toUpdate[i]))
             const version = itemQuery.data.getMpsSubscription._version
             const locality = response.data.results[0].address_components.filter(ac => ac.types.includes('locality'))
@@ -250,24 +270,28 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
               deliveryInstruction: toUpdate[i].deliveryInstruction,
               _version: version
             }
-            await API.graphql(graphqlOperation(updateMpsSubscription, {input: versionedSub}))
-            console.log(response.data.results[0].geometry.location.lat, ',', response.data.results[0].geometry.location.lng)
+            await API.graphql(graphqlOperation(updateMpsSubscription, { input: versionedSub }))
+            console.log(
+              response.data.results[0].geometry.location.lat,
+              ',',
+              response.data.results[0].geometry.location.lng
+            )
             updated.push(versionedSub)
-          }
-          else {
-            errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number 
+          } else {
+            errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number
             failed.push(toUpdate[i])
             console.log('error for: ' + urlRequest)
-          }    
-        }).catch(err => {
-          errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number 
+          }
+        })
+        .catch(err => {
+          errorMessage = 'SYNC OPERATION: UPDATE: Error when processing order id: ' + toUpdate[i].number
           failed.push(toUpdate[i])
           console.log('CRITICAL ERROR: ' + err)
           console.log('CRITICAL ERROR: ' + JSON.stringify(err))
         })
     }
-    for(var i = 0; i < toCancel.length; i ++) {
-      if(errorMessage != '') break
+    for (var i = 0; i < toCancel.length; i++) {
+      if (errorMessage != '') break
       try {
         const itemQuery = await API.graphql(graphqlOperation(getMpsSubscription, toCancel[i]))
         const version = itemQuery.data.getMpsSubscription._version
@@ -286,19 +310,17 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
           longitude: toCancel[i].longitude,
           deliveryInstruction: toCancel[i].deliveryInstruction,
           _version: version
-      }
-      await API.graphql(graphqlOperation(updateMpsSubscription, {input: versionedSub}))
-      canceled.push(versionedSub)
-      }
-      catch(err) {
-          errorMessage = 'SYNC OPERATION: CANCEL: Error when processing order id: ' + toCancel[i].number 
-          failed.push(toCancel[i])
-          console.log('CRITICAL ERROR: ' + err)
-          console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+        }
+        await API.graphql(graphqlOperation(updateMpsSubscription, { input: versionedSub }))
+        canceled.push(versionedSub)
+      } catch (err) {
+        errorMessage = 'SYNC OPERATION: CANCEL: Error when processing order id: ' + toCancel[i].number
+        failed.push(toCancel[i])
+        console.log('CRITICAL ERROR: ' + err)
+        console.log('CRITICAL ERROR: ' + JSON.stringify(err))
       }
     }
-  }
-  else {
+  } else {
     synced = []
     toCancel = []
     toInclude = []
@@ -306,6 +328,6 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
     newSubscriptions = []
     failed = []
   }
-  
-  return {synced, toCancel, included, failed, toUpdate, oldSubscriptions, canceled, errorMessage, callback}
+
+  return { synced, toCancel, included, failed, toUpdate, oldSubscriptions, canceled, errorMessage, callback }
 }
