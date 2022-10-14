@@ -429,7 +429,9 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
 }
 
 const getAvaiableRouteId = async () => {
-  const response = await API.graphql(graphqlOperation(listMRoutes))
+  const response = await API.graphql(graphqlOperation(listMRoutes), {
+    limit: 5000
+  })
   const routesID = []
   response.data.listMRoutes.items.map(route => routesID.push(parseInt(route.id.replace('SR', ''))))
 
