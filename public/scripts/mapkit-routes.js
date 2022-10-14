@@ -114,8 +114,8 @@ for (var i = 0; i < routes.length; i++) {
 for (var i = 0; i < orders.length; i++) {
   var coordinate = new mapkit.Coordinate(orders[i].latitude, orders[i].longitude)
   var annot = new mapkit.MarkerAnnotation(coordinate, {
-    title: orders[i].number,
-    subtitle: orders[i].customerName,
+    // title: orders[i].number,
+    // subtitle: orders[i].customerName,
     color: colorMap.get(orders[i].assignedRouteID),
     glyphColor: '#413940',
     glyphText: orders[i].sort + '°'
