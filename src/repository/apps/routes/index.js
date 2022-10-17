@@ -419,7 +419,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
     finalAvaiableId += 1
   })
 
-  return { routes, solution, avaiableID: finalAvaiableId + 1 }
+  return { routes, solution, avaiableID: finalAvaiableId }
 }
 
 const getAvaiableRouteId = async () => {
@@ -444,7 +444,8 @@ const getAvaiableRouteId = async () => {
 
   const max = Math.max(...routesID)
 
-  return routesID.length > 0 ? max + 1 : 0
+  // return routesID.length > 0 ? max + 1 : 0
+  return routes.length
 }
 
 const getAvaiableOrderId = async () => {

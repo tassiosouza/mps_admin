@@ -100,6 +100,7 @@ export const loadSubscriptions = async (params, getState) => {
 
   const state = getState()
   const oldSubscriptions = state.subscriptions.data
+  const clusters = state.subscriptions.clusters
 
   // ** Read external final
   await Promise.all(
@@ -123,11 +124,11 @@ export const loadSubscriptions = async (params, getState) => {
     parsedData = csv?.data
   })
   // ** Process subscriptions (retreive lat and lng)
-  subscriptions = await syncSubscriptions(parsedData, oldSubscriptions, params.callback)
+  subscriptions = await syncSubscriptions(parsedData, oldSubscriptions, params.callback, clusters)
   return subscriptions
 }
 
-const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
+const syncSubscriptions = async (parsedData, oldSubscriptions, callback, clusters) => {
   var synced = []
   var toCancel = []
   var toInclude = []
@@ -223,6 +224,17 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback) => {
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
 
             // ** Assign to Correct Cluster
+            for (var k = 0; k < clusters.length; k++) {
+              const polygon = []
+              for (var j = 0; j < clusters[k].path.length; j++) {
+                polygon.push([clusters[k].path[j].lng, clusters[k].path[j].lat])
+              }
+              var point = [toInclude[i].longitude, toInclude[i].latitude]
+              if (pointInPolygon(polygon, point)) {
+                toInclude[i].clusterId = clusters[k].id
+                toInclude[i].color = clusters[k].color
+              }
+            }
 
             toInclude[i].location = neighborhood.length ? neighborhood[0].long_name : locality[0].long_name
             await API.graphql(graphqlOperation(createMpsSubscription, { input: toInclude[i] }))

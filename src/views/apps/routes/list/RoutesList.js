@@ -128,9 +128,9 @@ const RoutesList = props => {
     {
       flex: 0.07,
       minWidth: 80,
-      field: 'cost',
-      headerName: 'Cost',
-      renderCell: ({ row }) => <Typography variant='body2'>${parseInt(row.cost)}</Typography>
+      field: 'duration',
+      headerName: 'Duration',
+      renderCell: ({ row }) => <Typography variant='body2'>{secondsToHms(row.duration)}</Typography>
     }
     // {
     //   flex: 0.12,
@@ -141,6 +141,18 @@ const RoutesList = props => {
     //     new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(row.routeDate)}</Typography>
     // }
   ]
+
+  function secondsToHms(d) {
+    d = Number(d)
+    var h = Math.floor(d / 3600)
+    var m = Math.floor((d % 3600) / 60)
+    var s = Math.floor((d % 3600) % 60)
+
+    var hDisplay = h > 0 ? h + (h == 1 ? 'h' : 'h') : ''
+    var mDisplay = m > 0 ? m + (m == 1 ? 'm' : 'm') : ''
+    return hDisplay + mDisplay
+  }
+
   /* eslint-disable */
   const CustomInput = forwardRef((props, ref) => {
     const startDate = props.start !== null ? format(props.start, 'MM/dd/yyyy') : ''

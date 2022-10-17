@@ -249,7 +249,7 @@ const LocationsDialog = props => {
             <ClockTimeEightOutline sx={{ alignSelf: 'center' }}></ClockTimeEightOutline>
             <Typography sx={{ fontSize: '15px', textAlign: 'center' }}>Max Duration</Typography>
             <Typography sx={{ fontSize: '15px', textAlign: 'center', color: textColor }}>
-              {parseInt(store.solution.maxDuration / 60)} min
+              {secondsToHms(store.solution.maxDuration)}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -273,6 +273,17 @@ const LocationsDialog = props => {
         </Grid>
       </Grid>
     )
+  }
+
+  function secondsToHms(d) {
+    d = Number(d)
+    var h = Math.floor(d / 3600)
+    var m = Math.floor((d % 3600) / 60)
+    var s = Math.floor((d % 3600) % 60)
+
+    var hDisplay = h > 0 ? h + (h == 1 ? 'h' : 'h') : ''
+    var mDisplay = m > 0 ? m + (m == 1 ? 'm' : 'm') : ''
+    return hDisplay + mDisplay
   }
 
   const defaultColumns = [
