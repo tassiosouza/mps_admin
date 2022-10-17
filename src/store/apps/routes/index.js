@@ -163,7 +163,6 @@ export const appRoutesSlice = createSlice({
     builder.addCase(fetchRoutesAndOrders.fulfilled, (state, action) => {
       const sortedRoutes = action.payload.routes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
       state.routes = sortedRoutes
-      console.log('orders count: ' + action.payload.orders.length)
       state.orders = action.payload.orders
       state.clusters = action.payload.clusters
       state.loadingRoutes = false

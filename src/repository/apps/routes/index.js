@@ -32,7 +32,7 @@ const RESULT_STATUS = {
   FAILED: 'FAILED'
 }
 
-const GRAPHHOPPER_ROUTE_LIMIT = 80
+const GRAPHHOPPER_ROUTE_LIMIT = 150
 const GRAPHHOPPER_CLUSTER_LIMIT = 400
 const GRAPHHOPPER_TIME_LIMIT = 60 //seconds
 
@@ -294,7 +294,6 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
             'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
             ghRouteBody
           )
-          console.log('body: ' + JSON.stringify(response))
 
           if (response.data) {
             // ** Problems with parameters
@@ -307,7 +306,6 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
             }
             // ** Sucess with optimization
             else {
-              console.log('response: ' + JSON.stringify(response.data.solution))
               const { routes, solution, avaiableID } = getRoutesFromResponse(
                 response,
                 insideClusterOrders,
@@ -333,7 +331,6 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
         'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
         ghRouteBody
       )
-      console.log('body: ' + JSON.stringify(response))
 
       if (response.data) {
         // ** Problems with parameters
@@ -346,7 +343,6 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
         }
         // ** Sucess with optimization
         else {
-          console.log('response: ' + JSON.stringify(response.data.solution))
           const { routes, solution, avaiableID } = getRoutesFromResponse(
             response,
             orders,
@@ -389,12 +385,10 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
 
   ghRoutes.map(async route => {
     var routeID = 'SR' + finalAvaiableId
-    console.log('route activies: ' + JSON.stringify(route.activities))
     const deliveries = route.activities.filter(ac => ac.type === 'service')
     var index = 1
     for (var i = 0; i < orders.length; i++) {
       var found = deliveries.find(del => orders[i].id === del.id)
-      console.log('found: ' + JSON.stringify(found))
       if (found) {
         orders[i].sort = deliveries.indexOf(found) + 1 // ** Assign the sorted position of the order
         orders[i].assignedRouteID = routeID // ** Assing the order route id
@@ -429,13 +423,27 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
 }
 
 const getAvaiableRouteId = async () => {
-  const response = await API.graphql(graphqlOperation(listMRoutes), {
-    limit: 5000
-  })
+  // ** Query list of routes with next token approach
+  var routes = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const routesResponse = await API.graphql(
+      graphqlOperation(listMRoutes, {
+        nextToken,
+        limit: 5000
+      })
+    )
+    routes = [...routes, ...routesResponse.data.listMRoutes.items]
+    nextToken = routesResponse.data.listMRoutes.nextToken
+
+    if (nextToken == null) break
+  }
+
   const routesID = []
-  response.data.listMRoutes.items.map(route => routesID.push(parseInt(route.id.replace('SR', ''))))
+  routes.map(route => routesID.push(parseInt(route.id.replace('SR', ''))))
 
   const max = Math.max(...routesID)
+
   return routesID.length > 0 ? max + 1 : 0
 }
 
@@ -447,9 +455,8 @@ const getAvaiableOrderId = async () => {
   )
   const ordersID = []
   response.data.listMOrders.items.map(order => ordersID.push(parseInt(order.id.replace('#', ''))))
-  console.log('itens returned: ' + JSON.stringify(response.data.listMOrders.items))
+
   const max = Math.max(...ordersID)
-  console.log('max: ' + max)
   return ordersID.length > 0 ? max + 1 : 0
 }
 
@@ -467,8 +474,18 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
   const services = []
   const vehicles = []
 
+  const objectives = [
+    {
+      type: 'min',
+      value: 'vehicles'
+    },
+    {
+      type: 'min',
+      value: 'completion_time'
+    }
+  ]
+
   orders.map(order => {
-    console.log(order.id)
     services.push({
       id: order.id,
       name: order.number,
@@ -489,20 +506,22 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
         lon: -117.227969, // ** MPS longitude
         lat: 33.152428 // ** MPS latitude
       },
+      return_to_depot: false,
       max_jobs: parameters.paramMaxBags,
-      min_jobs: parameters.paramMinBags,
-      end_address: {
-        location_id: 'end',
-        lon: -117.1661,
-        lat: 32.7167,
-        name: 'San Ysidro end'
-      }
+      min_jobs: parameters.paramMinBags
+      // end_address: {
+      //   location_id: 'end',
+      //   lon: -117.1661,
+      //   lat: 32.7167,
+      //   name: 'San Ysidro end'
+      // }
     })
   }
 
   var body = {
     vehicles,
     services,
+    objectives,
     configuration: {
       routing: {
         calc_points: true
@@ -513,8 +532,8 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
 }
 
 const getFixedGraphHopperClusterRequestBody = orders => {
-  const factor = orders.length < 80 ? 1 : 2
-  if (orders.length > 160) {
+  const factor = orders.length < 150 ? 1 : 2
+  if (orders.length > 300) {
     factor = 3
   }
   const configuration = {
@@ -553,7 +572,6 @@ const getFixedGraphHopperClusterRequestBody = orders => {
 const generateOrders = async subscriptions => {
   var orders = []
   var avaiableID = await getAvaiableOrderId()
-  console.log('avaiable id = ' + avaiableID)
   var index = 0
 
   subscriptions.map(sub => {
@@ -584,10 +602,21 @@ const generateOrders = async subscriptions => {
 
 export const fetchRoutes = async status => {
   // ** Query Server Routes
-  const routesResponse = await API.graphql(graphqlOperation(listMRoutes), {
-    limit: 5000
-  })
-  const routes = routesResponse.data.listMRoutes.items
+  var routes = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const routesResponse = await API.graphql(
+      graphqlOperation(listMRoutes, {
+        nextToken,
+        limit: 5000
+      })
+    )
+    routes = [...routes, ...routesResponse.data.listMRoutes.items]
+    nextToken = routesResponse.data.listMRoutes.nextToken
+
+    if (nextToken == null) break
+  }
+
   const statusFiltered = routes.filter(route => route.status === status)
 
   return status ? statusFiltered : routes

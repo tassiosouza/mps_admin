@@ -24,7 +24,6 @@ const DialogConfirmation = props => {
     routes.map(route => {
       ordersToDelete.push(...orders.filter(order => order.assignedRouteID === route.id))
     })
-    console.log('orders to delete: ' + JSON.stringify(ordersToDelete))
     setDeleting(true)
     const deletedRoute = await deleteRoutes(routes, ordersToDelete)
     setDeleting(false)

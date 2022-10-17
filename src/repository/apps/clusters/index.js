@@ -85,7 +85,6 @@ export const recalculateRemoteClusters = async (clusters, subscriptions) => {
       )
     }
   }
-  console.log('not leaving')
 }
 
 // ** Save ALL editing clusters and subscriptions in Amplify
@@ -123,7 +122,6 @@ export const saveClustersAndSubscriptions = async (subscriptions, cluster) => {
         })
       )
     } else {
-      console.log('cluster has now ' + cluster.path.length + ' vertexs')
       await API.graphql(
         graphqlOperation(updateCluster, {
           input: {

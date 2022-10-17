@@ -221,6 +221,8 @@ const RoutesList = props => {
   const handleOpenRoutesDialog = route => {
     setSelectedRoutes([route])
     setOpenRoutesDialog(true)
+    setClusterValue('')
+    setValue('')
   }
 
   const handleOpenDeleteConfirm = route => {
@@ -229,6 +231,8 @@ const RoutesList = props => {
   }
 
   const handleCloseLocationsDialog = () => {
+    setClusterValue('')
+    setValue('')
     setOpenLocationsDialog(false)
   }
 

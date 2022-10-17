@@ -46,11 +46,10 @@ for (var i = 0; i < routes.length; i++) {
   points = JSON.parse(route.points)
   var coordinates = []
   for (var k = 0; k < points.length; k++) {
-    coordinates.push(new mapkit.Coordinate(points[k][1], points[k][0]))
+    if (points[k][0] < 0) coordinates.push(new mapkit.Coordinate(points[k][1], points[k][0]))
   }
-  // points.map(cord => {
-  //   coordinates.push(new mapkit.Coordinate(cord[1], cord[0]))
-  // })
+
+  console.log(JSON.stringify(coordinates))
 
   var pol = new mapkit.PolylineOverlay(coordinates, {
     style: new mapkit.Style({

@@ -30,7 +30,6 @@ const DialogFullScreen = props => {
         return order.assignedRouteID === route.id
       })
       ordersToDisplay.push(...ordersToAdd)
-      console.log('orders to display: ' + JSON.stringify(ordersToDisplay))
     })
   }
 
