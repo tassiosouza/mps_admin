@@ -82,6 +82,9 @@ export const getSubscriptions = async params => {
   return filteredData
 }
 
+// ** Update Clusters
+export const updateClusters = async subscriptions => {}
+
 // ** Delete Subscriptions
 export const deleteSubscriptions = async subscriptions => {
   const subscriptionResult = false
@@ -235,8 +238,8 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback, cluster
                 toInclude[i].color = clusters[k].color
               }
             }
-
-            toInclude[i].location = neighborhood.length ? neighborhood[0].long_name : locality[0].long_name
+            toInclude[i].neighborhood = neighborhood.length ? neighborhood[0].long_name : null
+            toInclude[i].location = locality.length ? locality[0].long_name : null
             await API.graphql(graphqlOperation(createMpsSubscription, { input: toInclude[i] }))
             console.log(
               response.data.results[0].geometry.location.lat,

@@ -43,9 +43,11 @@ const DialogFullScreen = props => {
     <div>
       <Dialog fullScreen onClose aria-labelledby='full-screen-dialog-title' open={open}>
         <DialogTitle id='full-screen-dialog-title'>
-          <Typography variant='h6' component='span'>
-            Think about it
-          </Typography>
+          {routes.length && (
+            <Typography variant='h6' component='span'>
+              {routes.length > 1 ? routes.length : routes[0].name}
+            </Typography>
+          )}
           <IconButton
             aria-label='close'
             onClick={onClose}

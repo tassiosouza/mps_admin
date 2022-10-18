@@ -66,6 +66,7 @@ type TodoMetaData = {
 
 export declare class MRoute {
   readonly id: string;
+  readonly name?: string | null;
   readonly cost?: number | null;
   readonly startTime?: number | null;
   readonly endTime?: number | null;
@@ -73,7 +74,7 @@ export declare class MRoute {
   readonly driverID?: string | null;
   readonly distance?: number | null;
   readonly duration?: number | null;
-  readonly location?: string | null;
+  readonly clusterId?: string | null;
   readonly routePlanName?: string | null;
   readonly routeDate?: number | null;
   readonly points?: string | null;
@@ -97,6 +98,8 @@ export declare class MOrder {
   readonly longitude?: number | null;
   readonly orderDate?: number | null;
   readonly phone?: string | null;
+  readonly location?: string | null;
+  readonly neighborhood?: string | null;
   readonly clusterId?: string | null;
   readonly sort?: number | null;
   readonly avatar?: string | null;
@@ -122,6 +125,7 @@ export declare class MpsSubscription {
   readonly phone?: string | null;
   readonly latitude?: number | null;
   readonly longitude?: number | null;
+  readonly neighborhood?: string | null;
   readonly avatar?: string | null;
   readonly location?: string | null;
   readonly clusterId?: string | null;
@@ -162,6 +166,8 @@ export declare class Cluster {
   readonly editing?: boolean | null;
   readonly path?: string | null;
   readonly paymentRule?: PaymentRules | keyof typeof PaymentRules | null;
+  readonly minBag?: number | null;
+  readonly maxBag?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Cluster, ClusterMetaData>);

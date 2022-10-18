@@ -74,28 +74,35 @@ const RoutesList = props => {
 
   const defaultColumns = [
     {
-      flex: 0.06,
+      flex: 0.05,
       field: 'id',
-      minWidth: 80,
+      minWidth: 70,
       headerName: 'ID',
       renderCell: ({ row }) => <StyledLink onClick={() => handleOpenRoutesDialog(row)}>{row.id}</StyledLink>
     },
     {
-      flex: 0.15,
+      flex: 0.12,
+      minWidth: 100,
+      field: 'name',
+      headerName: 'Name',
+      renderCell: ({ row }) => <Typography variant='body2'>{row.name}</Typography>
+    },
+    {
+      flex: 0.08,
       minWidth: 100,
       field: 'status',
       headerName: 'Status',
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           {toPascalCase(row.status)}
-          <CircleMedium sx={{ color: getStatusColor(row.status) }} />
+          <CircleMedium sx={{ fontSize: 18, alignSelf: 'self-end', color: getStatusColor(row.status) }} />
         </Box>
       )
     },
     {
-      flex: 0.15,
+      flex: 0.11,
       field: 'driver',
-      minWidth: 120,
+      minWidth: 110,
       headerName: 'Driver',
       renderCell: ({ row }) => (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -119,11 +126,15 @@ const RoutesList = props => {
       renderCell: ({ row }) => <Typography variant='body2'>{getClusterName(row.clusterId)}</Typography>
     },
     {
-      flex: 0.07,
-      minWidth: 80,
+      flex: 0.06,
+      minWidth: 70,
       field: 'orders',
       headerName: 'Orders',
-      renderCell: ({ row }) => <Typography variant='body2'>{getRouteOrders(row.id).length}</Typography>
+      renderCell: ({ row }) => (
+        <Typography sx={{ width: '100%', textAlign: 'center' }} variant='body2'>
+          {getRouteOrders(row.id).length}
+        </Typography>
+      )
     },
     {
       flex: 0.07,
@@ -146,7 +157,6 @@ const RoutesList = props => {
     d = Number(d)
     var h = Math.floor(d / 3600)
     var m = Math.floor((d % 3600) / 60)
-    var s = Math.floor((d % 3600) % 60)
 
     var hDisplay = h > 0 ? h + (h == 1 ? 'h' : 'h') : ''
     var mDisplay = m > 0 ? m + (m == 1 ? 'm' : 'm') : ''
@@ -174,6 +184,8 @@ const RoutesList = props => {
   }
 
   const getClusterName = clusterId => {
+    console.log('store clusters: ' + JSON.stringify(store.clusters))
+    console.log('cluster id:' + clusterId)
     return store.clusters.find(cl => cl.id === clusterId).name
   }
 
@@ -315,7 +327,7 @@ const RoutesList = props => {
 
   async function saveAsExcel(routes) {
     XlsxPopulate.fromBlankAsync().then(async workbook => {
-      for (var i = 0; i < routes.length; i++) {
+      for (var i = routes.length - 1; i >= 0; i--) {
         const sheet = workbook.addSheet(routes[i].id)
         const routeOrders = getRouteOrders(routes[i].id)
         routeOrders.sort((a, b) => a.sort - b.sort)
@@ -355,13 +367,14 @@ const RoutesList = props => {
 
         // ** Manage Header Cells Values
         sheet.cell('A2').value(routes[i].id)
-        sheet.cell('B2').value(routes[i].location)
+        sheet.cell('B2').value(routes[i].name + ' - ' + getClusterName(routes[i].clusterId))
         sheet.cell('E2').value('ORDERS')
         sheet.cell('F2').value(formattedDate)
 
         sheet.cell('A3').value('DRIVER')
         sheet.cell('B3').value(routeDriverName)
-        sheet.cell('E3').value(routeOrders.length)
+        const uniqueAddresses = [...new Set(routeOrders.map(order => order.address))]
+        sheet.cell('E3').value(uniqueAddresses.length)
 
         sheet.cell('A4').value('AMOUNT OF BAGS  >>')
         sheet.cell('A4').style({ horizontalAlignment: 'right' })
@@ -538,8 +551,8 @@ const RoutesList = props => {
   const columns = [
     ...defaultColumns,
     {
-      flex: 0.1,
-      minWidth: 100,
+      flex: 0.08,
+      minWidth: 80,
       sortable: false,
       field: 'actions',
       headerName: 'Actions',

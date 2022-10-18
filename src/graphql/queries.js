@@ -5,6 +5,7 @@ export const getMRoute = /* GraphQL */ `
   query GetMRoute($id: ID!) {
     getMRoute(id: $id) {
       id
+      name
       cost
       startTime
       endTime
@@ -30,6 +31,7 @@ export const listMRoutes = /* GraphQL */ `
     listMRoutes(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        name
         cost
         startTime
         endTime
@@ -64,6 +66,8 @@ export const getMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      neighborhood
       clusterId
       sort
       avatar
@@ -96,6 +100,8 @@ export const listMOrders = /* GraphQL */ `
         longitude
         orderDate
         phone
+        location
+        neighborhood
         clusterId
         sort
         avatar
@@ -124,6 +130,7 @@ export const getMpsSubscription = /* GraphQL */ `
       phone
       latitude
       longitude
+      neighborhood
       avatar
       location
       clusterId
@@ -158,6 +165,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         phone
         latitude
         longitude
+        neighborhood
         avatar
         location
         clusterId
@@ -228,6 +236,8 @@ export const getCluster = /* GraphQL */ `
       editing
       path
       paymentRule
+      minBag
+      maxBag
       createdAt
       updatedAt
     }
@@ -251,6 +261,8 @@ export const listClusters = /* GraphQL */ `
         editing
         path
         paymentRule
+        minBag
+        maxBag
         createdAt
         updatedAt
       }

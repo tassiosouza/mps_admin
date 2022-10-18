@@ -8,6 +8,7 @@ export const createMRoute = /* GraphQL */ `
   ) {
     createMRoute(input: $input, condition: $condition) {
       id
+      name
       cost
       startTime
       endTime
@@ -31,6 +32,7 @@ export const updateMRoute = /* GraphQL */ `
   ) {
     updateMRoute(input: $input, condition: $condition) {
       id
+      name
       cost
       startTime
       endTime
@@ -54,6 +56,7 @@ export const deleteMRoute = /* GraphQL */ `
   ) {
     deleteMRoute(input: $input, condition: $condition) {
       id
+      name
       cost
       startTime
       endTime
@@ -89,6 +92,8 @@ export const createMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      neighborhood
       clusterId
       sort
       avatar
@@ -119,6 +124,8 @@ export const updateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      neighborhood
       clusterId
       sort
       avatar
@@ -149,6 +156,8 @@ export const deleteMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      location
+      neighborhood
       clusterId
       sort
       avatar
@@ -178,6 +187,7 @@ export const createMpsSubscription = /* GraphQL */ `
       phone
       latitude
       longitude
+      neighborhood
       avatar
       location
       clusterId
@@ -206,6 +216,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       phone
       latitude
       longitude
+      neighborhood
       avatar
       location
       clusterId
@@ -234,6 +245,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       phone
       latitude
       longitude
+      neighborhood
       avatar
       location
       clusterId
@@ -326,6 +338,8 @@ export const createCluster = /* GraphQL */ `
       editing
       path
       paymentRule
+      minBag
+      maxBag
       createdAt
       updatedAt
     }
@@ -347,6 +361,8 @@ export const updateCluster = /* GraphQL */ `
       editing
       path
       paymentRule
+      minBag
+      maxBag
       createdAt
       updatedAt
     }
@@ -368,6 +384,8 @@ export const deleteCluster = /* GraphQL */ `
       editing
       path
       paymentRule
+      minBag
+      maxBag
       createdAt
       updatedAt
     }

@@ -1,5 +1,6 @@
-type MRoute @model @auth(rules: [{allow: public}]) {
+type MRoute @model @auth(rules: [{ allow: public }]) {
   id: ID!
+  name: String
   cost: Float
   startTime: Float
   endTime: Float
@@ -51,7 +52,7 @@ enum PaymentRules {
   PERBAG07
 }
 
-type MOrder @model @auth(rules: [{allow: public}]) {
+type MOrder @model @auth(rules: [{ allow: public }]) {
   id: ID!
   number: String
   deliveryInstruction: String
@@ -65,6 +66,8 @@ type MOrder @model @auth(rules: [{allow: public}]) {
   longitude: Float
   orderDate: Float
   phone: String
+  location: String
+  neighborhood: String
   clusterId: String
   sort: Int
   avatar: String
@@ -73,7 +76,7 @@ type MOrder @model @auth(rules: [{allow: public}]) {
   deliveryKey: String
 }
 
-type MpsSubscription @model @auth(rules: [{allow: public}]) {
+type MpsSubscription @model @auth(rules: [{ allow: public }]) {
   id: ID!
   number: String!
   deliveryInstruction: String
@@ -86,6 +89,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   phone: String
   latitude: Float
   longitude: Float
+  neighborhood: String
   avatar: String
   location: String
   clusterId: String
@@ -93,7 +97,7 @@ type MpsSubscription @model @auth(rules: [{allow: public}]) {
   color: String
 }
 
-type Driver @model @auth(rules: [{allow: public}]) {
+type Driver @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
   email: String!
@@ -107,7 +111,7 @@ type Driver @model @auth(rules: [{allow: public}]) {
   assignStatus: AssignStatus
 }
 
-type Cluster @model @auth(rules: [{allow: public}]) {
+type Cluster @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
   parentId: String
@@ -118,13 +122,14 @@ type Cluster @model @auth(rules: [{allow: public}]) {
   editing: Boolean
   path: AWSJSON
   paymentRule: PaymentRules
+  minBag: Int
+  maxBag: Int
 }
 
-type Todo @model @auth(rules: [{allow: public}]) {
+type Todo @model @auth(rules: [{ allow: public }]) {
   id: ID!
   name: String!
   description: String
   isComplete: Boolean!
   owner: String!
 }
- 

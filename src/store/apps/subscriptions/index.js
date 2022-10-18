@@ -3,12 +3,15 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { getClusters } from 'src/repository/apps/routes'
 
 // ** Repository Imports
-import { getSubscriptions, loadSubscriptions } from 'src/repository/apps/subscriptions'
+import { getSubscriptions, loadSubscriptions, updateClusters } from 'src/repository/apps/subscriptions'
 
 // ** Fetch Subscriptions from Server
 export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData', async params => {
   const subscriptions = await getSubscriptions(params)
   const clusters = await getClusters({ q: '' })
+
+  await updateClusters(subscriptions)
+
   return { subscriptions, clusters }
 })
 

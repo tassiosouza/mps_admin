@@ -10,6 +10,13 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "name": {
+                    "name": "name",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "cost": {
                     "name": "cost",
                     "isArray": false,
@@ -61,8 +68,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "location": {
-                    "name": "location",
+                "clusterId": {
+                    "name": "clusterId",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -222,6 +229,20 @@ export const schema = {
                 },
                 "phone": {
                     "name": "phone",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "location": {
+                    "name": "location",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "neighborhood": {
+                    "name": "neighborhood",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -397,6 +418,13 @@ export const schema = {
                     "name": "longitude",
                     "isArray": false,
                     "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "neighborhood": {
+                    "name": "neighborhood",
+                    "isArray": false,
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -676,6 +704,20 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "minBag": {
+                    "name": "minBag",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "maxBag": {
+                    "name": "maxBag",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -850,5 +892,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "bf5a1a2b01518097b15ee08abe2da62e"
+    "version": "4144e4e74dc98f4042c9c67b870e22d6"
 };

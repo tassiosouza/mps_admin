@@ -383,10 +383,13 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
     ordersLeft
   }
 
+  var routesNames = []
+
   ghRoutes.map(async route => {
     var routeID = 'SR' + finalAvaiableId
     const deliveries = route.activities.filter(ac => ac.type === 'service')
     var index = 1
+    var routeOrders = []
     for (var i = 0; i < orders.length; i++) {
       var found = deliveries.find(del => orders[i].id === del.id)
       if (found) {
@@ -394,6 +397,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
         orders[i].assignedRouteID = routeID // ** Assing the order route id
         orders[i].eta = found.arr_time // ** Assing the order ETA
         orders[i].clusterId = clusterId
+        routeOrders.push(orders[i])
       }
     }
 
@@ -401,6 +405,22 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
     for (var i = 0; i < route.points.length; i++) {
       polyline.push(...route.points[i].coordinates)
     }
+
+    var result_neighborhood = _.head(
+      _(routeOrders.filter(order => order.neighborhood != null))
+        .countBy('neighborhood')
+        .entries()
+        .maxBy(_.last)
+    )
+    var result_location = _.head(_(routeOrders).countBy('location').entries().maxBy(_.last))
+
+    // result_location = result_neighborhood ? result_neighborhood : result_location
+
+    if (routesNames.includes(result_location)) {
+      result_location = result_location + ' (' + routeOrders.length + ')'
+    }
+
+    routesNames.push(result_location)
 
     routes.push({
       id: routeID,
@@ -413,6 +433,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
       duration: route.completion_time,
       clusterId: clusterId,
       routePlanName: '',
+      name: result_location,
       routeDate: parseFloat(Date.now()),
       points: JSON.stringify(polyline)
     })
@@ -444,8 +465,8 @@ const getAvaiableRouteId = async () => {
 
   const max = Math.max(...routesID)
 
-  // return routesID.length > 0 ? max + 1 : 0
-  return routes.length
+  return routesID.length > 0 ? max + 1 : 1
+  // return routes.length
 }
 
 const getAvaiableOrderId = async () => {
@@ -592,6 +613,8 @@ const generateOrders = async subscriptions => {
       longitude: sub.longitude,
       orderDate: parseFloat(Date.now()),
       phone: sub.phone,
+      location: sub.location,
+      neighborhood: sub.neighborhood,
       subscriptionID: sub.id,
       subscriptionNumber: sub.number,
       avatar: ''
