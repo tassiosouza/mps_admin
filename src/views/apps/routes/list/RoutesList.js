@@ -327,7 +327,110 @@ const RoutesList = props => {
 
   async function saveAsExcel(routes) {
     XlsxPopulate.fromBlankAsync().then(async workbook => {
+      // ** Create General Sheet
+      const generalSheet = workbook.addSheet('General')
+      generalSheet.cell('A1').value('ID').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('A').width(getFixedWidth(60))
+      generalSheet.cell('B1').value('Name').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('B').width(getFixedWidth(180))
+      generalSheet.cell('C1').value('Driver').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('C').width(getFixedWidth(180))
+      generalSheet.cell('D1').value('Cluster').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('D').width(getFixedWidth(180))
+      generalSheet.cell('E1').value('Order').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('E').width(getFixedWidth(60))
+      generalSheet.cell('F1').value('Duration').style({
+        fill: 'ffffff',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('F').width(getFixedWidth(60))
+      generalSheet.row(1).height(24)
+
+      for (var i = 0; i < routes.length; i++) {
+        // ** Populate General Sheet
+        generalSheet.row(i + 2).height(24)
+        generalSheet
+          .cell('A' + (i + 2))
+          .value(routes[i].id)
+          .style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('B' + (i + 2))
+          .value(routes[i].name)
+          .style({
+            fill: 'ffffff',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+      }
+
+      // ** Create and Populate Sheets
       for (var i = routes.length - 1; i >= 0; i--) {
+        // ** Populate Routes Sheets
         const sheet = workbook.addSheet(routes[i].id)
         const routeOrders = getRouteOrders(routes[i].id)
         routeOrders.sort((a, b) => a.sort - b.sort)
@@ -376,13 +479,24 @@ const RoutesList = props => {
         const uniqueAddresses = [...new Set(routeOrders.map(order => order.address))]
         sheet.cell('E3').value(uniqueAddresses.length)
 
+        var iceNumber = 0
+        if (routes[i].duration <= 180 * 60) {
+          iceNumber = 1
+        } else if (routes[i].duration > 180 * 60 && routes[i].duration <= 300 * 60) {
+          iceNumber = 2
+        } else if (routes[i].duration > 300 * 60 && routes[i].duration <= 360 * 60) {
+          iceNumber = 3
+        } else {
+          iceNumber = 4
+        }
+
         sheet.cell('A4').value('AMOUNT OF BAGS  >>')
         sheet.cell('A4').style({ horizontalAlignment: 'right' })
         sheet.cell('E4').value(routeOrders.length)
         sheet.cell('F4').value('5:10')
 
         sheet.cell('A5').value('N.')
-        sheet.cell('D5').value('1 ICE PACKS PER BAG')
+        sheet.cell('D5').value(iceNumber + ' ICE PACKS PER BAG')
         sheet.cell('E5').value('PHONE #')
         sheet.cell('F5').value('ADDRESS / NOTES')
 
