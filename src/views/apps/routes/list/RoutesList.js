@@ -330,7 +330,7 @@ const RoutesList = props => {
       // ** Create General Sheet
       const generalSheet = workbook.addSheet('General')
       generalSheet.cell('A1').value('ID').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -341,7 +341,7 @@ const RoutesList = props => {
       })
       generalSheet.column('A').width(getFixedWidth(60))
       generalSheet.cell('B1').value('Name').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -350,9 +350,9 @@ const RoutesList = props => {
         horizontalAlignment: 'center',
         verticalAlignment: 'center'
       })
-      generalSheet.column('B').width(getFixedWidth(180))
+      generalSheet.column('B').width(getFixedWidth(150))
       generalSheet.cell('C1').value('Driver').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -361,9 +361,9 @@ const RoutesList = props => {
         horizontalAlignment: 'center',
         verticalAlignment: 'center'
       })
-      generalSheet.column('C').width(getFixedWidth(180))
+      generalSheet.column('C').width(getFixedWidth(150))
       generalSheet.cell('D1').value('Cluster').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -372,9 +372,9 @@ const RoutesList = props => {
         horizontalAlignment: 'center',
         verticalAlignment: 'center'
       })
-      generalSheet.column('D').width(getFixedWidth(180))
+      generalSheet.column('D').width(getFixedWidth(220))
       generalSheet.cell('E1').value('Order').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -385,7 +385,7 @@ const RoutesList = props => {
       })
       generalSheet.column('E').width(getFixedWidth(60))
       generalSheet.cell('F1').value('Duration').style({
-        fill: 'ffffff',
+        fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
         fontSize: 13,
@@ -397,14 +397,15 @@ const RoutesList = props => {
       generalSheet.column('F').width(getFixedWidth(60))
       generalSheet.row(1).height(24)
 
+      const reversedRoute = routes.slice().reverse()
       for (var i = 0; i < routes.length; i++) {
         // ** Populate General Sheet
         generalSheet.row(i + 2).height(24)
         generalSheet
           .cell('A' + (i + 2))
-          .value(routes[i].id)
+          .value(reversedRoute[i].id)
           .style({
-            fill: 'ffffff',
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
             borderColor: 'bfbfbf',
             fontSize: 13,
@@ -415,9 +416,61 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('B' + (i + 2))
-          .value(routes[i].name)
+          .value(reversedRoute[i].name)
           .style({
-            fill: 'ffffff',
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('C' + (i + 2))
+          .value(getDriverName(reversedRoute[i].id))
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('D' + (i + 2))
+          .value(getClusterName(reversedRoute[i].clusterId))
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('E' + (i + 2))
+          .value(getRouteOrders(reversedRoute[i].id).length)
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('F' + (i + 2))
+          .value(secondsToHms(reversedRoute[i].duration))
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
             borderColor: 'bfbfbf',
             fontSize: 13,
