@@ -57,13 +57,21 @@ export const getSubscriptions = async () => {
     }
   }
   // ** Query Server Subscriptions
-  const response = await API.graphql(
-    graphqlOperation(listMpsSubscriptions, {
-      filter,
-      limit: 5000
-    })
-  )
-  const subscriptions = response.data.listMpsSubscriptions.items
+  var subscriptions = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const subsResponse = await API.graphql(
+      graphqlOperation(listMpsSubscriptions, {
+        filter,
+        nextToken,
+        limit: 5000
+      })
+    )
+    subscriptions = [...subscriptions, ...subsResponse.data.listMpsSubscriptions.items]
+    nextToken = subsResponse.data.listMpsSubscriptions.nextToken
+
+    if (nextToken == null) break
+  }
 
   return { subscriptions }
 }

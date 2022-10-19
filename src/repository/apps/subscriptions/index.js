@@ -6,7 +6,12 @@ import Papa from 'papaparse'
 
 // ** Amplify Imports
 import { API, graphqlOperation } from 'aws-amplify'
-import { createMpsSubscription, deleteMpsSubscription, updateMpsSubscription } from '../../../graphql/mutations'
+import {
+  createMpsSubscription,
+  deleteMpsSubscription,
+  updateMpsSubscription,
+  updateCluster
+} from '../../../graphql/mutations'
 import { listMpsSubscriptions, getMpsSubscription } from '../../../graphql/queries'
 import { SubscriptionStatus } from '../../../models'
 
@@ -31,16 +36,25 @@ export const getSubscriptions = async params => {
         }
       }
 
-  const response = await API.graphql(
-    graphqlOperation(listMpsSubscriptions, {
-      filter,
-      limit: 5000
-    })
-  )
+  var subscriptions = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const subsResponse = await API.graphql(
+      graphqlOperation(listMpsSubscriptions, {
+        filter,
+        nextToken,
+        limit: 5000
+      })
+    )
+    subscriptions = [...subscriptions, ...subsResponse.data.listMpsSubscriptions.items]
+    nextToken = subsResponse.data.listMpsSubscriptions.nextToken
+
+    if (nextToken == null) break
+  }
 
   const queryLowered = q.toLowerCase()
 
-  const filteredData = response.data.listMpsSubscriptions.items.filter(subscription => {
+  const filteredData = subscriptions.filter(subscription => {
     if (dates.length) {
       const [start, end] = dates
       const filtered = []
@@ -83,7 +97,12 @@ export const getSubscriptions = async params => {
 }
 
 // ** Update Clusters
-export const updateClusters = async subscriptions => {}
+export const updateClusters = async (clusters, subscriptions) => {
+  for (var i = 0; i < clusters.length; i++) {
+    const count = subscriptions.filter(sub => sub.clusterId === clusters[i].id).length
+    await API.graphql(graphqlOperation(updateCluster, { input: { id: clusters[i].id, subscriptionsCount: count } }))
+  }
+}
 
 // ** Delete Subscriptions
 export const deleteSubscriptions = async subscriptions => {
@@ -256,7 +275,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback, cluster
         .catch(err => {
           // errorMessage = 'SYNC OPERATION: CREATE: Error when processing order id: ' + toInclude[i].number
           failed.push(toInclude[i])
-          console.log('CRITICAL ERROR: ' + JSON.stringify(err))
+          console.log('CRITICAL ERROR (' + toInclude[i].id + '): ' + JSON.stringify(err))
         })
     }
 

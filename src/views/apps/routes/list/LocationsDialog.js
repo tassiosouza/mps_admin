@@ -311,8 +311,7 @@ const LocationsDialog = props => {
     return (
       <Grid item>
         <Typography sx={{ fontWeight: 'bold' }} variant='h7'>
-          {' '}
-          Parameters{' '}
+          Parameters
         </Typography>
         <Tooltip title='The routes will be generated respecting the limits for minimum and maximum amount of bags.'>
           <InformationOutline sx={{ fontSize: 14, ml: 1 }} />

@@ -11,6 +11,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 
 // ** Icons Imports
 import Plus from 'mdi-material-ui/Plus'
@@ -33,7 +34,7 @@ const ClustersTabs = props => {
   const { store, dispatch } = props
 
   // ** State
-  const [value, setValue] = useState('1')
+  const [value, setValue] = useState('0')
   const [filter, setFilter] = useState('1')
 
   const handleChange = (event, newValue) => {
@@ -114,13 +115,20 @@ const ClustersTabs = props => {
   return (
     <TabContext value={value}>
       <TabList variant='fullWidth' onChange={handleChange} aria-label='full width tabs example'>
+        <Tab value='0' label='Info' />
         <Tab value='1' label='Attacheds' />
         <Tab value='2' label='Detacheds' />
       </TabList>
+      <TabPanel value='0'>
+        <Card>
+          <Typography sx={{ fontWeight: 'bold' }} variant='h7'>
+            Parameters
+          </Typography>
+        </Card>
+      </TabPanel>
       <TabPanel value='1'>
         <Card>
           <ClustersHeader selectedRows={store.selectedDetachedSubscriptions} handleFilter={handleFilter} />
-          {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
           <DataGrid
             autoHeight
             pagination
@@ -135,7 +143,6 @@ const ClustersTabs = props => {
       <TabPanel value='2'>
         <Card>
           <ClustersHeader selectedRows={store.selectedAttachedSubscriptions} handleFilter={handleFilter} />
-          {/* {true && <LinearProgress sx={{ height:'2px' }} />} */}
           <DataGrid
             autoHeight
             pagination

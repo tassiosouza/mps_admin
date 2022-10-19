@@ -20,13 +20,21 @@ export const getClusters = async params => {
 
 // ** Fetch ALL Subscriptions from Amplify
 export const getSubscriptions = async () => {
-  const response = await API.graphql(
-    graphqlOperation(listMpsSubscriptions, {
-      limit: 5000
-    })
-  )
-  const data = response.data.listMpsSubscriptions.items
-  return data
+  var subscriptions = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const subsResponse = await API.graphql(
+      graphqlOperation(listMpsSubscriptions, {
+        nextToken,
+        limit: 5000
+      })
+    )
+    subscriptions = [...subscriptions, ...subsResponse.data.listMpsSubscriptions.items]
+    nextToken = subsResponse.data.listMpsSubscriptions.nextToken
+
+    if (nextToken == null) break
+  }
+  return subscriptions
 }
 
 // ** Delete Clusters from Amplify

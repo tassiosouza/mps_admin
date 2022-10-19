@@ -8,9 +8,7 @@ import { getSubscriptions, loadSubscriptions, updateClusters } from 'src/reposit
 // ** Fetch Subscriptions from Server
 export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData', async params => {
   const subscriptions = await getSubscriptions(params)
-  const clusters = await getClusters({ q: '' })
-
-  await updateClusters(subscriptions)
+  const { clusters } = await getClusters({ q: '' })
 
   return { subscriptions, clusters }
 })
@@ -18,6 +16,9 @@ export const fetchSubscriptions = createAsyncThunk('appSubscriptions/fetchData',
 // ** Load Subscriptions from File
 export const loadSubscriptionsFromFile = createAsyncThunk('appSubscriptions/loadData', async (params, { getState }) => {
   const subscriptionsFromFile = await loadSubscriptions(params, getState)
+  const { included } = subscriptionsFromFile
+  console.log('subs: ' + JSON.stringify(included))
+  await updateClusters(getState().subscriptions.clusters, included)
 
   return subscriptionsFromFile
 })
@@ -51,7 +52,7 @@ export const appSubscriptionSlice = createSlice({
       state.data = subsToRefreshSorted
 
       // ** Format and Update Clusters
-      state.clusters = action.payload.clusters.clusters.map(cl => {
+      state.clusters = action.payload.clusters.map(cl => {
         return { ...cl, hover: false, path: JSON.parse(cl.path) }
       })
 
