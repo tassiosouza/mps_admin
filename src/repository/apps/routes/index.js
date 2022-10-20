@@ -217,11 +217,20 @@ export const getGraphHopperRoutes = async params => {
     maxDuration: '-',
     result: 'success'
   }
+  var avaiableOrderID = await getAvaiableOrderId()
+  var avaiableRouteID = await getAvaiableRouteId()
 
   for (var i = 0; i < clusters.length; i++) {
     const subscriptionsToProcess = subscriptions.filter(sub => sub.clusterId === clusters[i].id)
-    const ordersToProcess = await generateOrders(subscriptionsToProcess)
-    const { routes, orders, result } = await processGraphHopperOptimizedRoutes(parameters, ordersToProcess, clusters[i])
+    const { ordersToProcess, nextOrderId } = await generateOrders(subscriptionsToProcess, avaiableOrderID)
+    avaiableOrderID = nextOrderId
+    const { routes, orders, result, avaiableID } = await processGraphHopperOptimizedRoutes(
+      parameters,
+      ordersToProcess,
+      clusters[i],
+      avaiableRouteID
+    )
+    avaiableRouteID = avaiableID
     switch (result.status) {
       case RESULT_STATUS.SUCCESS:
         //Process here
@@ -259,8 +268,7 @@ const getSolution = (routes, orders) => {
   return { max, min, maxDuration }
 }
 
-const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) => {
-  var globalRequestAvaiableID = await getAvaiableRouteId()
+const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster, globalRequestAvaiableID) => {
   var result = { status: RESULT_STATUS.SUCCESS, errors: [] }
   var clusterRoutes = []
 
@@ -367,7 +375,7 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
       return { routes: [], orders: [], result: result }
     }
   }
-  return { routes: clusterRoutes, orders, result: result }
+  return { routes: clusterRoutes, orders, result: result, avaiableID: globalRequestAvaiableID }
 }
 
 const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
@@ -611,9 +619,8 @@ const getFixedGraphHopperClusterRequestBody = orders => {
   return body
 }
 
-const generateOrders = async subscriptions => {
+const generateOrders = async (subscriptions, avaiableID) => {
   var orders = []
-  var avaiableID = await getAvaiableOrderId()
   var index = 0
 
   subscriptions.map(sub => {
@@ -641,7 +648,7 @@ const generateOrders = async subscriptions => {
     })
     index += 1
   })
-  return orders
+  return { ordersToProcess: orders, nextOrderId: avaiableID + index + 1 }
 }
 
 export const fetchRoutes = async status => {
