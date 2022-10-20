@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -12,6 +12,8 @@ import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import { TextField } from '@mui/material'
 
 // ** Icons Imports
 import Plus from 'mdi-material-ui/Plus'
@@ -31,7 +33,15 @@ const StyledLink = styled('a')(({ theme }) => ({
 }))
 
 const ClustersTabs = props => {
-  const { store, dispatch } = props
+  const { store, dispatch, editing, handleSetParameters } = props
+
+  // ** Param States
+  const [paramMinBags, setParamMinBags] = useState(0)
+  const [paramMaxBags, setParamMaxBags] = useState(0)
+
+  useEffect(() => {
+    handleSetParameters(paramMinBags, paramMaxBags)
+  }, [paramMinBags, paramMaxBags])
 
   // ** State
   const [value, setValue] = useState('0')
@@ -120,10 +130,53 @@ const ClustersTabs = props => {
         <Tab value='2' label='Detacheds' />
       </TabList>
       <TabPanel value='0'>
-        <Card>
+        <Card sx={{ p: 5 }}>
           <Typography sx={{ fontWeight: 'bold' }} variant='h7'>
             Parameters
           </Typography>
+          {editing ? (
+            <Box sx={{ display: 'flex', justifyContent: 'start', pt: 5 }}>
+              <TextField
+                variant='standard'
+                size='small'
+                label='Min Bags'
+                value={paramMinBags}
+                onChange={e => {
+                  const re = /^[0-9\b]+$/
+                  if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
+                    setParamMinBags(e.target.value)
+                  }
+                }}
+                placeholder='Min Bags'
+                sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', mr: 5 }}
+              />
+              <Divider orientation='vertical' variant='middle' flexItem />
+              <TextField
+                variant='standard'
+                size='small'
+                label='Max Bags'
+                value={paramMaxBags}
+                onChange={e => {
+                  const re = /^[0-9\b]+$/
+                  if (e.target.value === '' || re.test(e.target.value) || e.target.value === '-') {
+                    setParamMaxBags(e.target.value)
+                  }
+                }}
+                placeholder='Max Bags'
+                sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', ml: 5 }}
+              />
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'start', pt: 5 }}>
+              <Typography sx={{ fontWeight: 'bold' }} variant='h7'>
+                Min Bags: {store.selectedClusters[0].minBags}
+              </Typography>
+              <Divider orientation='vertical' variant='middle' flexItem />
+              <Typography sx={{ fontWeight: 'bold' }} variant='h7'>
+                Max Bags: {store.selectedClusters[0].maxBags}
+              </Typography>
+            </Box>
+          )}
         </Card>
       </TabPanel>
       <TabPanel value='1'>

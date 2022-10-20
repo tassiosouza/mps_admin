@@ -291,7 +291,7 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
       for (var i = 0; i < clustersResult.length; i++) {
         const insideClusterOrders = orders.filter(order => clustersResult[i].ids.includes(order.id))
         // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
-        var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters, clustersResult.length)
+        var ghRouteBody = getGraphHopperRORequestBody(insideClusterOrders, parameters, cluster)
 
         console.log('slepping for vpr...')
         await new Promise(r => setTimeout(r, 5 * insideClusterOrders.length * 150))
@@ -333,7 +333,7 @@ const processGraphHopperOptimizedRoutes = async (parameters, orders, cluster) =>
     }
   } else {
     // ** Clusters here are the final clusters result for the initial division and shall be converted to routes
-    var ghRouteBody = getGraphHopperRORequestBody(orders, parameters, 1)
+    var ghRouteBody = getGraphHopperRORequestBody(orders, parameters, cluster)
     try {
       const response = await axios.post(
         'https://graphhopper.com/api/1/vrp?key=110bcab4-47b7-4242-a713-bb7970de2e02',
@@ -478,13 +478,22 @@ const getAvaiableRouteId = async () => {
 }
 
 const getAvaiableOrderId = async () => {
-  const response = await API.graphql(
-    graphqlOperation(listMOrders, {
-      limit: 5000
-    })
-  )
+  var orders = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const ordersResponse = await API.graphql(
+      graphqlOperation(listMOrders, {
+        nextToken,
+        limit: 5000
+      })
+    )
+    orders = [...orders, ...ordersResponse.data.listMOrders.items]
+    nextToken = ordersResponse.data.listMOrders.nextToken
+
+    if (nextToken == null) break
+  }
   const ordersID = []
-  response.data.listMOrders.items.map(order => ordersID.push(parseInt(order.id.replace('#', ''))))
+  orders.map(order => ordersID.push(parseInt(order.id.replace('#', ''))))
 
   const max = Math.max(...ordersID)
   return ordersID.length > 0 ? max + 1 : 0
@@ -498,8 +507,11 @@ const getOptimizedFactor = (x, y) => {
   return y
 }
 
-const getGraphHopperRORequestBody = (orders, parameters, factor) => {
-  const routesCount = Math.floor(orders.length / parameters.paramMinBags)
+const getGraphHopperRORequestBody = (orders, parameters, cluster) => {
+  const min = parameters.paramIsDefault ? cluster.minBags : parameters.paramMinBags
+  const max = parameters.paramIsDefault ? cluster.maxBags : parameters.paramMaxBags
+
+  const routesCount = Math.floor(orders.length / min)
 
   const services = []
   const vehicles = []
@@ -537,8 +549,8 @@ const getGraphHopperRORequestBody = (orders, parameters, factor) => {
         lat: 33.152428 // ** MPS latitude
       },
       return_to_depot: false,
-      max_jobs: parameters.paramMaxBags,
-      min_jobs: parameters.paramMinBags
+      max_jobs: max,
+      min_jobs: min
       // end_address: {
       //   location_id: 'end',
       //   lon: -117.1661,
@@ -656,12 +668,20 @@ export const fetchRoutes = async status => {
 
 export const fetchOrders = async () => {
   // ** Query Server Orders
-  const response = await API.graphql(
-    graphqlOperation(listMOrders, {
-      limit: 5000
-    })
-  )
-  const orders = response.data.listMOrders.items
+  var orders = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const ordersResponse = await API.graphql(
+      graphqlOperation(listMOrders, {
+        nextToken,
+        limit: 5000
+      })
+    )
+    orders = [...orders, ...ordersResponse.data.listMOrders.items]
+    nextToken = ordersResponse.data.listMOrders.nextToken
+
+    if (nextToken == null) break
+  }
 
   return orders
 }

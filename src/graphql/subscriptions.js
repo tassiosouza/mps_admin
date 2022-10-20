@@ -299,8 +299,8 @@ export const onCreateCluster = /* GraphQL */ `
       editing
       path
       paymentRule
-      minBag
-      maxBag
+      minBags
+      maxBags
       createdAt
       updatedAt
     }
@@ -319,8 +319,8 @@ export const onUpdateCluster = /* GraphQL */ `
       editing
       path
       paymentRule
-      minBag
-      maxBag
+      minBags
+      maxBags
       createdAt
       updatedAt
     }
@@ -339,8 +339,8 @@ export const onDeleteCluster = /* GraphQL */ `
       editing
       path
       paymentRule
-      minBag
-      maxBag
+      minBags
+      maxBags
       createdAt
       updatedAt
     }

@@ -166,8 +166,8 @@ export declare class Cluster {
   readonly editing?: boolean | null;
   readonly path?: string | null;
   readonly paymentRule?: PaymentRules | keyof typeof PaymentRules | null;
-  readonly minBag?: number | null;
-  readonly maxBag?: number | null;
+  readonly minBags?: number | null;
+  readonly maxBags?: number | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Cluster, ClusterMetaData>);

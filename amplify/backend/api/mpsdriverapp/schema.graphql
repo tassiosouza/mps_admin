@@ -122,8 +122,8 @@ type Cluster @model @auth(rules: [{ allow: public }]) {
   editing: Boolean
   path: AWSJSON
   paymentRule: PaymentRules
-  minBag: Int
-  maxBag: Int
+  minBags: Int
+  maxBags: Int
 }
 
 type Todo @model @auth(rules: [{ allow: public }]) {

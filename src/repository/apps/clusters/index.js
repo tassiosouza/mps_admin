@@ -125,11 +125,14 @@ export const saveClustersAndSubscriptions = async (subscriptions, cluster) => {
             editing: false,
             path: JSON.stringify(cluster.path),
             color: cluster.color,
-            subscriptionsCount: subscriptionsCount
+            subscriptionsCount: subscriptionsCount,
+            minBags: cluster.minBags,
+            maxBags: cluster.maxBags
           }
         })
       )
     } else {
+      console.log('being updating: ' + JSON.stringify(cluster))
       await API.graphql(
         graphqlOperation(updateCluster, {
           input: {
@@ -138,7 +141,9 @@ export const saveClustersAndSubscriptions = async (subscriptions, cluster) => {
             editing: false,
             path: JSON.stringify(cluster.path),
             color: cluster.color,
-            subscriptionsCount: subscriptionsCount
+            subscriptionsCount: subscriptionsCount,
+            minBags: cluster.minBags,
+            maxBags: cluster.maxBags
           }
         })
       )

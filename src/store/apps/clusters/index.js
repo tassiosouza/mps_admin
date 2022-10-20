@@ -22,9 +22,14 @@ export const fetchClusters = createAsyncThunk('appClusters/fetchClusters', async
 
 // ** Create Clusters in the Server
 export const saveCluster = createAsyncThunk('appClusters/saveCluster', async (params, { getState }) => {
-  const { name, callback } = params
+  const { name, min, max, callback } = params
   const subs = getState().clusters.subscriptions
-  const cluster = { ...getState().clusters.editingCluster, name: name }
+  const cluster = {
+    ...getState().clusters.editingCluster,
+    name: name,
+    minBags: min > 0 ? min : getState().clusters.editingCluster.minBags,
+    maxBags: max > 0 ? max : getState().clusters.editingCluster.maxBags
+  }
   await saveClustersAndSubscriptions(subs, cluster)
 
   const clusters = await getClusters({ q: '' })

@@ -10,9 +10,9 @@ import { DialogTitle, Dialog, DialogContent, DialogActions, TextField } from '@m
 import LinearProgress from '@mui/material/LinearProgress'
 import Tooltip from '@mui/material/Tooltip'
 import { DataGrid, GridRowParams } from '@mui/x-data-grid'
-import Switch from '@mui/material/Switch'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
 
 // ** Store & Actions Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -55,6 +55,7 @@ const LocationsDialog = props => {
   // ** Param States
   const [paramMinBags, setParamMinBags] = useState('')
   const [paramMaxBags, setParamMaxBags] = useState('')
+  const [paramIsDefault, setParamIsDefault] = useState(true)
 
   // ** Redux
   const dispatch = useDispatch()
@@ -70,10 +71,14 @@ const LocationsDialog = props => {
   }
 
   const handleGenerate = () => {
+    console.log('selecteds: ' + JSON.stringify(selectedClusters))
+
     // ** Form Validation
-    if (isNaN(paramMinBags) || isEmpty(paramMinBags) || isNaN(paramMaxBags) || isEmpty(paramMaxBags)) {
-      setError('Invalid parameters')
-      return
+    if (!paramIsDefault) {
+      if (isNaN(paramMinBags) || isEmpty(paramMinBags) || isNaN(paramMaxBags) || isEmpty(paramMaxBags)) {
+        setError('Invalid parameters')
+        return
+      }
     }
 
     if (!selectedClusters.length) {
@@ -87,7 +92,8 @@ const LocationsDialog = props => {
       generateRoutes({
         parameters: {
           paramMinBags: parseInt(paramMinBags),
-          paramMaxBags: parseInt(paramMaxBags)
+          paramMaxBags: parseInt(paramMaxBags),
+          paramIsDefault: paramIsDefault
         },
         subscriptions: store.subscriptions,
         clusters: selectedClusters,
@@ -288,21 +294,37 @@ const LocationsDialog = props => {
 
   const defaultColumns = [
     {
-      flex: 1,
+      flex: 1.3,
       field: 'name',
-      minWidth: 80,
+      minWidth: 120,
+      headerAlign: 'center',
       headerName: 'Name',
       renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>{row.name}</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'start' }}>
+          <Typography sx={{ fontSize: '15px', textAlign: 'start' }}>{row.name}</Typography>
+        </Box>
       )
     },
     {
-      flex: 1,
-      minWidth: 100,
+      flex: 0.9,
+      minWidth: 80,
+      field: 'parameters',
+      headerAlign: 'center',
+      headerName: 'Params',
+      renderCell: ({ row }) => (
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          Min: {row.minBags} {' | '} Max: {row.maxBags}
+        </Box>
+      )
+    },
+    {
+      flex: 0.6,
+      minWidth: 80,
+      headerAlign: 'center',
       field: 'subscriptionsCount',
       headerName: 'Subscriptions',
       renderCell: ({ row }) => (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>{row.subscriptionsCount}</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>{row.subscriptionsCount}</Box>
       )
     }
   ]
@@ -317,7 +339,24 @@ const LocationsDialog = props => {
           <InformationOutline sx={{ fontSize: 14, ml: 1 }} />
         </Tooltip>
         <Box sx={{ display: 'flex', justifyContent: 'start', pt: 5 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                defaultChecked
+                value={paramIsDefault}
+                onChange={e => {
+                  setParamIsDefault(e.target.checked)
+                  setParamMinBags(e.target.checked ? '' : paramMinBags)
+                  setParamMaxBags(e.target.checked ? '' : paramMaxBags)
+                }}
+              />
+            }
+            labelPlacement='bottom'
+            label='Default'
+          />
+          <Divider orientation='vertical' variant='middle' flexItem />
           <TextField
+            disabled={paramIsDefault}
             variant='standard'
             size='small'
             label='Min Bags'
@@ -329,10 +368,11 @@ const LocationsDialog = props => {
               }
             }}
             placeholder='Min Bags'
-            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', mr: 5 }}
+            sx={{ width: '25%', fontSize: '20px', alignSelf: 'center', mr: 5, ml: 5 }}
           />
           <Divider orientation='vertical' variant='middle' flexItem />
           <TextField
+            disabled={paramIsDefault}
             variant='standard'
             size='small'
             label='Max Bags'

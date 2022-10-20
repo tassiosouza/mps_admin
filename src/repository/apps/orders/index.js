@@ -23,16 +23,25 @@ export const getOrders = async params => {
         }
       }
 
-  const response = await API.graphql(
-    graphqlOperation(listMOrders, {
-      filter,
-      limit: 5000
-    })
-  )
+  var orders = []
+  var nextToken = null
+  for (var i = 0; i < 10; i++) {
+    const ordersResponse = await API.graphql(
+      graphqlOperation(listMOrders, {
+        filter,
+        nextToken,
+        limit: 5000
+      })
+    )
+    orders = [...orders, ...ordersResponse.data.listMOrders.items]
+    nextToken = ordersResponse.data.listMOrders.nextToken
+
+    if (nextToken == null) break
+  }
 
   const queryLowered = q.toLowerCase()
 
-  const filteredData = response.data.listMOrders.items.filter(order => {
+  const filteredData = orders.filter(order => {
     if (dates.length) {
       const [start, end] = dates
       const filtered = []

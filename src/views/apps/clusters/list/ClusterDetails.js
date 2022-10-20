@@ -31,6 +31,8 @@ const ScrollWrapper = ({ children }) => {
 
 const ClusterDetails = props => {
   const [clusterName, setClusterName] = useState('')
+  const [clusterMinBags, setClusterMinBags] = useState(0)
+  const [clusterMaxBags, setClusterMaxBags] = useState(0)
 
   // ** Props
   const { store, dispatch, open, handleClose } = props
@@ -38,7 +40,14 @@ const ClusterDetails = props => {
   const handleSaveCluster = () => {
     if (clusterName.length > 0) {
       dispatch(handleSavingClusters(true))
-      dispatch(saveCluster({ name: clusterName, callback: onSaveCallback }))
+      dispatch(
+        saveCluster({
+          name: clusterName,
+          min: clusterMinBags > 0 ? clusterMinBags : 0,
+          max: clusterMaxBags > 0 ? clusterMaxBags : 0,
+          callback: onSaveCallback
+        })
+      )
     } else {
       alert('Empty cluster name')
     }
@@ -47,6 +56,11 @@ const ClusterDetails = props => {
   const handleEditCluster = () => {
     setClusterName(store.selectedClusters[0].name)
     dispatch(editCluster(store.selectedClusters[0]))
+  }
+
+  const handleSetParameters = (min, max) => {
+    setClusterMinBags(min)
+    setClusterMaxBags(max)
   }
 
   const onSaveCallback = () => {
@@ -138,7 +152,12 @@ const ClusterDetails = props => {
               <Divider sx={{ m: 0 }} />
               {store.saving && <LinearProgress sx={{ height: '2px' }} />}
               <Box sx={{ pl: 5, pt: 5 }}>
-                <ClustersTabs store={store} dispatch={dispatch}></ClustersTabs>
+                <ClustersTabs
+                  store={store}
+                  dispatch={dispatch}
+                  editing={store.selectedClusters[0].editing}
+                  handleSetParameters={handleSetParameters}
+                ></ClustersTabs>
               </Box>
             </ScrollWrapper>
           </Box>

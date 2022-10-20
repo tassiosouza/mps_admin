@@ -58,7 +58,7 @@ const DashboardCard = props => {
               </Box>
               <Box sx={{ justifyContent: 'center', textAlign: 'center', pr: 1 }}>
                 <NewspaperMinus sx={{ fontSize: 22 }} />
-                <Typography component='div'>Subscriptions Left</Typography>
+                <Typography component='div'>Total Subscriptions</Typography>
                 <Typography sx={{ color: '#51AB3B' }} display='inline'>
                   {subscriptionsLeft}
                 </Typography>

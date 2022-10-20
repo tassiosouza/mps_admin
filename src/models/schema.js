@@ -704,15 +704,15 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "minBag": {
-                    "name": "minBag",
+                "minBags": {
+                    "name": "minBags",
                     "isArray": false,
                     "type": "Int",
                     "isRequired": false,
                     "attributes": []
                 },
-                "maxBag": {
-                    "name": "maxBag",
+                "maxBags": {
+                    "name": "maxBags",
                     "isArray": false,
                     "type": "Int",
                     "isRequired": false,
@@ -892,5 +892,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "4144e4e74dc98f4042c9c67b870e22d6"
+    "version": "2017169fa464b888aa7ae382e84daf1a"
 };
