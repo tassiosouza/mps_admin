@@ -1,14 +1,14 @@
 {
-  "dev": {
+  "staging": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-mpsdriverapp-dev-50943-authRole",
-      "UnauthRoleArn": "arn:aws:iam::846348182673:role/amplify-mpsdriverapp-dev-50943-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::846348182673:role/amplify-mpsdriverapp-dev-50943-authRole",
+      "AuthRoleName": "amplify-mpsdriverapp-staging-191331-authRole",
+      "UnauthRoleArn": "arn:aws:iam::846348182673:role/amplify-mpsdriverapp-staging-191331-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::846348182673:role/amplify-mpsdriverapp-staging-191331-authRole",
       "Region": "us-west-1",
-      "DeploymentBucketName": "amplify-mpsdriverapp-dev-50943-deployment",
-      "UnauthRoleName": "amplify-mpsdriverapp-dev-50943-unauthRole",
-      "StackName": "amplify-mpsdriverapp-dev-50943",
-      "StackId": "arn:aws:cloudformation:us-west-1:846348182673:stack/amplify-mpsdriverapp-dev-50943/54f36980-08b3-11ed-bcbf-06d9d8fb9077",
+      "DeploymentBucketName": "amplify-mpsdriverapp-staging-191331-deployment",
+      "UnauthRoleName": "amplify-mpsdriverapp-staging-191331-unauthRole",
+      "StackName": "amplify-mpsdriverapp-staging-191331",
+      "StackId": "arn:aws:cloudformation:us-west-1:846348182673:stack/amplify-mpsdriverapp-staging-191331/aa9d4720-2c85-11ed-86c6-020e3677e211",
       "AmplifyAppId": "d3jufuth0hvsum"
     },
     "categories": {
