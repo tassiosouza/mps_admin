@@ -266,6 +266,7 @@ export const appClusterSlice = createSlice({
       state.clusters = action.payload.clusters.map(cl => {
         return { ...cl, hover: false, path: JSON.parse(cl.path) }
       })
+      state.clusters = state.clusters.sort((a, b) => (a.name > b.name ? 1 : -1))
       state.subscriptions = action.payload.subscriptions
       state.loading = false
     }),
@@ -274,6 +275,7 @@ export const appClusterSlice = createSlice({
         state.clusters = action.payload.clusters.map(cl => {
           return { ...cl, hover: false, path: JSON.parse(cl.path) }
         })
+        state.clusters = state.clusters.sort((a, b) => (a.name > b.name ? 1 : -1))
         state.subscriptions = action.payload.subscriptions
         state.editingCluster = null
         state.saving = false
@@ -308,6 +310,7 @@ export const appClusterSlice = createSlice({
         state.clusters = action.payload.clusters.map(cl => {
           return { ...cl, hover: false, path: JSON.parse(cl.path) }
         })
+        state.clusters = state.clusters.sort((a, b) => (a.name > b.name ? 1 : -1))
         state.subscriptions = action.payload.subscriptions
 
         // ** Call delete callback
@@ -318,6 +321,7 @@ export const appClusterSlice = createSlice({
         state.clusters = action.payload.clusters.map(cl => {
           return { ...cl, hover: false, path: JSON.parse(cl.path) }
         })
+        state.clusters = state.clusters.sort((a, b) => (a.name > b.name ? 1 : -1))
         state.subscriptions = action.payload.subscriptions
 
         // ** Call delete callback

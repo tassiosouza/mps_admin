@@ -168,7 +168,7 @@ export const appRoutesSlice = createSlice({
       state.loadingRoutes = false
     })
     builder.addCase(fetchClusters.fulfilled, (state, action) => {
-      state.clusters = action.payload.clusters
+      state.clusters = action.payload.clusters.sort((a, b) => (a.name > b.name ? 1 : -1))
       state.subscriptions = action.payload.subscriptions
     })
     builder.addCase(fetchDrivers.fulfilled, (state, action) => {

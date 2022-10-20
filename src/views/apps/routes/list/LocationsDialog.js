@@ -29,6 +29,7 @@ import TimelineMinus from 'mdi-material-ui/TimelineMinus'
 // ** Custom Components Imports
 import LocationsTableHeader from './LocationsTableHeader'
 import { isEmpty } from '@aws-amplify/core'
+import Countdown from 'react-countdown'
 
 const Status = {
   INITIAL: 'initial',
@@ -170,6 +171,17 @@ const LocationsDialog = props => {
   }
 
   const LoadingAndDone = () => {
+    var expectedWaitTime = 0
+    var totalDeliveries = 0
+    selectedClusters.map(cl => {
+      if (cl.subscriptionsCount > 150) {
+        expectedWaitTime += 280000
+      } else {
+        expectedWaitTime += 3000 + cl.subscriptionsCount * 25
+      }
+      totalDeliveries += cl.subscriptionsCount
+    })
+
     return status == Status.LOADING ? (
       <Grid container spacing={3} direction='column'>
         <Grid item xs={3}>
@@ -177,12 +189,12 @@ const LocationsDialog = props => {
             Generating optimized routes for
             <Box fontWeight='600' display='inline'>
               {' '}
-              {getDeliveriesCount()} Deliveries{' '}
+              {selectedClusters.length} Clusters{' '}
             </Box>
             and
             <Box fontWeight='600' display='inline'>
               {' '}
-              {2} Drivers
+              {totalDeliveries} totalDeliveries
             </Box>
           </Typography>
         </Grid>
@@ -191,7 +203,7 @@ const LocationsDialog = props => {
             Expected wait time:
             <Box fontWeight='600' display='inline'>
               {' '}
-              1min{' '}
+              <Countdown sx={{ ml: 10 }} date={Date.now() + expectedWaitTime} />
             </Box>
           </Typography>
         </Grid>
