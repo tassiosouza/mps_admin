@@ -371,7 +371,7 @@ const RoutesList = props => {
         verticalAlignment: 'center'
       })
       generalSheet.column('B').width(getFixedWidth(150))
-      generalSheet.cell('C1').value('Neighborhood').style({
+      generalSheet.cell('C1').value('Location').style({
         fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
@@ -471,7 +471,7 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('C' + (i + 2))
-          .value(reversedRoute[i].neighborhood)
+          .value(reversedRoute[i].location)
           .style({
             fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
