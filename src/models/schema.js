@@ -75,8 +75,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "neighborhood": {
-                    "name": "neighborhood",
+                "location": {
+                    "name": "location",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -920,5 +920,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "a269c7302bc691beb0601a8c5b6406b1"
+    "version": "534b7202618c0935f1bd4cb891e0c239"
 };

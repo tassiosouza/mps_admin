@@ -14,7 +14,7 @@ export const getMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
-      neighborhood
+      location
       routePlanName
       routeDate
       points
@@ -41,7 +41,7 @@ export const listMRoutes = /* GraphQL */ `
         distance
         duration
         clusterId
-        neighborhood
+        location
         routePlanName
         routeDate
         points

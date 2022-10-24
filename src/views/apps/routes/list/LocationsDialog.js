@@ -194,7 +194,7 @@ const LocationsDialog = props => {
             and
             <Box fontWeight='600' display='inline'>
               {' '}
-              {totalDeliveries} totalDeliveries
+              {totalDeliveries} Deliveries
             </Box>
           </Typography>
         </Grid>

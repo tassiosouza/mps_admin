@@ -230,9 +230,12 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback, cluster
   if (oldSubscriptions.length > -1) {
     for (var i = 0; i < toInclude.length; i++) {
       if (errorMessage != '') break
+
+      const requestAddress = toInclude[i].address.toLowerCase().replaceAll(' unit ', '')
+
       const urlRequest =
         'https://maps.googleapis.com/maps/api/geocode/json?address=' +
-        toInclude[i].address +
+        requestAddress +
         '&key=AIzaSyBtiYdIofNKeq0cN4gRG7L1ngEgkjDQ0Lo'
       await axios
         .get(urlRequest.replaceAll('#', 'n'))
@@ -242,7 +245,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback, cluster
             const neighborhood = response.data.results[0].address_components.filter(ac =>
               ac.types.includes('neighborhood')
             )
-            toInclude[i].address = response.data.results[0].formatted_address
+            // toInclude[i].address = response.data.results[0].formatted_address
             toInclude[i].latitude = response.data.results[0].geometry.location.lat
             toInclude[i].longitude = response.data.results[0].geometry.location.lng
 

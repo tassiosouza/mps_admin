@@ -423,21 +423,23 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
       polyline.push(...route.points[i].coordinates)
     }
 
+    var result_location = _.head(_(routeOrders).countBy('location').entries().maxBy(_.last))
+
     var result_neighborhood = _.head(
       _(routeOrders.filter(order => order.neighborhood != null))
         .countBy('neighborhood')
         .entries()
         .maxBy(_.last)
     )
-    var result_location = _.head(_(routeOrders).countBy('location').entries().maxBy(_.last))
+    result_neighborhood = result_neighborhood ? result_neighborhood : result_location
 
     // result_location = result_neighborhood ? result_neighborhood : result_location
 
-    if (routesNames.includes(result_location)) {
-      result_location = result_location + ' (' + routeOrders.length + ')'
+    if (routesNames.includes(result_neighborhood)) {
+      result_neighborhood = result_neighborhood + ' (' + routeOrders.length + ')'
     }
 
-    routesNames.push(result_location)
+    routesNames.push(result_neighborhood)
 
     routes.push({
       id: routeID,
@@ -450,8 +452,8 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
       duration: route.completion_time,
       clusterId: clusterId,
       routePlanName: '',
-      neighborhood: result_neighborhood,
-      name: result_location,
+      location: result_location,
+      name: result_neighborhood,
       routeDate: parseFloat(Date.now()),
       points: JSON.stringify(polyline)
     })

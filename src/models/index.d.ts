@@ -75,7 +75,7 @@ export declare class MRoute {
   readonly distance?: number | null;
   readonly duration?: number | null;
   readonly clusterId?: string | null;
-  readonly neighborhood?: string | null;
+  readonly location?: string | null;
   readonly routePlanName?: string | null;
   readonly routeDate?: number | null;
   readonly points?: string | null;

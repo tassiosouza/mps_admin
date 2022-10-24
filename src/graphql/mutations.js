@@ -17,7 +17,7 @@ export const createMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
-      neighborhood
+      location
       routePlanName
       routeDate
       points
@@ -42,7 +42,7 @@ export const updateMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
-      neighborhood
+      location
       routePlanName
       routeDate
       points
@@ -67,7 +67,7 @@ export const deleteMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
-      neighborhood
+      location
       routePlanName
       routeDate
       points
