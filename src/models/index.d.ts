@@ -75,6 +75,7 @@ export declare class MRoute {
   readonly distance?: number | null;
   readonly duration?: number | null;
   readonly clusterId?: string | null;
+  readonly neighborhood?: string | null;
   readonly routePlanName?: string | null;
   readonly routeDate?: number | null;
   readonly points?: string | null;
@@ -98,9 +99,11 @@ export declare class MOrder {
   readonly longitude?: number | null;
   readonly orderDate?: number | null;
   readonly phone?: string | null;
+  readonly restrictions?: string | null;
   readonly location?: string | null;
   readonly neighborhood?: string | null;
   readonly clusterId?: string | null;
+  readonly freezerOrder?: number | null;
   readonly sort?: number | null;
   readonly avatar?: string | null;
   readonly subscriptionID?: string | null;
@@ -123,6 +126,7 @@ export declare class MpsSubscription {
   readonly name?: string | null;
   readonly email?: string | null;
   readonly phone?: string | null;
+  readonly restrictions?: string | null;
   readonly latitude?: number | null;
   readonly longitude?: number | null;
   readonly neighborhood?: string | null;

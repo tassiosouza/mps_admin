@@ -413,6 +413,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
         orders[i].assignedRouteID = routeID // ** Assing the order route id
         orders[i].eta = found.arr_time // ** Assing the order ETA
         orders[i].clusterId = clusterId
+        orders[i].freezerOrder = -1
         routeOrders.push(orders[i])
       }
     }
@@ -449,6 +450,7 @@ const getRoutesFromResponse = (response, orders, avaiableID, clusterId) => {
       duration: route.completion_time,
       clusterId: clusterId,
       routePlanName: '',
+      neighborhood: result_neighborhood,
       name: result_location,
       routeDate: parseFloat(Date.now()),
       points: JSON.stringify(polyline)
@@ -638,6 +640,7 @@ const generateOrders = async (subscriptions, avaiableID) => {
       address: sub.address,
       latitude: sub.latitude,
       longitude: sub.longitude,
+      restrictions: sub.restrictions,
       orderDate: parseFloat(Date.now()),
       phone: sub.phone,
       location: sub.location,

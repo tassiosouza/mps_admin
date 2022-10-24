@@ -173,6 +173,7 @@ const syncSubscriptions = async (parsedData, oldSubscriptions, callback, cluster
       phone: parsedData[i].phone,
       name: parsedData[i].name,
       mealPlan: parsedData[i].meal_plan,
+      restrictions: parsedData[i].restrictions,
       latitude: 0,
       avatar: '',
       status: SubscriptionStatus.ACTIVED,

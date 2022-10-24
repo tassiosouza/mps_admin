@@ -14,6 +14,7 @@ export const getMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
+      neighborhood
       routePlanName
       routeDate
       points
@@ -40,6 +41,7 @@ export const listMRoutes = /* GraphQL */ `
         distance
         duration
         clusterId
+        neighborhood
         routePlanName
         routeDate
         points
@@ -66,9 +68,11 @@ export const getMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      restrictions
       location
       neighborhood
       clusterId
+      freezerOrder
       sort
       avatar
       subscriptionID
@@ -100,9 +104,11 @@ export const listMOrders = /* GraphQL */ `
         longitude
         orderDate
         phone
+        restrictions
         location
         neighborhood
         clusterId
+        freezerOrder
         sort
         avatar
         subscriptionID
@@ -128,6 +134,7 @@ export const getMpsSubscription = /* GraphQL */ `
       name
       email
       phone
+      restrictions
       latitude
       longitude
       neighborhood
@@ -163,6 +170,7 @@ export const listMpsSubscriptions = /* GraphQL */ `
         name
         email
         phone
+        restrictions
         latitude
         longitude
         neighborhood

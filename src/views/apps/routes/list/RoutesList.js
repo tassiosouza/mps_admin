@@ -325,6 +325,26 @@ const RoutesList = props => {
     return (width * 21) / 126
   }
 
+  const useRegex = input => {
+    let regex = /[0-9]+x/i
+    return regex.test(input)
+  }
+
+  const sortOrdersForFreeze = orders => {
+    var ordersToSort = [...orders]
+    var result = []
+    for (var i = 0; i < ordersToSort.length; i++) {
+      // if (!useRegex(ordersToSort[i].mealPlan)) {
+      result.push({
+        ...ordersToSort[i],
+        mealCount: parseInt(ordersToSort[i].mealPlan.substring(0, ordersToSort[i].mealPlan.indexOf(' ')))
+      })
+      // }
+    }
+
+    return result.sort((a, b) => a.mealCount - b.mealCount).sort((a, b) => useRegex(a.mealPlan) - useRegex(b.mealPlan))
+  }
+
   async function saveAsExcel(routes) {
     XlsxPopulate.fromBlankAsync().then(async workbook => {
       // ** Create General Sheet
@@ -351,7 +371,7 @@ const RoutesList = props => {
         verticalAlignment: 'center'
       })
       generalSheet.column('B').width(getFixedWidth(150))
-      generalSheet.cell('C1').value('Driver').style({
+      generalSheet.cell('C1').value('Neighborhood').style({
         fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
@@ -362,7 +382,7 @@ const RoutesList = props => {
         verticalAlignment: 'center'
       })
       generalSheet.column('C').width(getFixedWidth(150))
-      generalSheet.cell('D1').value('Cluster').style({
+      generalSheet.cell('D1').value('Driver').style({
         fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
@@ -372,8 +392,8 @@ const RoutesList = props => {
         horizontalAlignment: 'center',
         verticalAlignment: 'center'
       })
-      generalSheet.column('D').width(getFixedWidth(220))
-      generalSheet.cell('E1').value('Order').style({
+      generalSheet.column('D').width(getFixedWidth(150))
+      generalSheet.cell('E1').value('Cluster').style({
         fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
@@ -383,8 +403,8 @@ const RoutesList = props => {
         horizontalAlignment: 'center',
         verticalAlignment: 'center'
       })
-      generalSheet.column('E').width(getFixedWidth(60))
-      generalSheet.cell('F1').value('Duration').style({
+      generalSheet.column('E').width(getFixedWidth(370))
+      generalSheet.cell('F1').value('Bags').style({
         fill: '76b5c5',
         border: true,
         borderColor: 'bfbfbf',
@@ -395,6 +415,28 @@ const RoutesList = props => {
         verticalAlignment: 'center'
       })
       generalSheet.column('F').width(getFixedWidth(60))
+      generalSheet.cell('G1').value('Deliveries').style({
+        fill: '76b5c5',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('G').width(getFixedWidth(70))
+      generalSheet.cell('H1').value('Duration').style({
+        fill: '76b5c5',
+        border: true,
+        borderColor: 'bfbfbf',
+        fontSize: 13,
+        fontFamily: 'Times New Roman',
+        bold: true,
+        horizontalAlignment: 'center',
+        verticalAlignment: 'center'
+      })
+      generalSheet.column('H').width(getFixedWidth(60))
       generalSheet.row(1).height(24)
 
       const reversedRoute = routes.slice().reverse()
@@ -429,7 +471,7 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('C' + (i + 2))
-          .value(getDriverName(reversedRoute[i].id))
+          .value(reversedRoute[i].neighborhood)
           .style({
             fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
@@ -442,7 +484,7 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('D' + (i + 2))
-          .value(getClusterName(reversedRoute[i].clusterId))
+          .value(getDriverName(reversedRoute[i].id))
           .style({
             fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
@@ -455,7 +497,7 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('E' + (i + 2))
-          .value(getRouteOrders(reversedRoute[i].id).length)
+          .value(getClusterName(reversedRoute[i].clusterId))
           .style({
             fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
             border: true,
@@ -468,6 +510,34 @@ const RoutesList = props => {
           })
         generalSheet
           .cell('F' + (i + 2))
+          .value(getRouteOrders(reversedRoute[i].id).length)
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        const routeOrders = getRouteOrders(reversedRoute[i].id)
+        const unique = [...new Set(routeOrders.map(order => order.address))] // [ 'A', 'B']
+        generalSheet
+          .cell('G' + (i + 2))
+          .value(unique.length)
+          .style({
+            fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
+            border: true,
+            borderColor: 'bfbfbf',
+            fontSize: 13,
+            fontFamily: 'Times New Roman',
+            bold: true,
+            horizontalAlignment: 'center',
+            verticalAlignment: 'center'
+          })
+        generalSheet
+          .cell('H' + (i + 2))
           .value(secondsToHms(reversedRoute[i].duration))
           .style({
             fill: i % 2 == 0 ? 'ffffff' : 'eeeee4',
@@ -486,7 +556,8 @@ const RoutesList = props => {
         // ** Populate Routes Sheets
         const sheet = workbook.addSheet(routes[i].id)
         const routeOrders = getRouteOrders(routes[i].id)
-        routeOrders.sort((a, b) => a.sort - b.sort)
+        routeOrders = sortOrdersForFreeze(routeOrders)
+        routeOrders.sort((a, b) => a.freezerOrder - b.freezerOrder)
         const routeDriverName = getDriverName(routes[i].driverID)
 
         var date = new Date(routes[i].routeDate)
@@ -646,7 +717,7 @@ const RoutesList = props => {
             })
 
             sheet.cell('C' + currentRow).value(' ' + order.mealPlan + '\r\n')
-            sheet.cell('D' + currentRow).value(' ' + order.mealPlan + '\r\n')
+            sheet.cell('D' + currentRow).value(' ' + order.restrictions + '\r\n')
           } else {
             sheet.cell('C' + currentRow).style({
               fill: 'ececec',
@@ -670,7 +741,7 @@ const RoutesList = props => {
             })
 
             sheet.cell('C' + currentRow).value('\r\n' + order.mealPlan + '\r\n')
-            sheet.cell('D' + currentRow).value('\r\n' + order.mealPlan + '\r\n')
+            sheet.cell('D' + currentRow).value('\r\n' + order.restrictions + '\r\n')
           }
 
           if (order.deliveryInstruction.length < 10 && order.mealPlan.length < 10) sheet.row(currentRow).height(24)

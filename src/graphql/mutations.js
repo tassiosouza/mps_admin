@@ -17,6 +17,7 @@ export const createMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
+      neighborhood
       routePlanName
       routeDate
       points
@@ -41,6 +42,7 @@ export const updateMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
+      neighborhood
       routePlanName
       routeDate
       points
@@ -65,6 +67,7 @@ export const deleteMRoute = /* GraphQL */ `
       distance
       duration
       clusterId
+      neighborhood
       routePlanName
       routeDate
       points
@@ -92,9 +95,11 @@ export const createMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      restrictions
       location
       neighborhood
       clusterId
+      freezerOrder
       sort
       avatar
       subscriptionID
@@ -124,9 +129,11 @@ export const updateMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      restrictions
       location
       neighborhood
       clusterId
+      freezerOrder
       sort
       avatar
       subscriptionID
@@ -156,9 +163,11 @@ export const deleteMOrder = /* GraphQL */ `
       longitude
       orderDate
       phone
+      restrictions
       location
       neighborhood
       clusterId
+      freezerOrder
       sort
       avatar
       subscriptionID
@@ -185,6 +194,7 @@ export const createMpsSubscription = /* GraphQL */ `
       name
       email
       phone
+      restrictions
       latitude
       longitude
       neighborhood
@@ -214,6 +224,7 @@ export const updateMpsSubscription = /* GraphQL */ `
       name
       email
       phone
+      restrictions
       latitude
       longitude
       neighborhood
@@ -243,6 +254,7 @@ export const deleteMpsSubscription = /* GraphQL */ `
       name
       email
       phone
+      restrictions
       latitude
       longitude
       neighborhood

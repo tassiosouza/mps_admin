@@ -75,6 +75,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "neighborhood": {
+                    "name": "neighborhood",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "routePlanName": {
                     "name": "routePlanName",
                     "isArray": false,
@@ -234,6 +241,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "restrictions": {
+                    "name": "restrictions",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "location": {
                     "name": "location",
                     "isArray": false,
@@ -252,6 +266,13 @@ export const schema = {
                     "name": "clusterId",
                     "isArray": false,
                     "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "freezerOrder": {
+                    "name": "freezerOrder",
+                    "isArray": false,
+                    "type": "Int",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -402,6 +423,13 @@ export const schema = {
                 },
                 "phone": {
                     "name": "phone",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "restrictions": {
+                    "name": "restrictions",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -892,5 +920,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "2017169fa464b888aa7ae382e84daf1a"
+    "version": "a269c7302bc691beb0601a8c5b6406b1"
 };

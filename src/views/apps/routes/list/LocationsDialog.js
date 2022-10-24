@@ -175,9 +175,9 @@ const LocationsDialog = props => {
     var totalDeliveries = 0
     selectedClusters.map(cl => {
       if (cl.subscriptionsCount > 150) {
-        expectedWaitTime += 280000
+        expectedWaitTime += 320000
       } else {
-        expectedWaitTime += 3000 + cl.subscriptionsCount * 25
+        expectedWaitTime += 4500 + cl.subscriptionsCount * 25
       }
       totalDeliveries += cl.subscriptionsCount
     })
